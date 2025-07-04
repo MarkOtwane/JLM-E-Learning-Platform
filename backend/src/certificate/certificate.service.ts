@@ -3,10 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { generateCertificate } from './utils/generate-certificate.util';
 import { Response } from 'express';
+import { PrismaService } from '../prisma/prisma.service';
 import { RequestCertificateDto } from './dto/request-certificate.dto';
+import { generateCertificate } from './utils/generate-certificate.util';
 
 @Injectable()
 export class CertificatesService {
@@ -33,6 +33,7 @@ export class CertificatesService {
     const enrollment = await this.prisma.enrollment.findUnique({
       where: {
         studentId_courseId: {
+          //this field is not their in the database
           studentId,
           courseId,
         },

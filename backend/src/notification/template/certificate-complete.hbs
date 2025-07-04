@@ -1,0 +1,44 @@
+
+<html>
+  <head>
+    <meta charset='UTF-8' />
+    <title>Your Certificate is Ready</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        padding: 20px;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #4caf50;
+      }
+      a {
+        color: #4caf50;
+        text-decoration: none;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <h2>Well done, {{name}}! 🎓</h2>
+      <p>You’ve successfully completed <strong>{{courseTitle}}</strong>.</p>
+      <p>Your certificate is now available to download.</p>
+      <p>
+        <a href='{{certificateUrl}}' target='_blank'>
+          👉 Click here to view/download your certificate
+        </a>
+      </p>
+      <p>Keep learning and growing with JLM E-Learning!</p>
+      <p>— The JLM Team</p>
+    </div>
+  </body>
+</html>

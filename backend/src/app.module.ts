@@ -1,21 +1,20 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { PaymentModule } from './payment/payment.module';
-import { CertificateModule } from './certificate/certificate.module';
-import { QuizzesModule } from './quizzes/quizzes.module';
-import { ProgressModule } from './progress/progress.module';
-import { StudentModule } from './student/student.module';
+import { CertificatesModule } from './certificate/certificate.module';
 import { ContentModule } from './content/content.module';
 import { CoursesModule } from './courses/courses.module';
-import { CourseModule } from './course/course.module';
-import { UserModule } from './user/user.module';
-import { CourseModule } from './course/course.module';
-import { EnrollmentModule } from './enrollment/enrollment.module';
-import { AuthModule } from './auth/auth.module';
+import { InstructorsModule } from './instructor/instructor.module';
+import { NotificationsModule } from './notification/notification.module';
+import { PaymentsModule } from './payment/payment.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { ProgressModule } from './progress/progress.module';
+import { QuizzesModule } from './quizzes/quizzes.module';
+import { StudentsModule } from './student/student.module';
+import { UsersModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,16 +23,18 @@ import { AuthModule } from './auth/auth.module';
     }),
     PrismaModule,
     AuthModule,
-    CourseModule,
-    EnrollmentModule,
-    UserModule,
+    CoursesModule,
+    UsersModule,
     CoursesModule,
     ContentModule,
-    StudentModule,
+    StudentsModule,
     ProgressModule,
     QuizzesModule,
-    CertificateModule,
-    PaymentModule,
+    CertificatesModule,
+    PaymentsModule,
+    InstructorsModule,
+    AdminModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

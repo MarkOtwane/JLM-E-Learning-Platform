@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import {
   BadRequestException,
@@ -12,11 +10,11 @@ import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { MailerService } from '../mailer/mailer.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
-import { ForgotPasswordDto, ResetPasswordDto } from './dto/reset-password.dto';
 import { RegisterDto } from './dto/regtister.dto';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/reset-password.dto';
+import { MailerService } from '../mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +41,7 @@ export class AuthService {
       },
     });
 
-    await this.mailerService.sendVerificationEmail(user.email, user.name);
+    await this.mailerService.sendMail(user.isApproved);
 
     return { message: 'Registration successful. Please check your email.' };
   }

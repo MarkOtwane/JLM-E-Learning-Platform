@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <meta charset='UTF-8' />
+    <title>Your Quiz Results</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        padding: 20px;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #2196f3;
+      }
+      p {
+        line-height: 1.6;
+      }
+      .score {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #4caf50;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <h2>Hello, {{name}} 👋</h2>
+      <p>You recently completed the quiz for
+        <strong>{{courseTitle}}</strong>.</p>
+      <p>Your score: <span class='score'>{{score}}%</span></p>
+      <p>{{#if passed}}
+          🎉 Congratulations on passing the quiz!
+        {{else}}
+          🧐 Don’t worry — review the materials and try again soon.
+        {{/if}}</p>
+      <p>Keep up the great work!</p>
+      <p>— The JLM Team</p>
+    </div>
+  </body>
+</html>
