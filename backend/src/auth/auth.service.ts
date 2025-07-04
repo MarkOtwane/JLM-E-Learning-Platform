@@ -1,200 +1,116 @@
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import {
-  ConflictException,
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Role } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
+import { MailerService } from '../mailer/mailer.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuthResponseDto } from './dto/auth-response.dto';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/reset-password.dto';
+import { RegisterDto } from './dto/regtister.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const { email, password, firstName, lastName, role } = registerDto;
-
-    // Check if user already exists
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email },
+  async register(dto: RegisterDto) {
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email },
     });
+    if (existing) throw new BadRequestException('Email already in use');
 
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists');
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
+    const hashed = await bcrypt.hash(dto.password, 10);
     const user = await this.prisma.user.create({
       data: {
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        role: role || Role.STUDENT,
-      },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        isEmailVerified: true,
+        name: dto.name,
+        email: dto.email,
+        password: hashed,
+        role: dto.role,
+        isApproved: dto.role === UserRole.STUDENT, // instructors must be approved
       },
     });
 
-    // Create instructor profile if role is INSTRUCTOR
-    if (role === Role.INSTRUCTOR) {
-      await this.prisma.instructorProfile.create({
-        data: {
-          userId: user.id,
-          expertise: [],
-        },
-      });
+    await this.mailerService.sendVerificationEmail(user.email, user.name);
+
+    return { message: 'Registration successful. Please check your email.' };
+  }
+
+  async login(dto: LoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+
+    const passwordValid = await bcrypt.compare(dto.password, user.password);
+    if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
+
+    if (!user.isApproved && user.role === UserRole.INSTRUCTOR) {
+      throw new UnauthorizedException('Instructor account not approved yet');
     }
 
-    // Generate JWT token
-    const token = await this.generateToken(user.id, user.email, user.role);
-
+    const token = await this.jwtService.signAsync({
+      sub: user.id,
+      role: user.role,
+    });
     return {
-      access_token: token,
-      user,
+      accessToken: token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture,
+      },
     };
   }
 
-  async login(loginDto: LoginDto): Promise<AuthResponseDto> {
-    const { email, password } = loginDto;
-
-    // Find user
+  async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        password: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        isEmailVerified: true,
+      where: { email: dto.email },
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    const token = uuidv4();
+    await this.prisma.passwordReset.create({
+      data: {
+        userId: user.id,
+        token,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 15), // 15 minutes
       },
     });
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // Generate JWT token
-    const token = await this.generateToken(user.id, user.email, user.role);
-
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
-
-    return {
-      access_token: token,
-      user: userWithoutPassword,
-    };
+    await this.mailerService.sendPasswordResetEmail(user.email, token);
+    return { message: 'Password reset link sent to your email.' };
   }
 
-  async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
+  async resetPassword(dto: ResetPasswordDto) {
+    const record = await this.prisma.passwordReset.findUnique({
+      where: { token: dto.token },
     });
-
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const { password: _, ...result } = user;
-      return result;
+    if (!record || record.expiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired token');
     }
-    return null;
-  }
 
-  async getUserById(id: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        isEmailVerified: true,
-        profileImage: true,
-        bio: true,
-        createdAt: true,
-        instructorProfile: {
-          select: {
-            expertise: true,
-            experience: true,
-            website: true,
-            socialLinks: true,
-          },
-        },
-      },
+    const hashed = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: record.userId },
+      data: { password: hashed },
     });
+    await this.prisma.passwordReset.delete({ where: { token: dto.token } });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return user;
-  }
-
-  private async generateToken(
-    userId: string,
-    email: string,
-    role: Role,
-  ): Promise<string> {
-    const payload = {
-      sub: userId,
-      email,
-      role,
-    };
-
-    return this.jwtService.sign(payload);
-  }
-
-  // Email verification methods (for future implementation)
-  async verifyEmail(token: string): Promise<{ message: string }> {
-    // TODO: Implement email verification logic
-    return { message: 'Email verification not implemented yet' };
-  }
-
-  async forgotPassword(email: string): Promise<{ message: string }> {
-    // TODO: Implement forgot password logic
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    // TODO: Send reset password email
-    return { message: 'Password reset email sent (not implemented yet)' };
-  }
-
-  async resetPassword(
-    token: string,
-    newPassword: string,
-  ): Promise<{ message: string }> {
-    // TODO: Implement reset password logic
-    return { message: 'Password reset not implemented yet' };
+    return { message: 'Password successfully reset' };
   }
 }
