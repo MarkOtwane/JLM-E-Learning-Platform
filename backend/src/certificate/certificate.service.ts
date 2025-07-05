@@ -60,6 +60,54 @@ export class CertificatesService {
     });
     if (!student) throw new NotFoundException('Student not found');
 
-    return generateCertificate(res, student.name, course.title, new Date());
+    // Check if certificate already exists
+    const existingCertificate = await this.prisma.certificate.findFirst({
+      where: {
+        userId: studentId,
+        courseId,
+      },
+    });
+
+    if (existingCertificate) {
+      // If certificate exists, generate and return it
+      return generateCertificate(
+        res,
+        student.name,
+        course.title,
+        existingCertificate.issuedAt,
+      );
+    }
+
+    // Create certificate record in database
+    const certificate = await this.prisma.certificate.create({
+      data: {
+        userId: studentId,
+        courseId,
+        certificateUrl: `https://certs.example.com/${studentId}-${courseId}.pdf`,
+      },
+    });
+
+    // Generate and return the PDF
+    return generateCertificate(
+      res,
+      student.name,
+      course.title,
+      certificate.issuedAt,
+    );
+  }
+
+  async getStudentCertificates(studentId: string) {
+    return this.prisma.certificate.findMany({
+      where: { userId: studentId },
+      include: {
+        course: {
+          select: {
+            title: true,
+            description: true,
+          },
+        },
+      },
+      orderBy: { issuedAt: 'desc' },
+    });
   }
 }

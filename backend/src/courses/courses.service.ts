@@ -10,6 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { FilterCoursesDto } from './dto/filter-courses.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { CreateModuleDto } from './dto/create-module.dto';
 
 @Injectable()
 export class CoursesService {
@@ -100,6 +101,37 @@ export class CoursesService {
         instructor: {
           select: { id: true, name: true, profilePicture: true },
         },
+      },
+    });
+  }
+
+  async createModule(userId: string, courseId: string, dto: CreateModuleDto) {
+    // Check if course exists and user is the instructor
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+    });
+    
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+    
+    if (course.instructorId !== userId) {
+      throw new ForbiddenException('Access denied: You can only add modules to your own courses');
+    }
+
+    // Get the next order number for this course
+    const lastModule = await this.prisma.module.findFirst({
+      where: { courseId },
+      orderBy: { order: 'desc' },
+    });
+
+    const nextOrder = lastModule ? lastModule.order + 1 : 1;
+
+    return this.prisma.module.create({
+      data: {
+        ...dto,
+        courseId,
+        order: nextOrder,
       },
     });
   }

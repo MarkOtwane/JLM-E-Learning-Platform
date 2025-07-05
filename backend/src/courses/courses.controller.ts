@@ -19,6 +19,7 @@ import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { FilterCoursesDto } from './dto/filter-courses.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { CreateModuleDto } from './dto/create-module.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('courses')
@@ -65,5 +66,15 @@ export class CoursesController {
     @User('id') userId: string,
   ) {
     return this.coursesService.listCourses(filters, role, userId);
+  }
+
+  @Post(':courseId/modules')
+  @Roles(UserRole.INSTRUCTOR)
+  async createModule(
+    @User('id') userId: string,
+    @Param('courseId') courseId: string,
+    @Body() dto: CreateModuleDto,
+  ) {
+    return this.coursesService.createModule(userId, courseId, dto);
   }
 }

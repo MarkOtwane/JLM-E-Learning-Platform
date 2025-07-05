@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards, Get } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { Response } from 'express';
 import { Roles, User } from '../auth/decorators';
@@ -20,5 +20,11 @@ export class CertificatesController {
     @Res() res: Response,
   ) {
     return this.certificatesService.issueCertificate(studentId, dto, res);
+  }
+
+  @Get()
+  @Roles(UserRole.STUDENT)
+  async getMyCertificates(@User('id') studentId: string) {
+    return this.certificatesService.getStudentCertificates(studentId);
   }
 }

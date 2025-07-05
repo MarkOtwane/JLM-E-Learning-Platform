@@ -2,14 +2,21 @@
 # Run with REST Client extension in VS Code
 
 # Environment variables - replace with actual values after running the requests
-@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdHpzbXAwMDAxOGE4YjRxbzBudWN0Iiwicm9sZSI6IlNUVURFTlQiLCJpYXQiOjE3NTE3MDk1NTcsImV4cCI6MTc1MjMxNDM1N30.GmtpnajjtePeLbojrwOa4LZ1mmI3kfvmkfisanjDdYY
-@instructor_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdTg3bWQwMDAwOGFpZ3ozdnAzNDZoIiwicm9sZSI6IklOU1RSVUNUT1IiLCJpYXQiOjE3NTE3MDY4NzIsImV4cCI6MTc1MjMxMTY3Mn0.Sn4DgSB7cTVqt06hdbk44vkorc_FcyrGjtYiPeNVSsM
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdHpzbXAwMDAxOGE4YjRxbzBudWN0Iiwicm9sZSI6IlNUVURFTlQiLCJpYXQiOjE3NTE3MTM3MTYsImV4cCI6MTc1MjMxODUxNn0.pJbIXGfFmYN2LV2cAOoOFcjtklD5WpVS1t8h-TnGpoM
+@instructor_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdTg3bWQwMDAwOGFpZ3ozdnAzNDZoIiwicm9sZSI6IklOU1RSVUNUT1IiLCJpYXQiOjE3NTE3MTIzNzUsImV4cCI6MTc1MjMxNzE3NX0.RT-9n63dONaU0senDTYuI7-IvCjMP8x5j4FCAwvI_2k
 @admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdTg3bWQwMDAwOGFpZ3ozdnAzNDZoIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzUxNzA5NTU3LCJleHAiOjE3NTIzMTQzNTd9.0000000000000000000000000000000000000000
-@courseId = your_course_id_here
-@moduleId = your_module_id_here
-@quizId = your_quiz_id_here
-@studentId = your_student_id_here
+
+# IDs from our testing session
+@courseId = cmcq4bo3r00018ab2rngjtbv7
+@premiumCourseId = cmcq51or700018aquggf2mc15
+@moduleId = cmcq4bufc00038ab2rib3i24w
+@contentId = cmcq4egug00058ab28lh94p4t
+@quizId = cmcq4gbo400018ac03ptb6y7v
+@question1Id = cmcq4gbo400028ac0yaofobzq
+@question2Id = cmcq4gbo400038ac07f1ttscr
+@studentId = cmcptzsmp00018a8b4qo0nuct
 @instructorId = cmcpu87md00008aigz3vp346h
+@certificateId = cmcq4wkxk00018agm7hufseft
 
 ### 🔐 AUTH - Register Student
 POST http://localhost:3000/api/auth/register
@@ -17,18 +24,18 @@ Content-Type: application/json
 
 {
   "name": "Jane Doe",
-  "email": "otwanemark004@gmail.com",
+  "email": "otwanemark003@gmail.com",
   "password": "password123",
   "role": "STUDENT"
 }
 
-### 🔐 AUTH - Login
+### 🔐 AUTH - Login Student
 POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
   "email": "otwanemark003@gmail.com",
-  "password": "password123"
+  "password": "newpassword123"
 }
 
 ### 🧑‍🏫 AUTH - Register Instructor
@@ -51,15 +58,45 @@ Content-Type: application/json
   "password": "teachpass"
 }
 
+### 🔐 AUTH - Forgot Password (Public)
+POST http://localhost:3000/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "otwanemark003@gmail.com"
+}
+
+### 🔐 AUTH - Reset Password
+POST http://localhost:3000/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "your_reset_token_here",
+  "newPassword": "newpassword123"
+}
+
+### 👤 USERS - Get My Profile
+GET http://localhost:3000/api/users/me
+Authorization: Bearer {{token}}
+
 ### 👤 USERS - Update Profile
-PATCH http://localhost:3000/api/users/profile
+PATCH http://localhost:3000/api/users/me
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "name": "John Doe"
+  "name": "Jane Smith Doe"
 }
 
+### 🔑 USERS - Update Password
+PATCH http://localhost:3000/api/users/password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "currentPassword": "password123",
+  "newPassword": "newpassword123"
+}
 
 ### 📚 COURSES - Create Course (Instructor)
 POST http://localhost:3000/api/courses
@@ -75,8 +112,30 @@ Content-Type: application/json
   "isPremium": false
 }
 
+### 📚 COURSES - Create Premium Course (Instructor)
+POST http://localhost:3000/api/courses
+Authorization: Bearer {{instructor_token}}
+Content-Type: application/json
+
+{
+  "title": "Advanced Node.js",
+  "description": "Advanced Node.js concepts",
+  "level": "Advanced",
+  "category": "Programming",
+  "duration": 180,
+  "isPremium": true
+}
+
+### 📚 COURSES - List Courses
+GET http://localhost:3000/api/courses
+Authorization: Bearer {{token}}
+
+### 📚 COURSES - Get Course by ID
+GET http://localhost:3000/api/courses/{{courseId}}
+Authorization: Bearer {{token}}
+
 ### 🧩 MODULES - Create Module (inside Course)
-POST http://localhost:3000/courses/{{courseId}}/modules
+POST http://localhost:3000/api/courses/{{courseId}}/modules
 Authorization: Bearer {{instructor_token}}
 Content-Type: application/json
 
@@ -84,16 +143,16 @@ Content-Type: application/json
   "title": "Setup & Environment"
 }
 
-### 🎞️ CONTENT - Upload Video
-POST http://localhost:3000/api/content
+### 🎞️ CONTENT - Upload Video Content
+POST http://localhost:3000/api/content/upload
 Authorization: Bearer {{instructor_token}}
 Content-Type: application/json
 
 {
   "title": "Installing Node.js",
-  "url": "https://video.example.com/node-setup",
   "type": "VIDEO",
-  "moduleId": "{{moduleId}}"
+  "moduleId": "{{moduleId}}",
+  "url": "https://video.example.com/node-setup"
 }
 
 ### 👨‍🎓 STUDENTS - Enroll in Course
@@ -105,68 +164,213 @@ Content-Type: application/json
   "courseId": "{{courseId}}"
 }
 
+### 📊 PROGRESS - Mark Content as Completed
+POST http://localhost:3000/api/progress/mark
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "contentId": "{{contentId}}"
+}
+
+### 📊 PROGRESS - Get Completed Content
+GET http://localhost:3000/api/progress/completed
+Authorization: Bearer {{token}}
+
+### 📊 PROGRESS - Get Module Progress Status
+GET http://localhost:3000/api/progress/status/{{moduleId}}
+Authorization: Bearer {{token}}
+
 ### 🧠 QUIZZES - Create Quiz
 POST http://localhost:3000/api/quizzes
 Authorization: Bearer {{instructor_token}}
 Content-Type: application/json
 
 {
-  "courseId": "{{courseId}}",
-  "title": "Node Intro Quiz"
+  "moduleId": "{{moduleId}}",
+  "questions": [
+    {
+      "question": "What is Node.js?",
+      "options": ["A JavaScript runtime", "A database", "A web browser", "An operating system"],
+      "correctAnswer": "A JavaScript runtime"
+    },
+    {
+      "question": "Which command installs Node.js packages?",
+      "options": ["npm install", "node install", "js install", "package install"],
+      "correctAnswer": "npm install"
+    }
+  ]
 }
 
-### ✅ QUIZ ATTEMPT - Submit Score
-POST http://localhost:3000/api/quizzes/attempt
+### 🧠 QUIZZES - Get Quiz by Module
+GET http://localhost:3000/api/quizzes/module/{{moduleId}}
+Authorization: Bearer {{token}}
+
+### ✅ QUIZ ATTEMPT - Submit Quiz
+POST http://localhost:3000/api/quizzes/submit
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "quizId": "{{quizId}}",
-  "score": 80
+  "answers": [
+    {
+      "questionId": "{{question1Id}}",
+      "selectedAnswer": "A JavaScript runtime"
+    },
+    {
+      "questionId": "{{question2Id}}",
+      "selectedAnswer": "npm install"
+    }
+  ]
 }
 
-### 🎓 CERTIFICATES - Issue Certificate (Admin/Auto)
-POST http://localhost:3000/api/certificates
-Authorization: Bearer {{admin_token}}
-Content-Type: application/json
-
-{
-  "courseId": "{{courseId}}",
-  "studentId": "{{studentId}}",
-  "url": "https://certs.example.com/jane-node"
-}
-
-### 💳 PAYMENTS - Simulate Stripe Payment
-POST http://localhost:3000/api/payments/stripe/initiate
+### 🎓 CERTIFICATES - Download Certificate
+POST http://localhost:3000/api/certificates/download
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "courseId": "{{courseId}}",
-  "amount": 100
+  "courseId": "{{courseId}}"
+}
+
+### 🎓 CERTIFICATES - Get My Certificates
+GET http://localhost:3000/api/certificates
+Authorization: Bearer {{token}}
+
+### 💳 PAYMENTS - Initiate Stripe Payment
+POST http://localhost:3000/api/payments/initiate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "courseId": "{{premiumCourseId}}",
+  "provider": "STRIPE",
+  "phoneOrEmail": "otwanemark003@gmail.com"
+}
+
+### 💳 PAYMENTS - Verify Payment
+POST http://localhost:3000/api/payments/verify
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "paymentId": "your_payment_id_here",
+  "provider": "STRIPE"
 }
 
 ### 📊 INSTRUCTORS - Analytics Dashboard
 GET http://localhost:3000/api/instructors/dashboard
 Authorization: Bearer {{instructor_token}}
 
-### 🛡️ ADMIN - Approve Instructor
-POST http://localhost:3000/api/admin/users/update-role
-Authorization: Bearer {{admin_token}}
-Content-Type: application/json
-
-{
-  "userId": "{{instructorId}}",
-  "role": "INSTRUCTOR"
-}
-
-### 📢 NOTIFICATIONS - Send Welcome Email (Admin Test)
+### 📢 NOTIFICATIONS - Send Welcome Email (Admin Only)
 POST http://localhost:3000/api/notifications/send
 Authorization: Bearer {{admin_token}}
 Content-Type: application/json
 
 {
   "event": "SIGNUP",
-  "recipient": "jane@example.com",
-  "payload": { "name": "Jane" }
+  "recipient": "otwanemark003@gmail.com",
+  "payload": {
+    "name": "Jane Doe"
+  }
 }
+
+### 📢 NOTIFICATIONS - Send Quiz Result (Admin Only)
+POST http://localhost:3000/api/notifications/send
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "event": "QUIZ_GRADED",
+  "recipient": "otwanemark003@gmail.com",
+  "payload": {
+    "name": "Jane Doe",
+    "courseTitle": "Intro to Node.js",
+    "score": 100,
+    "totalQuestions": 2
+  }
+}
+
+### 📢 NOTIFICATIONS - Send Certificate Issued (Admin Only)
+POST http://localhost:3000/api/notifications/send
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "event": "CERTIFICATE_ISSUED",
+  "recipient": "otwanemark003@gmail.com",
+  "payload": {
+    "name": "Jane Doe",
+    "courseTitle": "Intro to Node.js",
+    "certificateUrl": "https://certs.example.com/jane-node"
+  }
+}
+
+### 🛡️ ADMIN - Update User Role
+POST http://localhost:3000/api/admin/users/update-role
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "userId": "{{instructorId}}",
+  "role": "ADMIN"
+}
+
+### 🛡️ ADMIN - Filter Users
+GET http://localhost:3000/api/admin/users?role=STUDENT&keyword=Jane
+Authorization: Bearer {{admin_token}}
+
+### 🛡️ ADMIN - Get Platform Statistics
+GET http://localhost:3000/api/admin/statistics
+Authorization: Bearer {{admin_token}}
+
+# ========================================
+# TESTING FLOW SUMMARY
+# ========================================
+# 
+# 1. AUTHENTICATION ✅
+#    - Register student/instructor ✅
+#    - Login with JWT tokens ✅
+#    - Password update ✅
+#    - Forgot password (fixed) ✅
+#
+# 2. COURSE MANAGEMENT ✅
+#    - Create courses (free & premium) ✅
+#    - Create modules ✅
+#    - Upload content ✅
+#    - List courses ✅
+#
+# 3. STUDENT EXPERIENCE ✅
+#    - Enroll in courses ✅
+#    - Track progress ✅
+#    - Take quizzes ✅
+#    - Download certificates ✅
+#
+# 4. ANALYTICS ✅
+#    - Instructor dashboard ✅
+#
+# 5. PAYMENT SYSTEM ⚠️
+#    - Stripe integration (needs API keys) ⚠️
+#
+# 6. NOTIFICATIONS ⚠️
+#    - Email system (needs admin role) ⚠️
+#
+# 7. USER MANAGEMENT ✅
+#    - Profile updates ✅
+#    - Password changes ✅
+#
+# ========================================
+# USEFUL IDs FOR TESTING
+# ========================================
+# Course IDs:
+# - Free course: cmcq4bo3r00018ab2rngjtbv7
+# - Premium course: cmcq51or700018aquggf2mc15
+#
+# Module ID: cmcq4bufc00038ab2rib3i24w
+# Content ID: cmcq4egug00058ab28lh94p4t
+# Quiz ID: cmcq4gbo400018ac03ptb6y7v
+# Question IDs: cmcq4gbo400028ac0yaofobzq, cmcq4gbo400038ac07f1ttscr
+# Student ID: cmcptzsmp00018a8b4qo0nuct
+# Instructor ID: cmcpu87md00008aigz3vp346h
+# Certificate ID: cmcq4wkxk00018agm7hufseft

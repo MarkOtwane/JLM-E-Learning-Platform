@@ -30,7 +30,7 @@ export class QuizzesService {
     const quiz = await this.prisma.quiz.create({
       data: {
         title: `Quiz for Module ${dto.moduleId}`,
-        courseId: dto.moduleId, // Assuming moduleId should map to courseId
+        courseId: module.courseId,
         questions: {
           create: dto.questions.map((q) => ({
             text: q.question,
