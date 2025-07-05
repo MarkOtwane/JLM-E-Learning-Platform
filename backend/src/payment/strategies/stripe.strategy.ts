@@ -1,14 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { PaymentStatus } from '../types/payment-status.type';
 
 @Injectable()
 export class StripeStrategy {
-  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2023-10-16',
+  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-06-30.basil',
   });
 
   async createCheckoutSession(email: string, courseId: string, amount: number) {
@@ -46,7 +43,7 @@ export class StripeStrategy {
     return {
       transactionId: session.id,
       courseId: session.metadata?.courseId,
-      amount: session.amount_total / 100,
+      amount: (session.amount_total ?? 0) / 100,
       status:
         session.payment_status === 'paid'
           ? PaymentStatus.SUCCESS

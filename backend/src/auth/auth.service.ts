@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import {
   BadRequestException,
   Injectable,
@@ -10,11 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { MailerService } from '../mailer/mailer.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/regtister.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/reset-password.dto';
-import { MailerService } from '../mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
@@ -37,11 +35,19 @@ export class AuthService {
         email: dto.email,
         password: hashed,
         role: dto.role,
-        isApproved: dto.role === UserRole.STUDENT, // instructors must be approved
+        isApproved: true, // temporarily approve all users for testing
       },
     });
 
-    await this.mailerService.sendMail(user.isApproved);
+    // Send verification email only for students (instructors need approval first)
+    if (user.role === UserRole.STUDENT) {
+      await this.mailerService.sendMail({
+        to: user.email,
+        subject: 'Welcome to JLM E-Learning Platform',
+        template: 'welcome-user',
+        context: { name: user.name },
+      });
+    }
 
     return { message: 'Registration successful. Please check your email.' };
   }

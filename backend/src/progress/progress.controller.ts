@@ -23,7 +23,7 @@ export class ProgressController {
   @Get('completed')
   @Roles(UserRole.STUDENT)
   async getCompletedContent(@User('id') studentId: string) {
-    return this.progressService.getCompletedContentIds(studentId);
+    return this.progressService.getCompletedModuleIds(studentId);
   }
 
   @Get('status/:moduleId')

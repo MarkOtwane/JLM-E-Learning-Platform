@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MarkProgressDto } from './dto/mark-progress.dto';
@@ -14,35 +13,46 @@ export class ProgressService {
   ): Promise<{ message: string }> {
     const content = await this.prisma.content.findUnique({
       where: { id: dto.contentId },
+      include: { module: true },
     });
     if (!content) throw new NotFoundException('Content not found');
 
-    await this.prisma.progress.upsert({
+    // Check if progress already exists
+    const existingProgress = await this.prisma.progress.findFirst({
       where: {
-        studentId_contentId: {
-          studentId,
-          contentId: dto.contentId,
-        },
-      },
-      update: {
-        completedAt: new Date(),
-      },
-      create: {
-        studentId,
-        contentId: dto.contentId,
-        completedAt: new Date(),
+        userId: studentId,
+        moduleId: content.moduleId,
       },
     });
+
+    if (existingProgress) {
+      await this.prisma.progress.update({
+        where: { id: existingProgress.id },
+        data: {
+          completed: true,
+          completedAt: new Date(),
+        },
+      });
+    } else {
+      await this.prisma.progress.create({
+        data: {
+          userId: studentId,
+          moduleId: content.moduleId,
+          completed: true,
+          completedAt: new Date(),
+        },
+      });
+    }
 
     return { message: 'Progress marked as completed' };
   }
 
-  async getCompletedContentIds(studentId: string): Promise<string[]> {
+  async getCompletedModuleIds(studentId: string): Promise<string[]> {
     const progress = await this.prisma.progress.findMany({
-      where: { studentId },
-      select: { contentId: true },
+      where: { userId: studentId, completed: true },
+      select: { moduleId: true },
     });
-    return progress.map((p) => p.contentId);
+    return progress.map((p) => p.moduleId);
   }
 
   async getProgressStatus(
@@ -52,21 +62,21 @@ export class ProgressService {
     const contents = await this.prisma.content.findMany({
       where: { moduleId },
     });
-    const completed = await this.prisma.progress.findMany({
+    const moduleProgress = await this.prisma.progress.findFirst({
       where: {
-        studentId,
-        contentId: { in: contents.map((c) => c.id) },
+        userId: studentId,
+        moduleId,
       },
     });
 
-    const completedMap = new Map(
-      completed.map((p) => [p.contentId, p.completedAt]),
-    );
+    const isModuleCompleted = moduleProgress?.completed ?? false;
 
     return contents.map((content) => ({
       contentId: content.id,
-      completed: completedMap.has(content.id),
-      completedAt: completedMap.get(content.id),
+      completed: isModuleCompleted,
+      completedAt: isModuleCompleted
+        ? (moduleProgress?.completedAt ?? undefined)
+        : undefined,
     }));
   }
 }

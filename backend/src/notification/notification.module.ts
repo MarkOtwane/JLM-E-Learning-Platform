@@ -1,5 +1,3 @@
-// src/notifications/notifications.module.ts
-
 import { Module } from '@nestjs/common';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';

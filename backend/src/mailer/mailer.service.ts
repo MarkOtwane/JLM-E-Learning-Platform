@@ -1,23 +1,25 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as hbs from 'handlebars';
-import { createTransport } from 'nodemailer';
+import { createTransport, Transporter } from 'nodemailer';
 import * as path from 'path';
 
 @Injectable()
 export class MailerService {
-  private transporter = createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
-    },
-  });
+  private transporter: Transporter;
+
+  constructor() {
+    this.transporter = createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+    }) as any;
+  }
 
   async sendMail({
     to,
@@ -59,5 +61,19 @@ export class MailerService {
     const templateSource = await fs.promises.readFile(filePath, 'utf8');
     const compiled = hbs.compile(templateSource);
     return compiled(context);
+  }
+
+  async sendPasswordResetEmail(email: string, token: string): Promise<void> {
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+    await this.sendMail({
+      to: email,
+      subject: 'Password Reset Request',
+      template: 'welcome-user', // You may want to create a specific password reset template
+      context: {
+        name: 'User',
+        resetLink,
+      },
+    });
   }
 }

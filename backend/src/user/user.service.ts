@@ -1,5 +1,3 @@
-// src/users/users.service.ts
-
 import {
   BadRequestException,
   ForbiddenException,

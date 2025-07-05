@@ -1,9 +1,10 @@
+/* eslint-disable no-useless-escape */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable prettier/prettier */
+
 // src/payments/strategies/mpesa.strategy.ts
 
 import { Injectable } from '@nestjs/common';
@@ -73,7 +74,6 @@ export class MpesaStrategy {
     };
   }
 
-  
   async verifyStkPush(transactionId: string): Promise<{
     transactionId: string;
     courseId: string;

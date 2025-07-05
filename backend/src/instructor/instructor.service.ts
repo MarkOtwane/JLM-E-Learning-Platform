@@ -1,12 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { InstructorMetricsResponse } from './types/instructor-metrics.type';
 import { InstructorAnalyticsDto } from './dto/instructor-analytics';
+import { InstructorMetricsResponse } from './types/instructor-metrics.type';
 
 @Injectable()
 export class InstructorsService {
@@ -27,23 +22,23 @@ export class InstructorsService {
         },
         enrollments: true,
         quizzes: {
-          include: { attempts: true },
+          include: { QuizAttempt: true },
         },
       },
     });
 
     const results = courses.map((course) => {
-      const studentIds = course.enrollments.map((e) => e.studentId);
+      const studentIds = course.enrollments.map((e) => e.userId);
       const contentIds = course.modules.flatMap((m) =>
         m.contents.map((c) => c.id),
       );
-      const quizAttempts = course.quizzes.flatMap((q) => q.attempts);
+      const quizAttempts = course.quizzes.flatMap((q) => q.QuizAttempt);
 
       const avgProgress = studentIds.length
         ? studentIds
             .map((studentId) => {
               const completed = quizAttempts.filter(
-                (a) => a.studentId === studentId,
+                (a) => a.userId === studentId,
               );
               return contentIds.length
                 ? (completed.length / contentIds.length) * 100

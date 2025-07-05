@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// src/auth/jwt.strategy.ts
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -28,6 +24,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    return user; // attaches to request.user
+    // Debug output
+    console.log('JwtStrategy.validate payload:', payload);
+    console.log('JwtStrategy.validate user:', user);
+    // Ensure the role from JWT is used, not from database
+    return {
+      ...user,
+      role: payload.role,
+    };
   }
 }

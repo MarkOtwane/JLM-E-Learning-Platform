@@ -30,13 +30,10 @@ export class CertificatesService {
 
     if (!course) throw new NotFoundException('Course not found');
 
-    const enrollment = await this.prisma.enrollment.findUnique({
+    const enrollment = await this.prisma.enrollment.findFirst({
       where: {
-        studentId_courseId: {
-          //this field is not their in the database
-          studentId,
-          courseId,
-        },
+        userId: studentId,
+        courseId,
       },
     });
 
@@ -49,8 +46,8 @@ export class CertificatesService {
 
     const completed = await this.prisma.progress.findMany({
       where: {
-        studentId,
-        contentId: { in: allContentIds },
+        userId: studentId,
+        moduleId: { in: course.modules.map((m) => m.id) },
       },
     });
 

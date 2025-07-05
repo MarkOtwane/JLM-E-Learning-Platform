@@ -6,12 +6,12 @@
 import {
   CanActivate,
   ExecutionContext,
-  Injectable,
   ForbiddenException,
+  Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
 import { UserRole } from '@prisma/client';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -31,6 +31,14 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
+
+    console.log('Roles Guard Debug:', {
+      requiredRoles,
+      userRole: user?.role,
+      user: user,
+      hasUser: !!user,
+      includes: requiredRoles.includes(user?.role),
+    });
 
     if (!user || !requiredRoles.includes(user.role)) {
       throw new ForbiddenException('Access denied: insufficient role');

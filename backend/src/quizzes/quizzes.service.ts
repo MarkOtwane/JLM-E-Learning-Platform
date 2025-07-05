@@ -29,12 +29,13 @@ export class QuizzesService {
 
     const quiz = await this.prisma.quiz.create({
       data: {
-        moduleId: dto.moduleId,
+        title: `Quiz for Module ${dto.moduleId}`,
+        courseId: dto.moduleId, // Assuming moduleId should map to courseId
         questions: {
           create: dto.questions.map((q) => ({
-            question: q.question,
-            options: q.options,
-            correctAnswer: q.correctAnswer,
+            text: q.question,
+            type: 'MCQ',
+            correct: q.correctAnswer,
           })),
         },
       },
@@ -51,12 +52,10 @@ export class QuizzesService {
     });
     if (!quiz) throw new NotFoundException('Quiz not found');
 
-    const attempt = await this.prisma.quizAttempt.findUnique({
+    const attempt = await this.prisma.quizAttempt.findFirst({
       where: {
-        studentId_quizId: {
-          studentId: userId,
-          quizId: dto.quizId,
-        },
+        userId,
+        quizId: dto.quizId,
       },
     });
 
@@ -65,12 +64,12 @@ export class QuizzesService {
 
     const breakdown = quiz.questions.map((q) => {
       const answer = dto.answers.find((a) => a.questionId === q.id);
-      const isCorrect = answer?.selectedAnswer === q.correctAnswer;
+      const isCorrect = answer?.selectedAnswer === q.correct;
       return {
         questionId: q.id,
         isCorrect,
         selectedAnswer: answer?.selectedAnswer || '',
-        correctAnswer: q.correctAnswer,
+        correctAnswer: q.correct,
       };
     });
 
@@ -79,10 +78,9 @@ export class QuizzesService {
 
     await this.prisma.quizAttempt.create({
       data: {
-        studentId: userId,
+        userId,
         quizId: quiz.id,
         score,
-        breakdown,
       },
     });
 
@@ -95,8 +93,8 @@ export class QuizzesService {
   }
 
   async getQuizByModule(moduleId: string) {
-    return this.prisma.quiz.findUnique({
-      where: { moduleId },
+    return this.prisma.quiz.findFirst({
+      where: { courseId: moduleId },
       include: { questions: true },
     });
   }
@@ -107,11 +105,12 @@ export class QuizzesService {
       data: {
         questions: {
           deleteMany: {},
-          create: dto.questions.map((q) => ({
-            question: q.question,
-            options: q.options,
-            correctAnswer: q.correctAnswer,
-          })),
+          create:
+            dto.questions?.map((q) => ({
+              text: q.question,
+              type: 'MCQ',
+              correct: q.correctAnswer,
+            })) || [],
         },
       },
       include: { questions: true },

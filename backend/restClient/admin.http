@@ -1,34 +1,170 @@
-### Register Admin
+# JLM E-Learning REST Client Test Suite
+# Run with REST Client extension in VS Code
+
+# Environment variables - replace with actual values after running the requests
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdHpzbXAwMDAxOGE4YjRxbzBudWN0Iiwicm9sZSI6IlNUVURFTlQiLCJpYXQiOjE3NTE2OTUzNTYsImV4cCI6MTc1MjMwMDE1Nn0.kjIxh5lyshNXd4HiHqMPH13pPkgPHuDkOqk4d7QU_hI
+@instructor_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdTg3bWQwMDAwOGFpZ3ozdnAzNDZoIiwicm9sZSI6IklOU1RSVUNUT1IiLCJpYXQiOjE3NTE2OTYzMjgsImV4cCI6MTc1MjMwMTEyOH0.zbz73pmFZvSHrklw9NIwN6CgF2jOtcp_a8cz8mMByA8
+@admin_token = your_admin_jwt_token_here
+@courseId = your_course_id_here
+@moduleId = your_module_id_here
+@quizId = your_quiz_id_here
+@studentId = your_student_id_here
+@instructorId = cmcpu87md00008aigz3vp346h
+
+### 🔐 AUTH - Register Student
 POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "admin@example.com",
+  "name": "Jane Doe",
+  "email": "otwanemark004@gmail.com",
   "password": "password123",
-  "firstName": "Admin",
-  "lastName": "User",
-  "role": "ADMIN"
+  "role": "STUDENT"
 }
 
-### Register Instructor
+### 🔐 AUTH - Login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "otwanemark003@gmail.com",
+  "password": "password123"
+}
+
+### 🧑‍🏫 AUTH - Register Instructor
 POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "instructor@example.com",
-  "password": "password123",
-  "firstName": "John",
-  "lastName": "Doe",
+  "name": "Mark Teacher",
+  "email": "mark@teach.com",
+  "password": "teachpass",
   "role": "INSTRUCTOR"
 }
 
-### Register Student
-POST http://localhost:3000/api/auth/register
+### 🔑 AUTH - Login as Instructor
+POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "student@example.com",
-  "password": "password123",
-  "firstName": "Jane",
-  "lastName": "Smith"
+  "email": "mark@teach.com",
+  "password": "teachpass"
+}
+
+### 👤 USERS - Update Profile
+PATCH http://localhost:3000/api/users/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Jane Doe"
+}
+
+
+### 📚 COURSES - Create Course (Instructor)
+POST http://localhost:3000/api/courses
+Authorization: Bearer {{instructor_token}}
+Content-Type: application/json
+
+{
+  "title": "Intro to Node.js",
+  "description": "Learn Node fundamentals",
+  "price": 0,
+  "isPremium": false
+}
+
+### 🧩 MODULES - Create Module (inside Course)
+POST http://localhost:3000/courses/{{courseId}}/modules
+Authorization: Bearer {{instructor_token}}
+Content-Type: application/json
+
+{
+  "title": "Setup & Environment"
+}
+
+### 🎞️ CONTENT - Upload Video
+POST http://localhost:3000/api/content
+Authorization: Bearer {{instructor_token}}
+Content-Type: application/json
+
+{
+  "title": "Installing Node.js",
+  "url": "https://video.example.com/node-setup",
+  "type": "VIDEO",
+  "moduleId": "{{moduleId}}"
+}
+
+### 👨‍🎓 STUDENTS - Enroll in Course
+POST http://localhost:3000/api/students/enroll
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "courseId": "{{courseId}}"
+}
+
+### 🧠 QUIZZES - Create Quiz
+POST http://localhost:3000/api/quizzes
+Authorization: Bearer {{instructor_token}}
+Content-Type: application/json
+
+{
+  "courseId": "{{courseId}}",
+  "title": "Node Intro Quiz"
+}
+
+### ✅ QUIZ ATTEMPT - Submit Score
+POST http://localhost:3000/api/quizzes/attempt
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "quizId": "{{quizId}}",
+  "score": 80
+}
+
+### 🎓 CERTIFICATES - Issue Certificate (Admin/Auto)
+POST http://localhost:3000/api/certificates
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "courseId": "{{courseId}}",
+  "studentId": "{{studentId}}",
+  "url": "https://certs.example.com/jane-node"
+}
+
+### 💳 PAYMENTS - Simulate Stripe Payment
+POST http://localhost:3000/api/payments/stripe/initiate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "courseId": "{{courseId}}",
+  "amount": 100
+}
+
+### 📊 INSTRUCTORS - Analytics Dashboard
+GET http://localhost:3000/api/instructors/dashboard
+Authorization: Bearer {{instructor_token}}
+
+### 🛡️ ADMIN - Approve Instructor
+POST http://localhost:3000/api/admin/users/update-role
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "userId": "{{instructorId}}",
+  "role": "INSTRUCTOR"
+}
+
+### 📢 NOTIFICATIONS - Send Welcome Email (Admin Test)
+POST http://localhost:3000/api/notifications/send
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "event": "SIGNUP",
+  "recipient": "jane@example.com",
+  "payload": { "name": "Jane" }
 }

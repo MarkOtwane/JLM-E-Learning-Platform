@@ -21,12 +21,10 @@ export class StudentsService {
     });
     if (!course) throw new NotFoundException('Course not found');
 
-    const existingEnrollment = await this.prisma.enrollment.findUnique({
+    const existingEnrollment = await this.prisma.enrollment.findFirst({
       where: {
-        studentId_courseId: {
-          studentId,
-          courseId: dto.courseId,
-        },
+        userId: studentId,
+        courseId: dto.courseId,
       },
     });
 
@@ -40,7 +38,7 @@ export class StudentsService {
 
     await this.prisma.enrollment.create({
       data: {
-        studentId,
+        userId: studentId,
         courseId: dto.courseId,
       },
     });
@@ -50,16 +48,14 @@ export class StudentsService {
 
   async getEnrolledCourses(studentId: string): Promise<StudentCourseView[]> {
     const enrollments = await this.prisma.enrollment.findMany({
-      where: { studentId },
+      where: { userId: studentId },
       select: {
         course: {
           include: {
             modules: {
-              orderBy: { createdAt: 'asc' },
+              orderBy: { order: 'asc' },
               include: {
-                contents: {
-                  orderBy: { createdAt: 'asc' },
-                },
+                contents: true,
               },
             },
           },
@@ -67,19 +63,17 @@ export class StudentsService {
       },
     });
 
-    return enrollments.map((e) => e.courseId);
+    return enrollments.map((e) => e.course);
   }
 
   async getCourseContent(
     studentId: string,
     courseId: string,
   ): Promise<StudentCourseView> {
-    const enrollment = await this.prisma.enrollment.findUnique({
+    const enrollment = await this.prisma.enrollment.findFirst({
       where: {
-        studentId_courseId: {
-          studentId,
-          courseId,
-        },
+        userId: studentId,
+        courseId,
       },
     });
 
@@ -90,11 +84,9 @@ export class StudentsService {
       where: { id: courseId },
       include: {
         modules: {
-          orderBy: { createdAt: 'asc' },
+          orderBy: { order: 'asc' },
           include: {
-            contents: {
-              orderBy: { createdAt: 'asc' },
-            },
+            contents: true,
           },
         },
       },

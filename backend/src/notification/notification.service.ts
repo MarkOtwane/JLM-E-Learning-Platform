@@ -1,5 +1,3 @@
-// src/notifications/notifications.service.ts
-
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { MailerService } from 'src/mailer/mailer.service';
 import { SendNotificationDto } from './dto/send-notification.dto';
