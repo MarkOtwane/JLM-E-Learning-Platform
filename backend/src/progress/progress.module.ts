@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtStrategy } from '../auth/jwt.strategy';
-import { RolesGuard } from '../auth/roles.guard';
-import { PrismaModule } from '../prisma/prisma.module';
-import { ProgressController } from './progress.controller';
 import { ProgressService } from './progress.service';
+import { ProgressController } from './progress.controller';
+import { PrismaModule } from '../prisma/prisma.module';
+import { JwtStrategy } from '../auth/jwt.strategy';
 
 @Module({
   imports: [PrismaModule],
@@ -12,10 +10,6 @@ import { ProgressService } from './progress.service';
   providers: [
     ProgressService,
     JwtStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
   ],
   exports: [ProgressService],
 })

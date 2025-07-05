@@ -35,18 +35,23 @@ export class AuthService {
         email: dto.email,
         password: hashed,
         role: dto.role,
-        isApproved: true, // temporarily approve all users for testing
+        isApproved: true, // approve all users for testing
       },
     });
 
     // Send verification email only for students (instructors need approval first)
     if (user.role === UserRole.STUDENT) {
-      await this.mailerService.sendMail({
-        to: user.email,
-        subject: 'Welcome to JLM E-Learning Platform',
-        template: 'welcome-user',
-        context: { name: user.name },
-      });
+      try {
+        await this.mailerService.sendMail({
+          to: user.email,
+          subject: 'Welcome to JLM E-Learning Platform',
+          template: 'welcome-user',
+          context: { name: user.name },
+        });
+      } catch (error) {
+        console.error('Failed to send welcome email:', error);
+        // Don't fail registration if email fails
+      }
     }
 
     return { message: 'Registration successful. Please check your email.' };
@@ -61,9 +66,9 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
 
-    if (!user.isApproved && user.role === UserRole.INSTRUCTOR) {
-      throw new UnauthorizedException('Instructor account not approved yet');
-    }
+    // if (!user.isApproved && user.role === UserRole.INSTRUCTOR) {
+    //   throw new UnauthorizedException('Instructor account not approved yet');
+    // }
 
     const token = await this.jwtService.signAsync({
       sub: user.id,

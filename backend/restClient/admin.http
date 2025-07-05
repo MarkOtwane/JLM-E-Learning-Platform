@@ -2,9 +2,9 @@
 # Run with REST Client extension in VS Code
 
 # Environment variables - replace with actual values after running the requests
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdHpzbXAwMDAxOGE4YjRxbzBudWN0Iiwicm9sZSI6IlNUVURFTlQiLCJpYXQiOjE3NTE2OTUzNTYsImV4cCI6MTc1MjMwMDE1Nn0.kjIxh5lyshNXd4HiHqMPH13pPkgPHuDkOqk4d7QU_hI
-@instructor_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdTg3bWQwMDAwOGFpZ3ozdnAzNDZoIiwicm9sZSI6IklOU1RSVUNUT1IiLCJpYXQiOjE3NTE2OTYzMjgsImV4cCI6MTc1MjMwMTEyOH0.zbz73pmFZvSHrklw9NIwN6CgF2jOtcp_a8cz8mMByA8
-@admin_token = your_admin_jwt_token_here
+@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdHpzbXAwMDAxOGE4YjRxbzBudWN0Iiwicm9sZSI6IlNUVURFTlQiLCJpYXQiOjE3NTE3MDk1NTcsImV4cCI6MTc1MjMxNDM1N30.GmtpnajjtePeLbojrwOa4LZ1mmI3kfvmkfisanjDdYY
+@instructor_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdTg3bWQwMDAwOGFpZ3ozdnAzNDZoIiwicm9sZSI6IklOU1RSVUNUT1IiLCJpYXQiOjE3NTE3MDY4NzIsImV4cCI6MTc1MjMxMTY3Mn0.Sn4DgSB7cTVqt06hdbk44vkorc_FcyrGjtYiPeNVSsM
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWNwdTg3bWQwMDAwOGFpZ3ozdnAzNDZoIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzUxNzA5NTU3LCJleHAiOjE3NTIzMTQzNTd9.0000000000000000000000000000000000000000
 @courseId = your_course_id_here
 @moduleId = your_module_id_here
 @quizId = your_quiz_id_here
@@ -57,7 +57,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "name": "Jane Doe"
+  "name": "John Doe"
 }
 
 
@@ -69,7 +69,9 @@ Content-Type: application/json
 {
   "title": "Intro to Node.js",
   "description": "Learn Node fundamentals",
-  "price": 0,
+  "level": "Beginner",
+  "category": "Programming",
+  "duration": 120,
   "isPremium": false
 }
 
