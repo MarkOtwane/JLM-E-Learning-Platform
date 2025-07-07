@@ -1,15 +1,16 @@
-import { Component } from '@angular/core';
-import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-student-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './student-sidebar.component.html',
-  styleUrls: ['./student-sidebar.component.css']
+  styleUrls: ['./student-sidebar.component.css'],
 })
-export class StudentSidebarComponent {  // Make sure 'export' is here!
+export class StudentSidebarComponent {
+  // Make sure 'export' is here!
   constructor(private router: Router) {}
 
   logout() {

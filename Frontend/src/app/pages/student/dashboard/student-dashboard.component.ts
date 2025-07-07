@@ -36,7 +36,8 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
   };
 
   // Course data
-  enrolledCourses: { name: string; code?: string; credits?: number }[] = [];
+  enrolledCourses: any[] = [];
+  availableCourses: any[] = [];
   instructors: { name: string; image: string; subject?: string }[] = [];
 
   // Loading state
@@ -65,6 +66,7 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscribeToProfile();
     this.loadCourseData();
+    this.loadAvailableCourses();
     this.authSubscription = this.authService.user$.subscribe((user) => {
       this.loggedInUser = user;
     });
@@ -141,10 +143,43 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
       next: (courses) => {
         this.enrolledCourses = courses;
         this.isLoading = false;
+        this.loadAvailableCourses();
       },
       error: () => {
         this.enrolledCourses = [];
         this.isLoading = false;
+        this.loadAvailableCourses();
+      },
+    });
+  }
+
+  /**
+   * Load all available courses (not just enrolled)
+   */
+  private loadAvailableCourses(): void {
+    this.apiService.getAuth<any[]>('/courses').subscribe({
+      next: (courses) => {
+        // Filter out already enrolled courses
+        const enrolledIds = new Set(this.enrolledCourses.map((c) => c.id));
+        this.availableCourses = courses.filter((c) => !enrolledIds.has(c.id));
+      },
+      error: () => {
+        this.availableCourses = [];
+      },
+    });
+  }
+
+  /**
+   * Enroll in a course
+   */
+  enrollInCourse(courseId: string): void {
+    this.apiService.postAuth('/students/enroll', { courseId }).subscribe({
+      next: () => {
+        this.loadCourseData();
+        this.loadAvailableCourses();
+      },
+      error: (err) => {
+        alert(err?.error?.message || 'Failed to enroll in course.');
       },
     });
   }

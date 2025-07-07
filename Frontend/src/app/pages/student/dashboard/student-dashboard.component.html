@@ -70,7 +70,7 @@
         <div class="course-list" *ngFor="let course of enrolledCourses">
           <div class="course-card" (click)="onCourseClick(course)">
             <div class="course-info">
-              <h4>{{ course.name }}</h4>
+              <h4>{{ course.title || course.name }}</h4>
               <div class="course-details">
                 <span *ngIf="course.code" class="course-code">{{
                   course.code
@@ -86,6 +86,37 @@
           </div>
         </div>
       </section>
+
+      <!-- Available Courses Section -->
+      <section class="available-courses">
+        <h3>Available Courses</h3>
+        <div *ngIf="availableCourses.length === 0" class="no-content">
+          <p>No more courses available to enroll.</p>
+        </div>
+        <div class="course-list" *ngFor="let course of availableCourses">
+          <div class="course-card">
+            <div class="course-info">
+              <h4>{{ course.title }}</h4>
+              <div class="course-details">
+                <span *ngIf="course.code" class="course-code">{{
+                  course.code
+                }}</span>
+                <span *ngIf="course.credits" class="course-credits"
+                  >{{ course.credits }} Credits</span
+                >
+              </div>
+            </div>
+            <div class="course-action">
+              <button
+                (click)="enrollInCourse(course.id); $event.stopPropagation()"
+              >
+                Enroll
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="course-instructors">
         <h3>Course Instructors</h3>
         <div class="instructor-list" *ngFor="let instructor of instructors">
