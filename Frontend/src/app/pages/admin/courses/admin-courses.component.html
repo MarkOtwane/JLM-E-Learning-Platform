@@ -1,0 +1,55 @@
+<div class="courses-container">
+  <h2 class="page-title">Courses</h2>
+  <div class="search-container">
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      (input)="searchCourses()"
+      placeholder="Search by title, instructor, category, or level..."
+      class="search-input"
+    />
+  </div>
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading courses...</p>
+  </div>
+  <div *ngIf="!isLoading && filteredCourses.length === 0" class="no-data">
+    <p>No courses found.</p>
+  </div>
+  <div *ngIf="!isLoading && filteredCourses.length > 0" class="courses-grid">
+    <div class="course-card" *ngFor="let course of filteredCourses">
+      <div class="card-content">
+        <div class="course-header">
+          <h3>{{ course.title }}</h3>
+          <span class="category">{{ course.category }}</span>
+        </div>
+        <div class="level-badge" [ngClass]="{
+          'level-Beginner': course.level === 'Beginner',
+          'level-Intermediate': course.level === 'Intermediate',
+          'level-Advanced': course.level === 'Advanced'
+        }">
+          {{ course.level }}
+        </div>
+        <p class="instructor">By {{ course.instructorName }}</p>
+        <div class="course-stats">
+          <div class="stat">
+            <span>{{ course.duration }}</span>
+          </div>
+          <div class="stat">
+            <span>{{ course.learners }} learners</span>
+          </div>
+        </div>
+        <div class="course-rating">
+          <div class="stars">
+            <span *ngFor="let star of getStarArray(course.rating)">★</span>
+            <span *ngFor="let star of getEmptyStarArray(course.rating)">☆</span>
+          </div>
+          <span class="rating-text">{{ course.rating }} / 5.0</span>
+        </div>
+        <div class="card-footer">
+          <span class="price">${{ course.price | number:'1.2-2' }}</span>
+          <button class="delete-btn" (click)="deleteCourse(course.id)">Delete Course</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

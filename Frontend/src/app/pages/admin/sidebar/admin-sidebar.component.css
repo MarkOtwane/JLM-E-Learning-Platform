@@ -1,0 +1,51 @@
+:root {
+  --color-bg-main: #E1F0F3;
+  --color-accent-light: #6FEBEB;
+  --color-accent: #38EBEB;
+  --color-muted: #D9D9D9;
+  --color-white: #ffffff;
+  --color-black: #000000;
+}
+
+.sidebar {
+  position: fixed;
+  width: 256px;
+  height: 100vh;
+  background-color: var(--color-white);
+  border-right: 1px solid var(--color-muted);
+  overflow-y: auto;
+}
+
+ul {
+  padding: 16px;
+}
+
+.nav-link {
+  display: block;
+  padding: 8px 16px;
+  margin-bottom: 8px;
+  color: var(--color-black);
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.nav-link:hover, .nav-link.active {
+  background-color: var(--color-accent-light);
+  color: var(--color-black);
+}
+
+.logout-btn {
+  display: block;
+  padding: 8px 16px;
+  margin-top: 16px;
+  color: var(--color-black);
+  background-color: var(--color-muted);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+}

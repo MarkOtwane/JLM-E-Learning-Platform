@@ -1,0 +1,20 @@
+:root {
+  --color-bg-main: #E1F0F3;
+  --color-accent-light: #6FEBEB;
+  --color-accent: #38EBEB;
+  --color-muted: #D9D9D9;
+  --color-white: #ffffff;
+  --color-black: #000000;
+}
+
+.instructor-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg-main);
+}
+
+.content-area {
+  flex: 1;
+  padding: 20px;
+  background-color: var(--color-white);
+}

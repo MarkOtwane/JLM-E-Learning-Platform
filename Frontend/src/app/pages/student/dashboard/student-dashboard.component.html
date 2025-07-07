@@ -1,0 +1,99 @@
+<div class="dashboard-container">
+  <!-- ========================================
+       MAIN CONTENT
+       ======================================== -->
+  <main class="main-content">
+    <!-- ========================================
+         WELCOME SECTION
+         ======================================== -->
+    <div class="welcome-section">
+      <!-- Dynamic Profile Section -->
+      <div class="profile" (click)="onProfileClick()">
+        <!-- Profile Picture with Fallback -->
+        <img
+          *ngIf="hasProfilePicture(); else profilePlaceholder"
+          [src]="getProfilePictureUrl()"
+          alt="User Profile"
+          class="profile-pic"
+        />
+
+        <!-- Profile Picture Placeholder -->
+        <ng-template #profilePlaceholder>
+          <div class="profile-pic-placeholder">
+            {{ getUserInitials() }}
+          </div>
+        </ng-template>
+
+        <!-- Dynamic User Name and Year -->
+        <span class="user-name">{{ getLoggedInStudentName() }}</span>
+      </div>
+
+      <!-- Welcome Text with Dynamic Greeting -->
+      <div class="welcome-text">
+        <h2>{{ getWelcomeMessage() }}</h2>
+        <p>Always stay updated in your student portal</p>
+
+        <!-- Additional User Info -->
+        <div class="user-stats" *ngIf="!isLoading">
+          <span class="stat">{{ enrolledCourses.length }} Courses</span>
+          <span class="stat">{{ getTotalCredits() }} Credits</span>
+          <span class="stat" *ngIf="userProfile.program">{{
+            userProfile.program
+          }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================
+         LOADING STATE
+         ======================================== -->
+    <div *ngIf="isLoading" class="loading-section">
+      <div class="loading-spinner"></div>
+      <p>Loading your dashboard...</p>
+    </div>
+
+    <!-- ========================================
+         CONTENT SECTIONS
+         ======================================== -->
+    <div class="content-sections" *ngIf="!isLoading">
+      <!-- Enrolled Courses Section -->
+      <section class="enrolled-courses">
+        <h3>Enrolled Courses</h3>
+
+        <!-- No Courses Message -->
+        <div *ngIf="enrolledCourses.length === 0" class="no-content">
+          <p>You are not enrolled in any courses yet.</p>
+        </div>
+
+        <!-- Course List -->
+        <div class="course-list" *ngFor="let course of enrolledCourses">
+          <div class="course-card" (click)="onCourseClick(course)">
+            <div class="course-info">
+              <h4>{{ course.name }}</h4>
+              <div class="course-details">
+                <span *ngIf="course.code" class="course-code">{{
+                  course.code
+                }}</span>
+                <span *ngIf="course.credits" class="course-credits">
+                  {{ course.credits }} Credits
+                </span>
+              </div>
+            </div>
+            <div class="course-action">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="course-instructors">
+        <h3>Course Instructors</h3>
+        <div class="instructor-list" *ngFor="let instructor of instructors">
+          <div class="instructor-card">
+            <img src="{{ instructor.image }}" alt="{{ instructor.name }}" />
+            <span>{{ instructor.name }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>

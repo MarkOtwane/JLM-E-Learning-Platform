@@ -1,0 +1,156 @@
+<div class="create-course-container">
+  <h2>Create a New Course</h2>
+
+  <form (ngSubmit)="onSubmit()" #courseForm="ngForm">
+    <!-- Course Title -->
+    <div class="form-group">
+      <label for="title">Course Title</label>
+      <input 
+        type="text" 
+        id="title"
+        [(ngModel)]="course.title" 
+        name="title" 
+        placeholder="Enter course title"
+        required 
+      />
+    </div>
+
+    <!-- Category -->
+    <div class="form-group">
+      <label for="category">Category</label>
+      <input 
+        type="text" 
+        id="category"
+        [(ngModel)]="course.category" 
+        name="category" 
+        placeholder="e.g., Frontend, Data Science, Backend"
+        required 
+      />
+    </div>
+
+    <!-- Level -->
+    <div class="form-group">
+      <label for="level">Level</label>
+      <select [(ngModel)]="course.level" name="level" id="level" required>
+        <option value="">Select Level</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </div>
+
+    <!-- Duration -->
+    <div class="form-group">
+      <label for="duration">Duration</label>
+      <input 
+        type="text" 
+        id="duration"
+        [(ngModel)]="course.duration" 
+        name="duration" 
+        placeholder="e.g., 3-4 months, 6 weeks"
+        required 
+      />
+    </div>
+
+    <!-- Price -->
+    <div class="form-group">
+      <label for="price">Price (USD)</label>
+      <input 
+        type="number" 
+        id="price"
+        [(ngModel)]="course.price" 
+        name="price" 
+        min="0" 
+        step="0.01"
+        placeholder="0.00"
+        required 
+      />
+    </div>
+
+    <!-- Course Image -->
+    <div class="form-group">
+      <label for="image">Course Image</label>
+      <div class="image-upload-container">
+        <input 
+          type="file" 
+          id="image"
+          accept="image/*"
+          (change)="onImageSelected($event)"
+          #imageInput
+          hidden
+        />
+        <div class="image-preview" *ngIf="imagePreview">
+          <img [src]="imagePreview" alt="Course preview" />
+          <button type="button" class="remove-image" (click)="removeImage()">×</button>
+        </div>
+        <div class="upload-placeholder" *ngIf="!imagePreview" (click)="imageInput.click()">
+          <i class="fas fa-camera"></i>
+          <p>Click to upload course image</p>
+          <small>Recommended: 400x250px</small>
+        </div>
+        <button type="button" class="change-image" *ngIf="imagePreview" (click)="imageInput.click()">
+          Change Image
+        </button>
+      </div>
+    </div>
+
+    <!-- Short Description -->
+    <div class="form-group">
+      <label for="description">Short Description</label>
+      <textarea 
+        id="description"
+        [(ngModel)]="course.description" 
+        name="description" 
+        rows="3" 
+        placeholder="Brief description that appears on course cards"
+        maxlength="150"
+        required
+      ></textarea>
+      <small class="char-count">{{ course.description.length }}/150</small>
+    </div>
+
+    <!-- Full Description -->
+    <div class="form-group">
+      <label for="fullDescription">Full Description</label>
+      <textarea 
+        id="fullDescription"
+        [(ngModel)]="course.fullDescription" 
+        name="fullDescription" 
+        rows="6" 
+        placeholder="Detailed description that appears in the course modal"
+        required
+      ></textarea>
+    </div>
+
+    <!-- Curriculum (What You'll Learn) -->
+    <!-- <div class="form-group">
+      <label>What You'll Learn</label>
+      <div class="curriculum-section">
+        <div *ngFor="let item of course.curriculum; let i = index" class="curriculum-item">
+          <input 
+            type="text" 
+            [(ngModel)]="course.curriculum[i]" 
+            name="curriculum-{{i}}" 
+            placeholder="e.g., HTML5 and CSS3 fundamentals"
+            required
+          />
+          <button type="button" class="remove-btn" (click)="removeCurriculumItem(i)" [disabled]="course.curriculum.length <= 1">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+        <button type="button" class="add-curriculum-btn" (click)="addCurriculumItem()">
+          <i class="fas fa-plus"></i> Add Learning Point
+        </button>
+      </div>
+    </div> -->
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="submit-btn" [disabled]="!courseForm.valid || isSubmitting">
+        <span *ngIf="isSubmitting">Creating Course...</span>
+        <span *ngIf="!isSubmitting">Create Course</span>
+      </button>
+    </div>
+  </form>
+</div>

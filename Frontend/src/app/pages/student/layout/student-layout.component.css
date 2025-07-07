@@ -1,0 +1,33 @@
+.student-layout {
+  display: flex;
+  margin-top: 80px; /* space for navbar */
+}
+
+.sidebar {
+  width: 200px;
+  background-color: #00c4cc;
+  padding: 20px;
+  color: white;
+  height: calc(100vh - 80px);
+  position: fixed;
+  top: 80px;
+  left: 0;
+  overflow-y: auto;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.student-content {
+  margin-left: 200px;
+  padding: 24px;
+  width: calc(100% - 200px);
+}

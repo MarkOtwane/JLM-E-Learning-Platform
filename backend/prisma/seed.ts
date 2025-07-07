@@ -12,8 +12,8 @@ async function main() {
   // Create admin
   await prisma.user.create({
     data: {
-      name: 'Admin User',
-      email: 'admin@elearning.com',
+      name: 'Mark Otwane',
+      email: 'otwanemark254@gmail.com',
       password: passwordHash,
       role: UserRole.ADMIN,
       isApproved: true,

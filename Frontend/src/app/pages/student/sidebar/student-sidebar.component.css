@@ -1,0 +1,45 @@
+.sidebar {
+  width: 200px;
+  background-color: #00c4cc;
+  padding: 20px;
+  color: white;
+  position: fixed;
+  top: 80px;
+  left: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.sidebar li:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar li.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-weight: bold;
+  border-left: 4px solid white;
+  padding-left: 16px;
+}
+
+.sidebar li.logout-btn:hover {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+.sidebar li.logout-btn {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  margin-top: 10px;
+  padding-top: 15px;
+}

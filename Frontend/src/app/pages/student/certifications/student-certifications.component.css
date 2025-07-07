@@ -1,0 +1,60 @@
+.certifications-container {
+  padding: 24px;
+  margin-left: 240px;
+}
+
+h2 {
+  margin-bottom: 24px;
+  font-size: 28px;
+  color: var(--color-black);
+}
+
+.no-certificates {
+  font-size: 18px;
+  color: var(--color-muted);
+}
+
+.certificate-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.certificate-item {
+  border: 1px solid var(--color-muted);
+  border-radius: 8px;
+  padding: 20px;
+  background-color: var(--color-white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.cert-info h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  color: var(--color-accent);
+}
+
+.cert-info p {
+  margin: 0;
+  color: var(--color-black);
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  background-color: var(--color-accent);
+  color: var(--color-black);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+button i {
+  margin-right: 6px;
+}

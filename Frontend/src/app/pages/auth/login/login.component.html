@@ -1,0 +1,48 @@
+<app-notification *ngIf="showMessage" [message]="message" [type]="messageType">
+</app-notification>
+
+<div class="login-wrapper">
+  <div class="login-card">
+    <h2>Welcome Back</h2>
+
+    <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        required
+        placeholder="email@example.com"
+        autocomplete="off"
+        [disabled]="isLoading"
+      />
+
+      <label for="password">Password</label>
+      <div class="password-wrapper">
+        <input
+          id="password"
+          [type]="showPassword ? 'text' : 'password'"
+          name="password"
+          [(ngModel)]="password"
+          required
+          placeholder="Enter your password"
+          autocomplete="off"
+          [disabled]="isLoading"
+        />
+        <button
+          type="button"
+          class="toggle-btn"
+          (click)="togglePassword()"
+          [disabled]="isLoading"
+        >
+          {{ showPassword ? "Hide" : "Show" }}
+        </button>
+      </div>
+
+      <button type="submit" class="login-btn" [disabled]="isLoading">
+        {{ isLoading ? "Logging in..." : "Login" }}
+      </button>
+    </form>
+  </div>
+</div>

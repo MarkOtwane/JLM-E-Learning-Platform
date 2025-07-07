@@ -1,0 +1,36 @@
+<div class="student-courses-container">
+  <h2>All Courses</h2>
+
+  <div *ngIf="isLoading">Loading courses...</div>
+
+  <div *ngIf="!isLoading && allCourses.length === 0" class="no-courses">
+    No courses available.
+  </div>
+
+  <div class="course-grid" *ngIf="!isLoading && allCourses.length > 0">
+    <div *ngFor="let course of allCourses" class="course-card">
+      <div class="course-details">
+        <h3>{{ course.title }}</h3>
+        <p *ngIf="course.instructor">Instructor: {{ course.instructor }}</p>
+      </div>
+      <div class="course-actions">
+        <button
+          *ngIf="isEnrolled(course.id)"
+          class="continue-btn"
+          (click)="continueCourse(course.id)"
+        >
+          <i class="fas fa-play-circle"></i> Continue
+        </button>
+        <button
+          *ngIf="!isEnrolled(course.id)"
+          class="enroll-btn"
+          (click)="enroll(course.id)"
+          [disabled]="enrolling === course.id"
+        >
+          <i class="fas fa-plus-circle"></i>
+          {{ enrolling === course.id ? "Enrolling..." : "Enroll" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,98 @@
+.student-courses-container {
+  padding: 24px;
+  margin-left: 240px;
+}
+
+h2 {
+  margin-bottom: 24px;
+  font-size: 28px;
+  color: var(--color-black);
+}
+
+.no-courses {
+  font-size: 18px;
+  color: var(--color-muted);
+}
+
+/* Grid layout for course cards */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.course-card {
+  border: 1px solid var(--color-muted);
+  border-radius: 8px;
+  padding: 20px;
+  background-color: var(--color-white);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.course-details h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  color: var(--color-accent);
+}
+
+.course-details p {
+  margin: 4px 0;
+  color: var(--color-black);
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: var(--color-muted);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 8px 0;
+  width: 100%;
+  max-width: 300px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--color-accent);
+}
+
+.progress-text {
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.course-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.continue-btn,
+.drop-btn {
+  padding: 8px 16px;
+  border: none;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.continue-btn {
+  background-color: var(--color-accent);
+  color: var(--color-black);
+}
+
+.continue-btn i {
+  margin-right: 6px;
+}
+
+.drop-btn {
+  background-color: transparent;
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+}
+
+.drop-btn:hover {
+  background-color: var(--color-accent-light);
+  color: var(--color-black);
+}

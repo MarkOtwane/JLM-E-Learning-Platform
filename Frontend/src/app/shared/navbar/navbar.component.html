@@ -1,0 +1,72 @@
+<nav class="navbar">
+  <div class="navbar-logo">JLM E-Learning</div>
+
+  <ul class="navbar-links">
+    <li><a routerLink="/">Home</a></li>
+    <li><a routerLink="/about">About</a></li>
+    <li><a routerLink="/courses">Courses</a></li>
+    <li><a routerLink="/mentor">Mentor</a></li>
+    <li><a routerLink="/testimonials">Testimonials</a></li>
+    <li><a routerLink="/blog">Blog</a></li>
+    <li><a routerLink="/test-connection">Test Connection</a></li>
+  </ul>
+
+  <div class="navbar-auth" *ngIf="!hideAuthButtons">
+    <ng-container *ngIf="!userName; else loggedIn">
+      <button routerLink="/login" class="btn-outline">Sign In</button>
+      <button routerLink="/register" class="btn-filled">Sign Up</button>
+    </ng-container>
+
+    <ng-template #loggedIn>
+      <div class="user-info" (click)="goToDashboard()">
+        <i class="fas fa-user-circle"></i>
+        <span>{{ userName }}</span>
+      </div>
+    </ng-template>
+  </div>
+</nav>
+
+<!-- Second Navigation Bar -->
+<nav class="secondary-navbar" *ngIf="!hideSecondNavbar">
+  <div class="category-filters">
+    <!-- <button 
+      class="category-btn" 
+      [class.active]="selectedCategory === 'all'"
+      (click)="filterByCategory('all')">
+      All Courses
+    </button> -->
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === 'beginner'"
+      (click)="filterByCategory('beginner')"
+    >
+      Beginner
+    </button>
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === 'intermediate'"
+      (click)="filterByCategory('intermediate')"
+    >
+      Intermediate
+    </button>
+    <button
+      class="category-btn"
+      [class.active]="selectedCategory === 'advanced'"
+      (click)="filterByCategory('advanced')"
+    >
+      Advanced
+    </button>
+  </div>
+
+  <div class="navbar-search">
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      placeholder="Search courses..."
+      (keydown.enter)="performSearch()"
+    />
+    <button (click)="performSearch()">
+      <i class="fas fa-search"></i>
+    </button>
+  </div>
+</nav>

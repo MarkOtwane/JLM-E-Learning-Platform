@@ -1,0 +1,85 @@
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <div class="w-64 sidebar overflow-y-auto">
+    <div class="p-4">
+      <h2 class="sidebar-header text-xl font-bold mb-4">Course Content</h2>
+      <div *ngFor="let module of courseContent.modules; let mIndex = index" class="mb-4">
+        <h3 class="module-title text-lg font-semibold">{{ module.title }}</h3>
+        <ul class="ml-4">
+          <li *ngFor="let topic of module.topics; let tIndex = index" class="py-1">
+            <button
+              (click)="goToTopic(mIndex, tIndex)"
+              class="topic-link text-left w-full"
+              [class.active]="currentModuleIndex === mIndex && currentTopicIndex === tIndex"
+              [class.line-through]="isTopicCompleted(mIndex, tIndex)"
+            >
+              {{ topic.title }}
+            </button>
+            <button
+              *ngIf="topic.hasQuiz"
+              (click)="takeQuiz(mIndex, tIndex)"
+              class="quiz-link ml-2 text-sm"
+            >
+              Take Quiz
+            </button>
+          </li>
+        </ul>
+      </div>
+      <button
+        *ngIf="courseContent.hasFinalExam"
+        (click)="takeFinalExam()"
+        class="final-exam-link w-full text-left py-1"
+      >
+        Final Exam
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 p-6 main-content overflow-y-auto">
+    <div *ngIf="isLoading" class="text-center">
+      <p>Loading course content...</p>
+    </div>
+    <div *ngIf="!isLoading && getCurrentTopic() as topic">
+      <h2 class="content-title text-2xl font-bold mb-4">{{ topic.title }}</h2>
+      <div *ngIf="topic.contentType === 'text'" class="prose max-w-none">
+        <p>{{ topic.textContent }}</p>
+      </div>
+      <div *ngIf="topic.contentType === 'video'" class="mb-4">
+        <video controls class="w-full max-w-full" [src]="topic.fileName ? 'http://localhost:3000/api/files/' + topic.fileName : ''">
+          <source type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div *ngIf="topic.contentType === 'pdf'" class="mb-4">
+        <embed [src]="topic.fileName ? 'http://localhost:3000/api/files/' + topic.fileName : ''" type="application/pdf" class="w-full h-[500px]" />
+      </div>
+      <div class="mt-4 flex justify-between">
+        <button
+          (click)="goToPrevious()"
+          [disabled]="currentModuleIndex === 0 && currentTopicIndex === 0"
+          class="nav-button px-4 py-2 rounded"
+        >
+          Previous
+        </button>
+        <button
+          (click)="markAsComplete()"
+          class="complete-button px-4 py-2 rounded"
+          [class.completed]="isTopicCompleted(currentModuleIndex, currentTopicIndex)"
+        >
+          {{ isTopicCompleted(currentModuleIndex, currentTopicIndex) ? 'Completed' : 'Mark as Complete' }}
+        </button>
+        <button
+          (click)="goToNext()"
+          [disabled]="currentModuleIndex === courseContent.modules.length - 1 && currentTopicIndex === courseContent.modules[courseContent.modules.length - 1].topics.length - 1 && !courseContent.hasFinalExam"
+          class="nav-button px-4 py-2 rounded"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+    <div *ngIf="!isLoading && !getCurrentTopic()" class="text-center">
+      <p>No content available.</p>
+    </div>
+  </div>
+</div>

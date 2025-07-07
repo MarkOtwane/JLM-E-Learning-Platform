@@ -1,0 +1,274 @@
+<div class="content-builder-container">
+  <div class="builder-header">
+    <h2>Build Course Content</h2>
+    
+    <!-- Course Selection Dropdown -->
+    <div class="course-selection-section">
+      <div class="course-select-container">
+        <label for="courseSelect">Select Course to Build:</label>
+        <div class="select-wrapper">
+          <select 
+            id="courseSelect" 
+            [(ngModel)]="selectedCourse" 
+            (change)="onCourseSelected()" 
+            class="course-select"
+            [disabled]="isLoadingCourses"
+          >
+            <option [ngValue]="null">-- Select a Course --</option>
+            <option *ngFor="let course of availableCourses" [ngValue]="course">
+              {{ course.title }}
+            </option>
+          </select>
+          <span class="loading-text" *ngIf="isLoadingCourses">Loading your courses...</span>
+        </div>
+      </div>
+      
+      <!-- Selected Course Info -->
+      <div class="selected-course-info" *ngIf="selectedCourse">
+        <div class="course-info-card">
+          <h3>{{ selectedCourse.title }}</h3>
+          <p class="course-description">{{ selectedCourse.description }}</p>
+          <span class="course-id">Course ID: {{ selectedCourse.id }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Course Content Builder (Only show when course is selected) -->
+  <div class="builder-content" *ngIf="selectedCourse">
+    <!-- Add Module Button -->
+    <button class="add-module-btn" (click)="addModule()">
+      <i class="fas fa-plus"></i> Add Module
+    </button>
+
+    <!-- Modules -->
+    <div *ngFor="let module of modules; let i = index" class="module-container">
+      <div class="module-header">
+        <div class="module-title-section">
+          <h3>Module {{ i + 1 }}</h3>
+          <input
+            type="text"
+            [(ngModel)]="module.title"
+            placeholder="Enter module title"
+            class="module-title-input"
+            required
+          />
+        </div>
+        <button class="remove-module-btn" (click)="removeModule(i)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+
+      <div class="module-content">
+        <!-- Topics/Lessons -->
+        <div class="topics-section">
+          <h4>Topics</h4>
+          <div *ngFor="let topic of module.topics; let j = index" class="topic-item">
+            <div class="topic-header">
+              <span class="topic-number">{{ j + 1 }}.</span>
+              <input
+                type="text"
+                [(ngModel)]="topic.title"
+                placeholder="Enter topic title"
+                class="topic-title-input"
+                required
+              />
+              <button class="remove-topic-btn" (click)="removeTopic(i, j)">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <div class="topic-content">
+              <!-- Content Type Selection -->
+              <div class="content-type-section">
+                <label>Content Type:</label>
+                <select [(ngModel)]="topic.contentType" class="content-type-select">
+                  <option value="text">Text/Reading</option>
+                  <option value="video">Video</option>
+                  <option value="pdf">PDF Document</option>
+                </select>
+              </div>
+
+              <!-- Text Content -->
+              <div *ngIf="topic.contentType === 'text'" class="text-content-section">
+                <label>Topic Content:</label>
+                <textarea
+                  [(ngModel)]="topic.textContent"
+                  placeholder="Write your lesson content here..."
+                  class="text-content-textarea"
+                  rows="8"
+                ></textarea>
+              </div>
+
+              <!-- File Upload (Video/PDF) -->
+              <div *ngIf="topic.contentType === 'video' || topic.contentType === 'pdf'" class="file-upload-section">
+                <label>Upload {{ topic.contentType === 'video' ? 'Video' : 'PDF' }}:</label>
+                <input
+                  type="file"
+                  [accept]="topic.contentType === 'video' ? 'video/*' : '.pdf'"
+                  (change)="onFileSelected(i, j, $event)"
+                  class="file-input"
+                />
+                <p class="file-info" *ngIf="topic.fileName">
+                  Selected: {{ topic.fileName }}
+                </p>
+              </div>
+
+              <!-- Quiz Section -->
+              <div class="quiz-section">
+                <div class="quiz-header">
+                  <h5>Topic Quiz</h5>
+                  <button type="button" class="toggle-quiz-btn" (click)="topic.hasQuiz = !topic.hasQuiz">
+                    {{ topic.hasQuiz ? 'Remove Quiz' : 'Add Quiz' }}
+                  </button>
+                </div>
+
+                <div *ngIf="topic.hasQuiz" class="quiz-content">
+                  <div *ngFor="let question of topic.questions; let k = index" class="question-item">
+                    <div class="question-header">
+                      <span class="question-number">Question {{ k + 1 }}</span>
+                      <button class="remove-question-btn" (click)="removeQuestion(i, j, k)">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+
+                    <div class="question-content">
+                      <input
+                        type="text"
+                        [(ngModel)]="question.question"
+                        placeholder="Enter question"
+                        class="question-input"
+                        required
+                      />
+
+                      <div class="options-section">
+                        <div *ngFor="let option of question.options; let l = index" class="option-item">
+                          <input
+                            type="radio"
+                            [name]="'correct-' + i + '-' + j + '-' + k"
+                            [value]="l"
+                            [(ngModel)]="question.correctAnswer"
+                            class="correct-radio"
+                          />
+                          <input
+                            type="text"
+                            [(ngModel)]="question.options[l]"
+                            placeholder="Option {{ l + 1 }}"
+                            class="option-input"
+                            required
+                          />
+                          <button class="remove-option-btn" (click)="removeOption(i, j, k, l)" [disabled]="question.options.length <= 2">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </div>
+                        <button class="add-option-btn" (click)="addOption(i, j, k)" [disabled]="question.options.length >= 4">
+                          <i class="fas fa-plus"></i> Add Option
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button class="add-question-btn" (click)="addQuestion(i, j)">
+                    <i class="fas fa-plus"></i> Add Question
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="add-topic-btn" (click)="addTopic(i)">
+            <i class="fas fa-plus"></i> Add Topic
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Exam Section -->
+    <div class="final-exam-section" *ngIf="modules.length > 0">
+      <div class="exam-header">
+        <h3>Final Course Exam</h3>
+        <button type="button" class="toggle-exam-btn" (click)="hasFinalExam = !hasFinalExam">
+          {{ hasFinalExam ? 'Remove Final Exam' : 'Add Final Exam' }}
+        </button>
+      </div>
+
+      <div *ngIf="hasFinalExam" class="exam-content">
+        <div *ngFor="let question of finalExamQuestions; let i = index" class="question-item">
+          <div class="question-header">
+            <span class="question-number">Question {{ i + 1 }}</span>
+            <button class="remove-question-btn" (click)="removeFinalExamQuestion(i)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="question-content">
+            <input
+              type="text"
+              [(ngModel)]="question.question"
+              placeholder="Enter question"
+              class="question-input"
+              required
+            />
+
+            <div class="options-section">
+              <div *ngFor="let option of question.options; let j = index" class="option-item">
+                <input
+                  type="radio"
+                  [name]="'final-correct-' + i"
+                  [value]="j"
+                  [(ngModel)]="question.correctAnswer"
+                  class="correct-radio"
+                />
+                <input
+                  type="text"
+                  [(ngModel)]="question.options[j]"
+                  placeholder="Option {{ j + 1 }}"
+                  class="option-input"
+                  required
+                />
+                <button class="remove-option-btn" (click)="removeFinalExamOption(i, j)" [disabled]="question.options.length <= 2">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <button class="add-option-btn" (click)="addFinalExamOption(i)" [disabled]="question.options.length >= 4">
+                <i class="fas fa-plus"></i> Add Option
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button class="add-question-btn" (click)="addFinalExamQuestion()">
+          <i class="fas fa-plus"></i> Add Question
+        </button>
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="save-section">
+      <button class="save-btn" (click)="onSave()" [disabled]="isSubmitting">
+        <span *ngIf="isSubmitting">Saving...</span>
+        <span *ngIf="!isSubmitting">Save Course Content</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- No Course Selected Message -->
+  <div class="no-course-selected" *ngIf="!selectedCourse && !isLoadingCourses && availableCourses.length > 0">
+    <div class="placeholder-message">
+      <i class="fas fa-arrow-up"></i>
+      <p>Please select a course from the dropdown above to start building content.</p>
+    </div>
+  </div>
+
+  <!-- No Courses Available Message -->
+  <div class="no-courses-available" *ngIf="!isLoadingCourses && availableCourses.length === 0">
+    <div class="empty-state">
+      <i class="fas fa-book"></i>
+      <h3>No Courses Found</h3>
+      <p>You haven't created any courses yet. Create your first course to start building content.</p>
+      <button class="create-course-btn" (click)="router.navigate(['/create-course'])">
+        <i class="fas fa-plus"></i> Create New Course
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+/* Custom styles using provided color variables */
+:root {
+  --color-bg-main: #E1F0F3;
+  --color-accent-light: #6FEBEB;
+  --color-accent: #38EBEB;
+  --color-muted: #D9D9D9;
+  --color-white: #ffffff;
+  --color-black: #000000;
+}
+
+body {
+  background-color: var(--color-bg-main);
+}
+
+.main-content {
+  background-color: var(--color-bg-main);
+}

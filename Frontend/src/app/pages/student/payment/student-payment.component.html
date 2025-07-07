@@ -1,0 +1,38 @@
+<div class="student-payment-container">
+  <h2>Payment History</h2>
+  <div *ngIf="isLoading">Loading payments...</div>
+  <div *ngIf="!isLoading && payments.length === 0">No payments made yet.</div>
+  <div *ngIf="!isLoading && payments.length > 0">
+    <div class="summary">
+      <p>
+        Total Paid: <strong>{{ totalPaid | currency }}</strong>
+      </p>
+      <p>
+        Courses Paid: <strong>{{ totalCourses }}</strong>
+      </p>
+      <p>
+        Last Payment: <strong>{{ lastPaymentDate }}</strong>
+      </p>
+    </div>
+    <table class="payment-table">
+      <thead>
+        <tr>
+          <th>Course</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Method</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let payment of payments">
+          <td>{{ payment.course }}</td>
+          <td>{{ payment.amount | currency }}</td>
+          <td>{{ payment.date | date : "mediumDate" }}</td>
+          <td>{{ payment.method }}</td>
+          <td>{{ payment.status }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

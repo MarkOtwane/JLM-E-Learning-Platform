@@ -1,0 +1,79 @@
+:root {
+  --color-bg-main: #E1F0F3;
+  --color-accent-light: #6FEBEB;
+  --color-accent: #38EBEB;
+  --color-muted: #D9D9D9;
+  --color-white: #ffffff;
+  --color-black: #000000;
+}
+
+.students-container {
+  margin-left: 250px;
+  padding: 24px;
+  background-color: var(--color-bg-main);
+}
+
+.page-title {
+  color: var(--color-black);
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.search-container {
+  margin-bottom: 16px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-muted);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--color-black);
+  background-color: var(--color-white);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.loading, .no-data {
+  text-align: center;
+  color: var(--color-black);
+  font-size: 16px;
+}
+
+.students-table {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-muted);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  color: var(--color-black);
+  font-size: 14px;
+}
+
+th {
+  background-color: var(--color-muted);
+  font-weight: bold;
+}
+
+td {
+  border-bottom: 1px solid var(--color-muted);
+}

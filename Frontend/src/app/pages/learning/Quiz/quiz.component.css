@@ -1,0 +1,65 @@
+/* Custom styles using provided color variables */
+:root {
+  --color-bg-main: #E1F0F3;
+  --color-accent-light: #6FEBEB;
+  --color-accent: #38EBEB;
+  --color-muted: #D9D9D9;
+  --color-white: #ffffff;
+  --color-black: #000000;
+}
+
+body {
+  background-color: var(--color-bg-main);
+}
+
+.quiz-container {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-muted);
+}
+
+.quiz-title {
+  color: var(--color-black);
+}
+
+.question-text {
+  color: var(--color-black);
+}
+
+.option-label {
+  color: var(--color-black);
+}
+
+.option-label.correct {
+  color: var(--color-accent);
+}
+
+.option-label.incorrect {
+  color: #ef4444; /* Keep red for incorrect answers for clarity */
+}
+
+.score-text {
+  color: var(--color-black);
+}
+
+.back-button {
+  background-color: var(--color-muted);
+  color: var(--color-black);
+}
+
+.back-button:hover {
+  background-color: var(--color-accent-light);
+}
+
+.submit-button {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: var(--color-accent-light);
+}
+
+.submit-button:disabled {
+  background-color: var(--color-muted);
+  opacity: 0.5;
+}

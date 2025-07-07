@@ -1,0 +1,82 @@
+<app-notification
+  *ngIf="showMessage"
+  [message]="message"
+  [type]="messageType">
+</app-notification>
+
+<div class="login-wrapper">
+  <div class="login-card">
+    <h2>Create an Account</h2>
+
+    <form (ngSubmit)="onRegister()" #registerForm="ngForm">
+
+      <label for="fullName">Full Name</label>
+      <input
+        id="fullName"
+        name="fullName"
+        type="text"
+        [(ngModel)]="fullName"
+        required
+        placeholder="Your full name"
+        autocomplete="off"
+      />
+
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        [(ngModel)]="email"
+        required
+        placeholder="email@example.com"
+        autocomplete="off"
+      />
+
+      <label for="password">Password</label>
+      <div class="password-wrapper">
+        <input
+          id="password"
+          [type]="showPassword ? 'text' : 'password'"
+          name="password"
+          [(ngModel)]="password"
+          required
+          placeholder="Enter your password"
+          autocomplete="off"
+        />
+        <button type="button" class="toggle-btn" (click)="togglePassword()">
+          {{ showPassword ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+
+      <div class="role-select">
+        <label>Registering as:</label>
+        <label><input type="radio" name="role" [(ngModel)]="role" value="learner" checked /> Learner</label>
+        <label><input type="radio" name="role" [(ngModel)]="role" value="instructor" /> Instructor</label>
+      </div>
+
+      <div *ngIf="role === 'instructor'">
+        <label for="expertise">Area of Expertise</label>
+        <input
+          id="expertise"
+          name="expertise"
+          type="text"
+          [(ngModel)]="expertise"
+          required
+          placeholder="E.g. Frontend Development"
+        />
+
+        <label for="cv">Upload CV (PDF)</label>
+        <input
+          id="cv"
+          name="cv"
+          type="file"
+          accept=".pdf"
+          (change)="onFileSelected($event)"
+          required
+        />
+      </div>
+
+      <button type="submit" class="login-btn" [disabled]="isFormInvalid()">Sign Up</button>
+    </form>
+  </div>
+</div>

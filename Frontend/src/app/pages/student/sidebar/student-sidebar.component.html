@@ -1,0 +1,28 @@
+<aside class="sidebar">   
+  <ul>     
+    <li routerLink="/student/dashboard" 
+        routerLinkActive="active" 
+        [routerLinkActiveOptions]="{exact: true}">
+      Dashboard
+    </li>     
+    <li routerLink="/student/payment" 
+        routerLinkActive="active">
+      Payment Info
+    </li>     
+    <li routerLink="/student/courses" 
+        routerLinkActive="active">
+      Enrolled Courses
+    </li>     
+    <li routerLink="/student/certifications" 
+        routerLinkActive="active">
+      Certifications
+    </li>
+    <li routerLink="/student/profile" 
+        routerLinkActive="active">
+      Profile
+    </li>     
+    <li (click)="logout()" class="logout-btn">
+      Logout
+    </li>   
+  </ul> 
+</aside>

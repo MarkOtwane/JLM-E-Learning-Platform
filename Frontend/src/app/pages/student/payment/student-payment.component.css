@@ -1,0 +1,87 @@
+.payment-container {
+  padding: 24px;
+  margin-left: 220px; /* offset from sidebar */
+}
+
+h2 {
+  font-size: 28px;
+  color: var(--color-black);
+  margin-bottom: 24px;
+}
+
+.payment-summary {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.summary-item {
+  background: var(--color-white);
+  padding: 16px 24px;
+  border-radius: 8px;
+  border: 1px solid var(--color-muted);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex: 1;
+}
+
+.summary-item h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-accent);
+}
+
+.summary-item p {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 8px;
+  color: var(--color-black);
+}
+
+.section-title {
+  font-size: 20px;
+  margin-bottom: 16px;
+  color: var(--color-black);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-white);
+  border: 1px solid var(--color-muted);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-muted);
+  color: var(--color-black);
+}
+
+th {
+  background-color: var(--color-accent-light);
+  color: var(--color-black);
+}
+
+td .paid {
+  color: green;
+  font-weight: 500;
+}
+td .failed {
+  color: red;
+  font-weight: 500;
+}
+td .pending {
+  color: orange;
+  font-weight: 500;
+}
+
+.no-payments {
+  color: var(--color-muted);
+  font-size: 16px;
+}

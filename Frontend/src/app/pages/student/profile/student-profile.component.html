@@ -1,0 +1,43 @@
+<div class="student-profile-container">
+  <h2>My Profile</h2>
+  <div *ngIf="isLoading">Loading profile...</div>
+  <div *ngIf="!isLoading">
+    <div class="profile-details">
+      <p><strong>Name:</strong> {{ profile.name }}</p>
+      <p><strong>Email:</strong> {{ profile.email }}</p>
+      <p *ngIf="profile.phone"><strong>Phone:</strong> {{ profile.phone }}</p>
+      <p *ngIf="profile.gender">
+        <strong>Gender:</strong> {{ profile.gender }}
+      </p>
+      <p *ngIf="profile.program">
+        <strong>Program:</strong> {{ profile.program }}
+      </p>
+      <p *ngIf="profile.yearOfStudy">
+        <strong>Year of Study:</strong> {{ profile.yearOfStudy }}
+      </p>
+      <p *ngIf="profile.bio"><strong>Bio:</strong> {{ profile.bio }}</p>
+      <button (click)="openEditModal()">Edit Profile</button>
+    </div>
+    <div *ngIf="showEditModal" class="edit-modal">
+      <h3>Edit Profile</h3>
+      <form (ngSubmit)="onSaveProfile()">
+        <label>Name</label>
+        <input [(ngModel)]="updatedProfile.name" name="name" required />
+        <label>Email</label>
+        <input [(ngModel)]="updatedProfile.email" name="email" required />
+        <label>Phone</label>
+        <input [(ngModel)]="updatedProfile.phone" name="phone" />
+        <label>Gender</label>
+        <input [(ngModel)]="updatedProfile.gender" name="gender" />
+        <label>Program</label>
+        <input [(ngModel)]="updatedProfile.program" name="program" />
+        <label>Year of Study</label>
+        <input [(ngModel)]="updatedProfile.yearOfStudy" name="yearOfStudy" />
+        <label>Bio</label>
+        <textarea [(ngModel)]="updatedProfile.bio" name="bio"></textarea>
+        <button type="submit" [disabled]="isLoading">Save</button>
+        <button type="button" (click)="closeEditModal()">Cancel</button>
+      </form>
+    </div>
+  </div>
+</div>

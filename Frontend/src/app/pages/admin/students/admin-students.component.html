@@ -1,0 +1,36 @@
+<div class="students-container">
+  <h2 class="page-title">Students</h2>
+  <div class="search-container">
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      (input)="searchStudents()"
+      placeholder="Search by name..."
+      class="search-input"
+    />
+  </div>
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading students...</p>
+  </div>
+  <div *ngIf="!isLoading && filteredStudents.length === 0" class="no-data">
+    <p>No students found.</p>
+  </div>
+  <div *ngIf="!isLoading && filteredStudents.length > 0" class="students-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Enrollment Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of filteredStudents">
+          <td>{{ student.name }}</td>
+          <td>{{ student.email }}</td>
+          <td>{{ student.enrollmentDate }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

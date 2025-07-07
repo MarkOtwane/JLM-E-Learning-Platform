@@ -1,0 +1,21 @@
+<div class="pending-instructors-container">
+  <h2 class="page-title">Pending Instructors</h2>
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading pending instructors...</p>
+  </div>
+  <div *ngIf="!isLoading && pendingInstructors.length === 0" class="no-data">
+    <p>No pending instructors found.</p>
+  </div>
+  <div *ngIf="!isLoading && pendingInstructors.length > 0" class="instructors-grid">
+    <div *ngFor="let instructor of pendingInstructors" class="instructor-card">
+      <h3 class="card-title">{{ instructor.name }}</h3>
+      <p class="card-detail"><strong>Email:</strong> {{ instructor.email }}</p>
+      <p class="card-detail"><strong>Expertise:</strong> {{ instructor.expertise }}</p>
+      <div class="card-actions">
+        <button class="download-btn" (click)="downloadCv(instructor.cvUrl)">Download CV</button>
+        <button class="accept-btn" (click)="acceptInstructor(instructor.id)">Accept</button>
+        <button class="reject-btn" (click)="rejectInstructor(instructor.id)">Reject</button>
+      </div>
+    </div>
+  </div>
+</div>

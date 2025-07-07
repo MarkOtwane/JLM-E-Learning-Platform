@@ -1,0 +1,23 @@
+<div class="dashboard-container">
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading dashboard...</p>
+  </div>
+  <div *ngIf="!isLoading" class="cards-grid">
+    <div class="card">
+      <h3 class="card-title">Total Students Enrolled</h3>
+      <p class="card-value">{{ stats.totalStudents }}</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Total Instructors</h3>
+      <p class="card-value">{{ stats.totalInstructors }}</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Pending Instructors</h3>
+      <p class="card-value">{{ stats.pendingInstructors }}</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Total Earnings</h3>
+      <p class="card-value">${{ stats.totalEarnings | number:'1.2-2' }}</p>
+    </div>
+  </div>
+</div>

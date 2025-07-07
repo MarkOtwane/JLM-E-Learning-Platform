@@ -1,0 +1,42 @@
+<div class="instructors-container">
+  <h2 class="page-title">Instructors</h2>
+  <div class="search-container">
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      (input)="searchInstructors()"
+      placeholder="Search by name, email, or number of courses..."
+      class="search-input"
+    />
+  </div>
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading instructors...</p>
+  </div>
+  <div *ngIf="!isLoading && filteredInstructors.length === 0" class="no-data">
+    <p>No instructors found.</p>
+  </div>
+  <div *ngIf="!isLoading && filteredInstructors.length > 0" class="instructors-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Number of Courses</th>
+          <th>Total Students Enrolled</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let instructor of filteredInstructors">
+          <td>{{ instructor.name }}</td>
+          <td>{{ instructor.email }}</td>
+          <td>{{ instructor.courseCount }}</td>
+          <td>{{ instructor.totalStudentsEnrolled }}</td>
+          <td>
+            <button class="suspend-btn" (click)="suspendInstructor(instructor.id)">Suspend</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
