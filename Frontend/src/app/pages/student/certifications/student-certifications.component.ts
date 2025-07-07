@@ -4,8 +4,10 @@ import { RouterModule } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 
 interface Certificate {
-  id: string;
-  course: { title: string; description: string };
+  course: {
+    title: string;
+    description?: string;
+  };
   issuedAt: string;
   certificateUrl: string;
 }
@@ -19,25 +21,22 @@ interface Certificate {
 })
 export class StudentCertificationsComponent implements OnInit {
   certificates: Certificate[] = [];
-  isLoading = false;
 
   constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {
-    this.isLoading = true;
     this.apiService.getAuth<Certificate[]>('/certificates').subscribe({
       next: (certs) => {
         this.certificates = certs;
-        this.isLoading = false;
       },
       error: () => {
         this.certificates = [];
-        this.isLoading = false;
       },
     });
   }
 
-  downloadCertificate(certificateUrl: string) {
-    window.open(certificateUrl, '_blank');
+  async downloadCertificate(certUrl: string) {
+    // For now, just open the certificate URL in a new tab
+    window.open(certUrl, '_blank');
   }
 }

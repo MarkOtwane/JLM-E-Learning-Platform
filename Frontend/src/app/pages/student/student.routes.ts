@@ -1,64 +1,41 @@
-import { inject } from '@angular/core';
-import { CanActivateFn, Routes } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { StudentCoursesComponent } from './courses/student-courses.component';
+import { Routes } from '@angular/router';
 import { StudentDashboardComponent } from './dashboard/student-dashboard.component';
+import { StudentCoursesComponent } from './courses/student-courses.component';
 import { StudentPaymentComponent } from './payment/student-payment.component';
 import { StudentProfileComponent } from './profile/student-profile.component';
-
-// Async canActivate function for student routes
-const studentAuthGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
-  return new Promise<boolean>((resolve) => {
-    const sub = auth.user$.subscribe((user) => {
-      if (user && user.role === 'student') {
-        resolve(true);
-      } else {
-        window.location.href = '/login';
-        resolve(false);
-      }
-      sub.unsubscribe();
-    });
-  });
-};
 
 export const STUDENT_ROUTES: Routes = [
   {
     path: '',
     redirectTo: 'dashboard',
-    pathMatch: 'full',
+    pathMatch: 'full'
   },
   {
-    path: 'dashboard',
+    path: 'dashboard',  // Changed from '' to 'dashboard'
     component: StudentDashboardComponent,
-    title: 'Student Dashboard',
-    canActivate: [studentAuthGuard],
+    title: 'Student Dashboard'
   },
   {
     path: 'courses',
     component: StudentCoursesComponent,
-    title: 'My Courses',
-    // Courses page is public for browsing
+    title: 'My Courses'
   },
   {
     path: 'payment',
     component: StudentPaymentComponent,
-    title: 'Payment Info',
-    canActivate: [studentAuthGuard],
+    title: 'Payment Info'
   },
   {
     path: 'certifications',
     loadComponent: () =>
       import('./certifications/student-certifications.component').then(
-        (m) => m.StudentCertificationsComponent
+        m => m.StudentCertificationsComponent
       ),
-    title: 'Certifications',
-    canActivate: [studentAuthGuard],
+    title: 'Certifications'
   },
   {
     path: 'profile',
     component: StudentProfileComponent,
-    title: 'My Profile',
-    canActivate: [studentAuthGuard],
-  },
+    title: 'My Profile'
+  }
 ];

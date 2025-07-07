@@ -1,20 +1,24 @@
-<div class="student-payment-container">
-  <h2>Payment History</h2>
-  <div *ngIf="isLoading">Loading payments...</div>
-  <div *ngIf="!isLoading && payments.length === 0">No payments made yet.</div>
-  <div *ngIf="!isLoading && payments.length > 0">
-    <div class="summary">
-      <p>
-        Total Paid: <strong>{{ totalPaid | currency }}</strong>
-      </p>
-      <p>
-        Courses Paid: <strong>{{ totalCourses }}</strong>
-      </p>
-      <p>
-        Last Payment: <strong>{{ lastPaymentDate }}</strong>
-      </p>
+<div class="payment-container">
+  <h2>Payment Information</h2>
+
+  <div class="payment-summary">
+    <div class="summary-item">
+      <h3>Total Paid</h3>
+      <p>KES {{ totalPaid }}</p>
     </div>
-    <table class="payment-table">
+    <div class="summary-item">
+      <h3>Courses Enrolled</h3>
+      <p>{{ totalCourses }}</p>
+    </div>
+    <div class="summary-item">
+      <h3>Last Payment</h3>
+      <p>{{ lastPaymentDate }}</p>
+    </div>
+  </div>
+
+  <h3 class="section-title">Payment History</h3>
+  <div class="table-wrapper" *ngIf="payments.length > 0; else noPayments">
+    <table>
       <thead>
         <tr>
           <th>Course</th>
@@ -25,14 +29,20 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let payment of payments">
-          <td>{{ payment.course }}</td>
-          <td>{{ payment.amount | currency }}</td>
-          <td>{{ payment.date | date : "mediumDate" }}</td>
-          <td>{{ payment.method }}</td>
-          <td>{{ payment.status }}</td>
+        <tr *ngFor="let p of payments">
+          <td>{{ p.course }}</td>
+          <td>KES {{ p.amount }}</td>
+          <td>{{ p.date }}</td>
+          <td>{{ p.method }}</td>
+          <td>
+            <span [class]="p.status.toLowerCase()">{{ p.status }}</span>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
+
+  <ng-template #noPayments>
+    <p class="no-payments">No payment history available.</p>
+  </ng-template>
 </div>

@@ -48,7 +48,6 @@ export class AuthService {
       tap((response) => {
         this.apiService.setAuthToken(response.token);
         this.currentUserSubject.next(response.user);
-        this.checkAuthStatus(); // Force reload user from backend
       })
     );
   }
@@ -110,11 +109,5 @@ export class AuthService {
         },
       });
     }
-  }
-
-  // Synchronous check for student login (for route guards)
-  isStudentLoggedIn(): boolean {
-    const user = this.currentUserSubject.value;
-    return !!user && user.role === 'student';
   }
 }

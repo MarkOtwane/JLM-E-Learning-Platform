@@ -1,17 +1,19 @@
-<div class="student-certifications-container">
-  <h2>My Certificates</h2>
-  <div *ngIf="isLoading">Loading certificates...</div>
-  <div *ngIf="!isLoading && certificates.length === 0">
-    No certificates yet.
+<div class="certifications-container">
+  <h2>My Certifications</h2>
+
+  <div *ngIf="certificates.length === 0" class="no-certificates">
+    You haven't completed any courses yet.
   </div>
-  <div class="cert-grid" *ngIf="!isLoading && certificates.length > 0">
-    <div *ngFor="let cert of certificates" class="cert-card">
-      <h3>{{ cert.course.title }}</h3>
-      <p>{{ cert.course.description }}</p>
-      <p>Issued: {{ cert.issuedAt | date : "mediumDate" }}</p>
+
+  <ul class="certificate-list" *ngIf="certificates.length > 0">
+    <li *ngFor="let cert of certificates" class="certificate-item">
+      <div class="cert-info">
+        <h3>{{ cert.course.title }}</h3>
+        <p>Issued on {{ cert.issuedAt | date : "mediumDate" }}</p>
+      </div>
       <button (click)="downloadCertificate(cert.certificateUrl)">
-        Download Certificate
+        <i class="fas fa-download"></i> Download Certificate
       </button>
-    </div>
-  </div>
+    </li>
+  </ul>
 </div>

@@ -2,21 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { ApiService } from '../../../services/api.service';
-import { UserProfileService } from '../../../services/user-profile.service';
-
-interface StudentProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  gender?: string;
-  bio?: string;
-  profilePictureUrl?: string;
-  yearOfStudy?: string;
-  studentId?: string;
-  program?: string;
-}
+import { AppUser, AuthService } from '../../../services/auth.service';
+import {
+  ProfileUpdateRequest,
+  StudentProfile,
+  UserProfileService,
+} from '../../../services/user-profile.service';
 
 @Component({
   selector: 'app-student-profile',
@@ -43,6 +34,9 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
     studentId: '',
     program: '',
   };
+
+  // Store logged-in user
+  loggedInUser: AppUser | null = null;
 
   // Profile completion percentage
   profileCompletion = 0;
@@ -72,8 +66,8 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
   // CONSTRUCTOR
   // ========================================
   constructor(
-    private apiService: ApiService,
-    private userProfileService: UserProfileService
+    private userProfileService: UserProfileService,
+    private authService: AuthService
   ) {}
 
   // ========================================
@@ -81,8 +75,13 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
   // ========================================
 
   ngOnInit(): void {
-    this.subscribeToProfile();
-    this.loadProfile();
+    this.authService.user$.subscribe((user) => {
+      this.loggedInUser = user;
+      if (user) {
+        this.subscribeToProfile();
+        this.loadProfile(user.id);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -110,16 +109,17 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
   /**
    * Load profile data (for initial load or refresh)
    */
-  private loadProfile(): void {
+  private loadProfile(userId: string): void {
     this.isLoading = true;
-    this.apiService.getAuth<StudentProfile>('/users/me').subscribe({
-      next: (profile) => {
-        this.profile = profile;
-        this.updatedProfile = { ...profile };
+    this.userProfileService.loadProfileFromBackend(userId).subscribe({
+      next: (profile: any) => {
         this.isLoading = false;
+        // Profile is automatically updated through subscription
       },
-      error: () => {
+      error: (error: any) => {
         this.isLoading = false;
+        console.error('Error loading profile:', error);
+        alert('Error loading profile. Please try again.');
       },
     });
   }
@@ -179,24 +179,44 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
    * Saves the updated profile and closes modal
    */
   onSaveProfile(): void {
+    // Client-side validation
     if (!this.updatedProfile.name || !this.updatedProfile.email) {
       alert('Name and email are required');
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.updatedProfile.email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    // Prepare update request
+    const updateRequest: ProfileUpdateRequest = {
+      name: this.updatedProfile.name,
+      email: this.updatedProfile.email,
+      phone: this.updatedProfile.phone,
+      gender: this.updatedProfile.gender,
+      bio: this.updatedProfile.bio,
+      yearOfStudy: this.updatedProfile.yearOfStudy,
+      program: this.updatedProfile.program,
+    };
+
     this.isLoading = true;
-    this.apiService
-      .patchAuth<StudentProfile>('/users/me', this.updatedProfile)
-      .subscribe({
-        next: (profile) => {
-          this.profile = profile;
-          this.updatedProfile = { ...profile };
-          this.isLoading = false;
-          this.showEditModal = false;
-        },
-        error: () => {
-          this.isLoading = false;
-        },
-      });
+
+    this.userProfileService.updateProfile(updateRequest).subscribe({
+      next: (updatedProfile: any) => {
+        this.isLoading = false;
+        this.closeEditModal();
+        console.log('Profile updated successfully');
+        // Profile is automatically updated through subscription
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        console.error('Error updating profile:', error);
+        alert('Error updating profile. Please try again.');
+      },
+    });
   }
 
   /**
@@ -204,6 +224,7 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
    */
   closeEditModal(): void {
     this.showEditModal = false;
+    this.updatedProfile = { ...this.profile };
   }
 
   // ========================================

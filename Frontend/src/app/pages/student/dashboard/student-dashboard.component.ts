@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ApiService } from '../../../services/api.service';
 import { AppUser, AuthService } from '../../../services/auth.service';
@@ -53,7 +54,8 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
   constructor(
     private userProfileService: UserProfileService,
     private authService: AuthService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private router: Router
   ) {}
 
   // ========================================
@@ -179,11 +181,12 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Navigate to course details (placeholder)
+   * Navigate to course details (now navigates to course learning page)
    */
   onCourseClick(course: any): void {
-    console.log('Navigate to course:', course.name);
-    // TODO: Implement navigation to course details
+    if (course && course.id) {
+      this.router.navigate(['/learning/course', course.id]);
+    }
   }
 
   /**

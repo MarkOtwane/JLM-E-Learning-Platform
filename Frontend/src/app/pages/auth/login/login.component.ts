@@ -54,16 +54,16 @@ export class LoginComponent {
         // Navigate based on user role
         if (response.user.role.toLowerCase() === 'instructor') {
           if (!response.user.isApproved) {
-            setTimeout(() => this.router.navigate(['/under-review']), 0);
+    this.router.navigate(['/under-review']);
           } else {
-            setTimeout(() => this.router.navigate(['/instructor/dashboard']), 0);
-          }
+            this.router.navigate(['/instructor/dashboard']);
+  }
         } else if (response.user.role.toLowerCase() === 'student') {
-          setTimeout(() => this.router.navigate(['/student/dashboard']), 0);
+          this.router.navigate(['/student/dashboard']);
         } else if (response.user.role.toLowerCase() === 'admin') {
-          setTimeout(() => this.router.navigate(['/admin/dashboard']), 0);
+          this.router.navigate(['/admin/dashboard']);
         } else {
-          setTimeout(() => this.router.navigate(['/courses']), 0);
+          this.router.navigate(['/courses']);
         }
       },
       error: (error) => {

@@ -1,43 +1,166 @@
-<div class="student-profile-container">
-  <h2>My Profile</h2>
-  <div *ngIf="isLoading">Loading profile...</div>
-  <div *ngIf="!isLoading">
-    <div class="profile-details">
-      <p><strong>Name:</strong> {{ profile.name }}</p>
-      <p><strong>Email:</strong> {{ profile.email }}</p>
-      <p *ngIf="profile.phone"><strong>Phone:</strong> {{ profile.phone }}</p>
-      <p *ngIf="profile.gender">
-        <strong>Gender:</strong> {{ profile.gender }}
-      </p>
-      <p *ngIf="profile.program">
-        <strong>Program:</strong> {{ profile.program }}
-      </p>
-      <p *ngIf="profile.yearOfStudy">
-        <strong>Year of Study:</strong> {{ profile.yearOfStudy }}
-      </p>
-      <p *ngIf="profile.bio"><strong>Bio:</strong> {{ profile.bio }}</p>
-      <button (click)="openEditModal()">Edit Profile</button>
+<div class="profile-container">
+  
+  <!-- ========================================
+       PROFILE HEADER SECTION
+       ======================================== -->
+  <div class="profile-header">
+    <!-- Profile Picture Section -->
+    <div class="profile-picture">
+      <img *ngIf="profile.profilePictureUrl; else placeholder" 
+           [src]="profile.profilePictureUrl" 
+           alt="Profile Picture" />
+      <ng-template #placeholder>
+        <div class="placeholder-avatar">{{ profile.name.charAt(0) }}</div>
+      </ng-template>
+      <input type="file" 
+             (change)="updateProfilePicture($event)" 
+             accept="image/*"
+             class="file-input" />
     </div>
-    <div *ngIf="showEditModal" class="edit-modal">
+
+    <!-- Profile Information Display -->
+    <div class="profile-info">
+      <h2>{{ profile.name }}</h2>
+      <p>{{ profile.email }}</p>
+      <p *ngIf="profile.phone">Phone: {{ profile.phone }}</p>
+      <p *ngIf="profile.gender">Gender: {{ profile.gender }}</p>
+      <p *ngIf="profile.bio">Bio: {{ profile.bio }}</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="profile-actions">
+      <button class="edit-btn" (click)="openEditModal()">
+        <i class="fas fa-edit"></i> Edit Profile
+      </button>
+      <button class="password-btn" (click)="openPasswordModal()">
+        Change Password
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================
+       PROFILE COMPLETION SECTION
+       ======================================== -->
+  <div class="profile-completion">
+    <p>Profile Completion: {{ profileCompletion }}%</p>
+    <div class="completion-bar">
+      <div class="completion-fill" [style.width.%]="profileCompletion"></div>
+    </div>
+  </div>
+
+  <!-- ========================================
+       EDIT PROFILE MODAL
+       ======================================== -->
+  <div class="modal" *ngIf="showEditModal">
+    <div class="modal-content">
       <h3>Edit Profile</h3>
       <form (ngSubmit)="onSaveProfile()">
-        <label>Name</label>
-        <input [(ngModel)]="updatedProfile.name" name="name" required />
-        <label>Email</label>
-        <input [(ngModel)]="updatedProfile.email" name="email" required />
-        <label>Phone</label>
-        <input [(ngModel)]="updatedProfile.phone" name="phone" />
-        <label>Gender</label>
-        <input [(ngModel)]="updatedProfile.gender" name="gender" />
-        <label>Program</label>
-        <input [(ngModel)]="updatedProfile.program" name="program" />
-        <label>Year of Study</label>
-        <input [(ngModel)]="updatedProfile.yearOfStudy" name="yearOfStudy" />
-        <label>Bio</label>
-        <textarea [(ngModel)]="updatedProfile.bio" name="bio"></textarea>
-        <button type="submit" [disabled]="isLoading">Save</button>
-        <button type="button" (click)="closeEditModal()">Cancel</button>
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" 
+                 [(ngModel)]="updatedProfile.name" 
+                 name="name" 
+                 required 
+                 placeholder="Enter your full name" />
+        </div>
+
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" 
+                 [(ngModel)]="updatedProfile.email" 
+                 name="email" 
+                 required 
+                 placeholder="Enter your email address" />
+        </div>
+
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" 
+                 [(ngModel)]="updatedProfile.phone" 
+                 name="phone" 
+                 placeholder="Enter your phone number" />
+        </div>
+
+        <div class="form-group">
+          <label>Gender</label>
+          <select [(ngModel)]="updatedProfile.gender" name="gender">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Bio</label>
+          <textarea [(ngModel)]="updatedProfile.bio" 
+                    name="bio" 
+                    rows="3"
+                    placeholder="Tell us about yourself..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="save-btn">Save Changes</button>
+          <button type="button" 
+                  class="cancel-btn" 
+                  (click)="closeEditModal()">Cancel</button>
+        </div>
       </form>
     </div>
   </div>
+
+  <!-- ========================================
+       CHANGE PASSWORD MODAL
+       ======================================== -->
+  <div class="modal" *ngIf="showPasswordModal">
+    <div class="modal-content">
+      <h3>Change Password</h3>
+      <form (ngSubmit)="onChangePassword()">
+        <div class="form-group">
+          <label>Email Verification Code *</label>
+          <input type="text" 
+                 [(ngModel)]="emailCode" 
+                 name="emailCode" 
+                 required 
+                 placeholder="Enter verification code" />
+          <small *ngIf="codeSent" class="success-text">
+            ✓ Verification code sent to {{ profile.email }}
+          </small>
+          <small *ngIf="!codeSent" class="info-text">
+            Please wait while we send the verification code...
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Current Password *</label>
+          <input type="password" 
+                 [(ngModel)]="oldPassword" 
+                 name="oldPassword" 
+                 required 
+                 placeholder="Enter your current password" />
+        </div>
+
+        <div class="form-group">
+          <label>New Password *</label>
+          <input type="password" 
+                 [(ngModel)]="newPassword" 
+                 name="newPassword" 
+                 required 
+                 placeholder="Enter your new password" />
+          <small class="info-text">
+            Password must be at least 8 characters long
+          </small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="save-btn">Change Password</button>
+          <button type="button" 
+                  class="cancel-btn" 
+                  (click)="closePasswordModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </div>
