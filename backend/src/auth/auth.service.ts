@@ -82,6 +82,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
         profilePicture: user.profilePicture,
+        isApproved: user.isApproved,
       },
     };
   }

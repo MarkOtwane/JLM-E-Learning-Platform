@@ -1,20 +1,17 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service'; // Fixed import path
 
 interface CourseData {
   title: string;
   category: string;
-  level: 'beginner' | 'intermediate' | 'advanced' | '';
-  duration: string;
-  price: number;
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | '';
+  duration: number | null;
   description: string;
-  fullDescription: string;
-  curriculum: string[];
-  image?: File;
+  isPremium: boolean;
 }
 
 @Component({
@@ -22,18 +19,16 @@ interface CourseData {
   standalone: true,
   templateUrl: './create-course.component.html',
   styleUrls: ['./create-course.component.css'],
-  imports: [FormsModule, CommonModule, HttpClientModule]
+  imports: [FormsModule, CommonModule, HttpClientModule],
 })
 export class CreateCourseComponent implements OnInit {
   course: CourseData = {
     title: '',
     category: '',
     level: '',
-    duration: '',
-    price: 0,
+    duration: null,
     description: '',
-    fullDescription: '',
-    curriculum: [''] // Start with one empty curriculum item
+    isPremium: false,
   };
 
   imagePreview: string | null = null;
@@ -50,54 +45,11 @@ export class CreateCourseComponent implements OnInit {
     // Get current user info for instructor data
     this.authService.user$.subscribe((user: any) => {
       this.currentUser = user;
-      if (!user || user.role !== 'instructor') {
+      if (!user || user.role.toLowerCase() !== 'instructor') {
         // Redirect if not an instructor
         this.router.navigate(['/']);
       }
     });
-  }
-
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input?.files?.[0];
-    
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please select a valid image file.');
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image size should be less than 5MB.');
-        return;
-      }
-
-      this.course.image = file;
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.imagePreview = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  removeImage(): void {
-    this.course.image = undefined;
-    this.imagePreview = null;
-  }
-
-  addCurriculumItem(): void {
-    this.course.curriculum.push('');
-  }
-
-  removeCurriculumItem(index: number): void {
-    if (this.course.curriculum.length > 1) {
-      this.course.curriculum.splice(index, 1);
-    }
   }
 
   onSubmit(): void {
@@ -106,52 +58,41 @@ export class CreateCourseComponent implements OnInit {
       return;
     }
 
-    // Validate curriculum items
-    const validCurriculumItems = this.course.curriculum.filter(item => item.trim() !== '');
-    if (validCurriculumItems.length === 0) {
-      alert('Please add at least one learning point to the curriculum.');
+    // Validate required fields
+    if (
+      !this.course.title ||
+      !this.course.category ||
+      !this.course.level ||
+      !this.course.duration ||
+      !this.course.description
+    ) {
+      alert('Please fill in all required fields.');
       return;
     }
 
     this.isSubmitting = true;
 
-    // Prepare form data
-    const formData = new FormData();
-    
-    // Add course data
-    formData.append('title', this.course.title);
-    formData.append('category', this.course.category);
-    formData.append('level', this.course.level);
-    formData.append('duration', this.course.duration);
-    formData.append('price', this.course.price.toString());
-    formData.append('description', this.course.description);
-    formData.append('fullDescription', this.course.fullDescription);
-    formData.append('curriculum', JSON.stringify(validCurriculumItems));
-    
-    // Add instructor info (from current user)
-    formData.append('instructorId', this.currentUser.id);
-    formData.append('instructorName', this.currentUser.name);
-    formData.append('instructorEmail', this.currentUser.email);
-    
-    // Add image if selected
-    if (this.course.image) {
-      formData.append('image', this.course.image);
-    }
+    // Prepare payload matching backend expectations
+    const payload = {
+      title: this.course.title,
+      description: this.course.description,
+      level: this.course.level,
+      category: this.course.category,
+      duration: Number(this.course.duration),
+      isPremium: this.course.isPremium,
+    };
 
-    // Submit to backend
-    this.http.post('http://localhost:3000/api/courses', formData).subscribe({
+    this.http.post('http://localhost:3000/api/courses', payload).subscribe({
       next: (response: any) => {
         alert('Course created successfully!');
-        // Navigate to course content builder with the new course ID
-        this.router.navigate(['/course-content-builder'], { 
-          queryParams: { courseId: response.courseId } 
-        });
+        // Navigate to instructor dashboard or course list
+        this.router.navigate(['/instructor/dashboard']);
       },
       error: (error) => {
         console.error('Error creating course:', error);
         alert('Failed to create course. Please try again.');
         this.isSubmitting = false;
-      }
+      },
     });
   }
 

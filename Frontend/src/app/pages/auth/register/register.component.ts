@@ -46,8 +46,6 @@ export class RegisterComponent {
 
   isFormInvalid(): boolean {
     if (!this.fullName || !this.email || !this.password) return true;
-    if (this.role === 'instructor' && (!this.expertise || !this.cvFile))
-      return true;
     return false;
   }
 
@@ -65,11 +63,6 @@ export class RegisterComponent {
       password: this.password,
       role: this.role === 'learner' ? 'STUDENT' : 'INSTRUCTOR',
     };
-
-    if (this.role === 'instructor') {
-      payload.expertise = this.expertise;
-      payload.cv = this.cvFile;
-    }
 
     this.authService.register(payload).subscribe({
       next: (response) => {
