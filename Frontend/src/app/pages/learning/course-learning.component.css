@@ -1,9 +1,9 @@
 /* Custom styles using provided color variables */
 :root {
-  --color-bg-main: #E1F0F3;
-  --color-accent-light: #6FEBEB;
-  --color-accent: #38EBEB;
-  --color-muted: #D9D9D9;
+  --color-bg-main: #e1f0f3;
+  --color-accent-light: #6febeb;
+  --color-accent: #38ebeb;
+  --color-muted: #d9d9d9;
   --color-white: #ffffff;
   --color-black: #000000;
 }
@@ -15,27 +15,55 @@ body {
 .sidebar {
   background-color: var(--color-white);
   border-right: 1px solid var(--color-muted);
+  min-width: 240px;
+  max-width: 300px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+  padding-top: 24px;
 }
 
 .sidebar-header {
-  color: var(--color-black);
-  border-bottom: 1px solid var(--color-muted);
+  color: var(--color-accent);
+  border-bottom: 2px solid var(--color-accent-light);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
 }
 
 .module-title {
   color: var(--color-black);
+  margin-bottom: 6px;
 }
 
 .topic-link {
   color: var(--color-black);
+  background: none;
+  border: none;
+  padding: 6px 0 6px 8px;
+  width: 100%;
+  text-align: left;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+  font-size: 15px;
 }
 
-.topic-link:hover, .topic-link.active {
+.topic-link:hover,
+.topic-link.active {
   color: var(--color-accent);
+  background: var(--color-accent-light);
+}
+
+.topic-link.line-through {
+  text-decoration: line-through;
+  color: #aaa;
 }
 
 .quiz-link {
   color: var(--color-accent-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  margin-left: 6px;
+  transition: color 0.2s;
 }
 
 .quiz-link:hover {
@@ -43,49 +71,137 @@ body {
 }
 
 .final-exam-link {
-  color: var(--color-accent-light);
+  color: var(--color-accent);
+  background: #f8f8f8;
+  border: 1px solid var(--color-accent-light);
+  border-radius: 4px;
+  margin-top: 12px;
+  font-weight: 500;
+  padding: 8px 12px;
+  transition: background 0.2s, color 0.2s;
 }
 
 .final-exam-link:hover {
-  color: var(--color-accent);
+  background: var(--color-accent-light);
+  color: var(--color-black);
 }
 
 .main-content {
   background-color: var(--color-bg-main);
+  min-height: 100vh;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  margin: 24px 24px 24px 0;
+  padding: 32px 40px;
 }
 
 .content-title {
-  color: var(--color-black);
+  color: var(--color-accent);
+  margin-bottom: 18px;
 }
 
 .prose p {
   color: var(--color-black);
   margin-bottom: 1rem;
+  font-size: 1.1rem;
+  line-height: 1.7;
 }
 
-video, embed {
+video,
+embed {
   border: 1px solid var(--color-muted);
+  border-radius: 8px;
+  margin-bottom: 16px;
 }
 
 .nav-button {
   background-color: var(--color-muted);
   color: var(--color-black);
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 8px 20px;
+  margin: 0 8px;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
 }
 
 .nav-button:hover:not(:disabled) {
   background-color: var(--color-accent-light);
+  color: var(--color-black);
 }
 
 .nav-button:disabled {
   background-color: var(--color-muted);
   opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .complete-button {
   background-color: var(--color-accent);
   color: var(--color-white);
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 8px 20px;
+  margin: 0 8px;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
 }
 
 .complete-button.completed {
   background-color: var(--color-accent-light);
+  color: var(--color-black);
+}
+
+.dashboard-link {
+  display: block;
+  margin: 0 0 24px 0;
+  padding: 8px 20px;
+  background: var(--color-accent, #00c4cc);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-link:hover {
+  background: #009fa8;
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .flex {
+    flex-direction: column;
+  }
+  .sidebar {
+    max-width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--color-muted);
+    box-shadow: none;
+    padding-top: 12px;
+  }
+  .main-content {
+    margin: 0;
+    padding: 16px 8px;
+    border-radius: 0;
+  }
+}
+@media (max-width: 600px) {
+  .main-content {
+    padding: 8px 2px;
+  }
+  .sidebar-header {
+    font-size: 1.1rem;
+  }
+  .content-title {
+    font-size: 1.2rem;
+  }
 }

@@ -32,7 +32,7 @@ export class AdminInstructorsComponent implements OnInit {
 
   loadInstructors(): void {
     this.isLoading = true;
-    this.http.get<Instructor[]>('http://localhost:3000/api/admin/instructors').subscribe({
+    this.http.get<Instructor[]>('http://localhost:3000/api/admin/users?role=INSTRUCTOR').subscribe({
       next: (data) => {
         this.instructors = data;
         this.filteredInstructors = data;
@@ -40,31 +40,6 @@ export class AdminInstructorsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading instructors:', error);
-        // Mock data for development
-        this.instructors = [
-          {
-            id: '1',
-            name: 'Alice Johnson',
-            email: 'alice.johnson@example.com',
-            courseCount: 3,
-            totalStudentsEnrolled: 120,
-          },
-          {
-            id: '2',
-            name: 'Bob Smith',
-            email: 'bob.smith@example.com',
-            courseCount: 0,
-            totalStudentsEnrolled: 0,
-          },
-          {
-            id: '3',
-            name: 'Carol White',
-            email: 'carol.white@example.com',
-            courseCount: 2,
-            totalStudentsEnrolled: 80,
-          },
-        ];
-        this.filteredInstructors = this.instructors;
         this.isLoading = false;
       },
     });
@@ -79,20 +54,33 @@ export class AdminInstructorsComponent implements OnInit {
     );
   }
 
-  suspendInstructor(id: string): void {
-    if (confirm('Are you sure you want to suspend this instructor?')) {
-      this.http.delete(`http://localhost:3000/api/admin/instructors/${id}`).subscribe({
+  deleteInstructor(id: string): void {
+    if (confirm('Are you sure you want to delete this instructor? This action cannot be undone.')) {
+      this.http.delete(`http://localhost:3000/api/admin/users/${id}`).subscribe({
         next: () => {
           this.instructors = this.instructors.filter((instructor) => instructor.id !== id);
           this.filteredInstructors = this.filteredInstructors.filter((instructor) => instructor.id !== id);
-          alert('Instructor suspended successfully.');
+          alert('Instructor deleted successfully.');
         },
         error: (error) => {
-          console.error('Error suspending instructor:', error);
-          alert('Failed to suspend instructor.');
+          console.error('Error deleting instructor:', error);
+          alert('Failed to delete instructor.');
         },
       });
     }
+  }
+
+  approveInstructor(id: string): void {
+    this.http.post('http://localhost:3000/api/admin/users/update-role', { userId: id, role: 'INSTRUCTOR' }).subscribe({
+      next: () => {
+        alert('Instructor approved successfully.');
+        this.loadInstructors();
+      },
+      error: (error) => {
+        console.error('Error approving instructor:', error);
+        alert('Failed to approve instructor.');
+      },
+    });
   }
 }
 

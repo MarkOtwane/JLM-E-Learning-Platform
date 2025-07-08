@@ -1,8 +1,8 @@
 :root {
-  --color-bg-main: #E1F0F3;
-  --color-accent-light: #6FEBEB;
-  --color-accent: #38EBEB;
-  --color-muted: #D9D9D9;
+  --color-bg-main: #e1f0f3;
+  --color-accent-light: #6febeb;
+  --color-accent: #38ebeb;
+  --color-muted: #d9d9d9;
   --color-white: #ffffff;
   --color-black: #000000;
 }
@@ -42,7 +42,8 @@
   border-color: var(--color-accent);
 }
 
-.loading, .no-data {
+.loading,
+.no-data {
   text-align: center;
   color: var(--color-black);
   font-size: 16px;
@@ -62,7 +63,8 @@ table {
   overflow: hidden;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: left;
   color: var(--color-black);
@@ -76,4 +78,19 @@ th {
 
 td {
   border-bottom: 1px solid var(--color-muted);
+}
+
+.delete-btn {
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.delete-btn:hover {
+  background: #d9363e;
 }

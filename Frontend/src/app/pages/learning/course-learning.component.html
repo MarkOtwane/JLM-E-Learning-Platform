@@ -37,6 +37,7 @@
 
   <!-- Main Content -->
   <div class="flex-1 p-6 main-content overflow-y-auto">
+    <button class="dashboard-link" (click)="goToDashboard()">← Back to Dashboard</button>
     <div *ngIf="isLoading" class="text-center">
       <p>Loading course content...</p>
     </div>

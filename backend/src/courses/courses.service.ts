@@ -8,9 +8,9 @@ import {
 import { UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCourseDto } from './dto/create-course.dto';
+import { CreateModuleDto } from './dto/create-module.dto';
 import { FilterCoursesDto } from './dto/filter-courses.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { CreateModuleDto } from './dto/create-module.dto';
 
 @Injectable()
 export class CoursesService {
@@ -110,13 +110,15 @@ export class CoursesService {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
     });
-    
+
     if (!course) {
       throw new NotFoundException('Course not found');
     }
-    
+
     if (course.instructorId !== userId) {
-      throw new ForbiddenException('Access denied: You can only add modules to your own courses');
+      throw new ForbiddenException(
+        'Access denied: You can only add modules to your own courses',
+      );
     }
 
     // Get the next order number for this course
@@ -134,5 +136,19 @@ export class CoursesService {
         order: nextOrder,
       },
     });
+  }
+
+  async getCourseContent(courseId: string) {
+    // Get all modules for the course, including their content
+    const modules = await this.prisma.module.findMany({
+      where: { courseId },
+      orderBy: { order: 'asc' },
+      include: {
+        contents: {
+          orderBy: { id: 'asc' },
+        },
+      },
+    });
+    return modules;
   }
 }

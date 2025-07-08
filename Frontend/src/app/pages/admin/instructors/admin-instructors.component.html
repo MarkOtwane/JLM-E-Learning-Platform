@@ -15,7 +15,10 @@
   <div *ngIf="!isLoading && filteredInstructors.length === 0" class="no-data">
     <p>No instructors found.</p>
   </div>
-  <div *ngIf="!isLoading && filteredInstructors.length > 0" class="instructors-table">
+  <div
+    *ngIf="!isLoading && filteredInstructors.length > 0"
+    class="instructors-table"
+  >
     <table>
       <thead>
         <tr>
@@ -33,7 +36,18 @@
           <td>{{ instructor.courseCount }}</td>
           <td>{{ instructor.totalStudentsEnrolled }}</td>
           <td>
-            <button class="suspend-btn" (click)="suspendInstructor(instructor.id)">Suspend</button>
+            <button
+              (click)="approveInstructor(instructor.id)"
+              class="approve-btn"
+            >
+              Approve
+            </button>
+            <button
+              (click)="deleteInstructor(instructor.id)"
+              class="delete-btn"
+            >
+              Delete
+            </button>
           </td>
         </tr>
       </tbody>

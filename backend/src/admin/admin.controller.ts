@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards, Delete, Param } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -28,5 +28,23 @@ export class AdminController {
   @Roles(UserRole.ADMIN)
   async getPlatformStats() {
     return this.adminService.getPlatformStats();
+  }
+
+  @Delete('users/:id')
+  @Roles(UserRole.ADMIN)
+  async deleteUser(@Param('id') userId: string) {
+    return this.adminService.deleteUser(userId);
+  }
+
+  @Delete('courses/:id')
+  @Roles(UserRole.ADMIN)
+  async deleteCourse(@Param('id') courseId: string) {
+    return this.adminService.deleteCourse(courseId);
+  }
+
+  @Get('certificates')
+  @Roles(UserRole.ADMIN)
+  async listCertificates() {
+    return this.adminService.listCertificates();
   }
 }

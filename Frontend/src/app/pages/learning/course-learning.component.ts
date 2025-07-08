@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ApiService } from '../../services/api.service';
 
 interface QuizQuestion {
   question: string;
@@ -51,7 +52,8 @@ export class CourseLearningComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService
   ) {}
 
   ngOnInit(): void {
@@ -62,21 +64,23 @@ export class CourseLearningComponent implements OnInit {
 
   loadCourseContent(): void {
     this.isLoading = true;
-    this.http
-      .get<CourseContent>(
-        `http://localhost:3000/api/students/courses/${this.courseId}`
-      )
-      .subscribe({
-        next: (content) => {
-          this.courseContent = content;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading course content:', error);
-          alert('Failed to load course content. Please try again.');
-          this.isLoading = false;
-        },
-      });
+    this.apiService.getAuth(`/students/courses/${this.courseId}`).subscribe({
+      next: (content: any) => {
+        if (content && content.modules) {
+          content.modules = content.modules.map((mod: any) => ({
+            ...mod,
+            topics: mod.contents || [],
+          }));
+        }
+        this.courseContent = content;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading course content:', error);
+        alert('Failed to load course content. Please try again.');
+        this.isLoading = false;
+      },
+    });
   }
 
   loadCompletedTopics(): void {
@@ -155,6 +159,10 @@ export class CourseLearningComponent implements OnInit {
       ];
     }
     return null;
+  }
+
+  goToDashboard(): void {
+    this.router.navigate(['/student/dashboard']);
   }
 }
 

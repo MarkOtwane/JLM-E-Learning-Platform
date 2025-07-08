@@ -29,6 +29,30 @@
     </div>
   </div>
 
+  <!-- List of Instructor's Courses -->
+  <div class="dashboard-card" *ngIf="courses.length">
+    <h3>My Courses</h3>
+    <table style="width: 100%; margin-top: 10px">
+      <thead>
+        <tr>
+          <th style="text-align: left">Course Title</th>
+          <th style="text-align: right">Enrolled Students</th>
+          <th style="text-align: right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let course of courses">
+          <td>{{ course.courseTitle }}</td>
+          <td style="text-align: right">{{ course.totalStudents }}</td>
+          <td style="text-align: right">
+            <button (click)="editCourse(course.courseId)" class="edit-btn">Edit</button>
+            <button (click)="deleteCourse(course.courseId)" class="delete-btn">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <!-- Bottom Section -->
   <div class="bottom-section">
     <!-- Calendar -->

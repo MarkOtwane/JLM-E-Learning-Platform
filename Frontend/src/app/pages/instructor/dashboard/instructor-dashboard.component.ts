@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -17,8 +18,13 @@ export class InstructorDashboardComponent implements OnInit {
   totalStudents: number = 0;
   totalEarnings: number = 0;
   recentActivity: string[] = [];
+  courses: any[] = [];
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private apiService: ApiService
+  ) {}
 
   ngOnInit(): void {
     this.authService.user$.subscribe((user) => {
@@ -27,9 +33,18 @@ export class InstructorDashboardComponent implements OnInit {
         this.instructorName = user.firstName || user.email;
       }
     });
+    // Fetch instructor metrics from backend
+    this.apiService.getAuth('/instructors/dashboard').subscribe({
+      next: (data: any) => {
+        this.courseCount = data.totalCourses;
+        this.totalStudents = data.totalStudents;
+        this.courses = data.courses || [];
+      },
+      error: (err) => {
+        console.error('Failed to load instructor dashboard data', err);
+      },
+    });
     // These values would eventually come from the backend
-    this.courseCount = 4;
-    this.totalStudents = 123;
     this.totalEarnings = 4200;
     this.recentActivity = [
       'Published "Intro to Web Development"',
@@ -41,5 +56,29 @@ export class InstructorDashboardComponent implements OnInit {
 
   goToCreateCourse(): void {
     this.router.navigate(['/instructor/create-course']);
+  }
+
+  deleteCourse(courseId: string) {
+    if (
+      confirm(
+        'Are you sure you want to delete this course? This action cannot be undone.'
+      )
+    ) {
+      this.apiService.deleteAuth(`/courses/${courseId}`).subscribe({
+        next: () => {
+          this.courses = this.courses.filter((c) => c.courseId !== courseId);
+          this.courseCount = this.courses.length;
+          // Optionally, refresh dashboard data from backend
+        },
+        error: (err) => {
+          alert('Failed to delete course.');
+          console.error(err);
+        },
+      });
+    }
+  }
+
+  editCourse(courseId: string) {
+    this.router.navigate([`/instructor/edit-course/${courseId}`]);
   }
 }

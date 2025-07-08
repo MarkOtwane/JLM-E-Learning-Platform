@@ -7,12 +7,13 @@ import {
   Param,
   Body,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express';
 import { ContentService } from './content.service';
 import { UploadContentDto } from './dto/upload-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
@@ -63,5 +64,17 @@ export class ContentController {
     @Param('id') contentId: string,
   ) {
     await this.contentService.deleteContent(userId, role, contentId);
+  }
+
+  @Post('/courses/content')
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN)
+  @UseInterceptors(AnyFilesInterceptor())
+  async uploadBulkCourseContent(
+    @User('id') userId: string,
+    @User('role') role: UserRole,
+    @Body() body: any,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return this.contentService.uploadBulkCourseContent(userId, role, body, files);
   }
 }

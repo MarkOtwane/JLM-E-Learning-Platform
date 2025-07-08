@@ -1,14 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  RouterModule,
+} from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit {
   hideAuthButtons = false;
@@ -18,45 +23,48 @@ export class NavbarComponent implements OnInit {
   searchQuery = '';
   selectedCategory = 'all';
 
-  constructor(
-  private router: Router,
-  private route: ActivatedRoute
-) {
-  this.router.events.subscribe(event => {
-    if (event instanceof NavigationEnd) {
-      const url = event.urlAfterRedirects || event.url;
+  constructor(private router: Router, private route: ActivatedRoute) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        const url = event.urlAfterRedirects || event.url;
 
-      const hiddenAuthRoutes = ['/login', '/register', '/pending', '/under-review'];
-this.hideAuthButtons =
-  hiddenAuthRoutes.includes(url) ||
-  url.startsWith('/student') ||
-  url.startsWith('/instructor') ||
-  url.startsWith('/admin');
+        const hiddenAuthRoutes = [
+          '/login',
+          '/register',
+          '/pending',
+          '/under-review',
+        ];
+        // Hide auth buttons for all /student pages (including /student/course/...)
+        this.hideAuthButtons =
+          hiddenAuthRoutes.includes(url) || url.startsWith('/student');
 
-const hiddenSecondNavbarRoutes = ['/login', '/register', '/pending', '/under-review'];
-this.hideSecondNavbar =
-  hiddenSecondNavbarRoutes.includes(url) ||
-  url.startsWith('/student') ||
-  url.startsWith('/instructor') ||
-  url.startsWith('/admin');
+        const hiddenSecondNavbarRoutes = [
+          '/login',
+          '/register',
+          '/pending',
+          '/under-review',
+        ];
+        this.hideSecondNavbar =
+          hiddenSecondNavbarRoutes.includes(url) ||
+          url.startsWith('/student') ||
+          url.startsWith('/instructor') ||
+          url.startsWith('/admin');
 
-  
-      this.userName = localStorage.getItem('userName');
-      this.userRole = localStorage.getItem('userRole');
+        this.userName = localStorage.getItem('userName');
+        this.userRole = localStorage.getItem('userRole');
 
-      this.route.queryParams.subscribe(params => {
-        if (params['category']) {
-          this.selectedCategory = params['category'];
-        }
-      });
-    }
-  });
-}
-
+        this.route.queryParams.subscribe((params) => {
+          if (params['category']) {
+            this.selectedCategory = params['category'];
+          }
+        });
+      }
+    });
+  }
 
   ngOnInit() {
     // Initialize selected category from URL params
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['category']) {
         this.selectedCategory = params['category'];
       }
@@ -70,7 +78,7 @@ this.hideSecondNavbar =
       if (this.selectedCategory !== 'all') {
         queryParams.category = this.selectedCategory;
       }
-      
+
       this.router.navigate(['/courses'], { queryParams });
       this.searchQuery = '';
     }
@@ -78,15 +86,15 @@ this.hideSecondNavbar =
 
   filterByCategory(category: string) {
     this.selectedCategory = category;
-    
+
     // Build query params
     const queryParams: any = {};
     if (category !== 'all') {
       queryParams.category = category;
     }
-    
+
     // If there's an active search, maintain it
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['q']) {
         queryParams.q = params['q'];
       }

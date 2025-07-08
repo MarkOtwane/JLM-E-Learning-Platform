@@ -61,4 +61,22 @@ export class AdminService {
       totalCertificatesIssued,
     };
   }
+
+  async deleteUser(userId: string) {
+    // Remove user and all related data (enrollments, courses if instructor, etc.)
+    await this.prisma.user.delete({ where: { id: userId } });
+    return { message: 'User deleted successfully' };
+  }
+
+  async deleteCourse(courseId: string) {
+    // Remove course and all related data (modules, content, enrollments, etc.)
+    await this.prisma.course.delete({ where: { id: courseId } });
+    return { message: 'Course deleted successfully' };
+  }
+
+  async listCertificates() {
+    return this.prisma.certificate.findMany({
+      orderBy: { issuedAt: 'desc' },
+    });
+  }
 }

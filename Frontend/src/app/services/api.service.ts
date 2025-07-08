@@ -87,9 +87,15 @@ export class ApiService {
 
   postAuth<T>(endpoint: string, data: any): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
+    // If data is FormData, do not set Content-Type (let browser set it)
+    const isFormData =
+      typeof FormData !== 'undefined' && data instanceof FormData;
+    const headers = isFormData
+      ? this.getAuthHeaders().delete('Content-Type')
+      : this.getAuthHeaders();
     return this.http
       .post<T>(url, data, {
-        headers: this.getAuthHeaders(),
+        headers,
       })
       .pipe(catchError(this.handleAuthError));
   }

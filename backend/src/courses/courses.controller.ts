@@ -10,12 +10,16 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { UserRole } from '@prisma/client';
 import { Roles, User } from '../auth/decorators';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
+import { ContentService } from '../content/content.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -29,6 +33,7 @@ export class CoursesController {
   constructor(
     private readonly coursesService: CoursesService,
     private readonly prisma: PrismaService,
+    private readonly contentService: ContentService,
   ) {}
 
   @Post()
@@ -133,5 +138,27 @@ export class CoursesController {
     }
 
     return this.coursesService.createModule(userId, courseId, dto);
+  }
+
+  @Get(':courseId/content')
+  async getCourseContent(@Param('courseId') courseId: string) {
+    return this.coursesService.getCourseContent(courseId);
+  }
+
+  @Post('content')
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN)
+  @UseInterceptors(AnyFilesInterceptor())
+  async uploadBulkCourseContent(
+    @User('id') userId: string,
+    @User('role') role: UserRole,
+    @Body() body: any,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return this.contentService.uploadBulkCourseContent(
+      userId,
+      role,
+      body,
+      files,
+    );
   }
 }

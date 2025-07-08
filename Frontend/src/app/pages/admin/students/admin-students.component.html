@@ -22,6 +22,7 @@
           <th>Name</th>
           <th>Email</th>
           <th>Enrollment Date</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -29,6 +30,11 @@
           <td>{{ student.name }}</td>
           <td>{{ student.email }}</td>
           <td>{{ student.enrollmentDate }}</td>
+          <td>
+            <button (click)="deleteStudent(student.id)" class="delete-btn">
+              Delete
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>

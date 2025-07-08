@@ -299,10 +299,10 @@ export class CourseContentBuilderComponent implements OnInit {
     });
 
     // Submit to backend
-    this.apiService.post('courses/content', formData).subscribe({
+    this.apiService.postAuth('/courses/content', formData).subscribe({
       next: (response: any) => {
         alert('Course content saved successfully!');
-        this.router.navigate(['/instructor-dashboard']);
+        this.router.navigate(['/instructor/dashboard']);
       },
       error: (error) => {
         console.error('Error saving course content:', error);
