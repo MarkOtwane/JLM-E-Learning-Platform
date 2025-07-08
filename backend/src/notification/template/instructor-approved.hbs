@@ -1,39 +1,86 @@
-<html>
+<html lang='en'>
   <head>
     <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>Instructor Application Approved</title>
     <style>
       body {
         font-family: Arial, sans-serif;
+        line-height: 1.6;
         color: #333;
-        background-color: #f4f4f4;
+        max-width: 600px;
+        margin: 0 auto;
         padding: 20px;
       }
-      .container {
-        max-width: 600px;
-        background-color: #ffffff;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      .header {
+        background-color: #4caf50;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        border-radius: 5px 5px 0 0;
       }
-      h2 {
+      .content {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 0 0 5px 5px;
+      }
+      .success-icon {
+        font-size: 48px;
         color: #4caf50;
+        text-align: center;
+        margin: 20px 0;
       }
-      p {
-        line-height: 1.6;
+      .button {
+        display: inline-block;
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #666;
+        font-size: 14px;
       }
     </style>
   </head>
   <body>
-    <div class='container'>
-      <h2>Congratulations, {{name}}! 🎉</h2>
-      <p>Your instructor application has been <strong>approved</strong>.</p>
-      <p>You now have access to create and manage your own courses on
-        <strong>JLM E-Learning Platform</strong>.</p>
-      <p>Start by logging into your dashboard and launching your first course.</p>
-      <p>We look forward to the amazing content you'll share with learners
-        around the world.</p>
-      <p>— The JLM Admin Team</p>
+    <div class='header'>
+      <h1>✅ Congratulations!</h1>
+    </div>
+
+    <div class='content'>
+      <div class='success-icon'>🎉</div>
+
+      <h2>Hello {{name}}!</h2>
+
+      <p>Great news! Your instructor application has been approved.</p>
+
+      <p>You can now:</p>
+      <ul>
+        <li>Create and publish courses</li>
+        <li>Manage your course content</li>
+        <li>Track student progress</li>
+        <li>Earn revenue from your courses</li>
+      </ul>
+
+      <p>Ready to start teaching? Click the button below to access your
+        instructor dashboard:</p>
+
+      <a href='{{dashboardUrl}}' class='button'>Access Instructor Dashboard</a>
+
+      <p>If you have any questions about creating courses or using the platform,
+        our support team is here to help.</p>
+
+      <p>Welcome to the JLM E-Learning instructor community!</p>
+      <p><strong>The JLM E-Learning Team</strong></p>
+    </div>
+
+    <div class='footer'>
+      <p>© 2024 JLM E-Learning Platform. All rights reserved.</p>
     </div>
   </body>
 </html>

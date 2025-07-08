@@ -1,39 +1,78 @@
-<html>
-  <head>
-    <meta charset='UTF-8' />
-    <title>Welcome to JLM E-Learning</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to JLM E-Learning Platform</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        color: #333;
-        background-color: #f9f9f9;
-        padding: 20px;
-      }
-      .container {
-        max-width: 600px;
-        background-color: #ffffff;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-      h1 {
-        color: #4caf50;
-      }
-      p {
-        line-height: 1.6;
-      }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
     </style>
-  </head>
-  <body>
-    <div class='container'>
-      <h1>Welcome, {{name}}! 🎉</h1>
-      <p>Thank you for signing up for
-        <strong>JLM E-Learning Platform</strong>.</p>
-      <p>We’re excited to have you on board. You can now start exploring free
-        and premium courses to grow your knowledge.</p>
-      <p>If you have any questions, feel free to reach out to our support team.</p>
-      <p>Happy learning!<br />
-        — The JLM Team</p>
+</head>
+<body>
+    <div class="header">
+        <h1>🎉 Welcome to JLM E-Learning Platform!</h1>
     </div>
-  </body>
+    
+    <div class="content">
+        <h2>Hello {{name}}!</h2>
+        
+        <p>Thank you for joining JLM E-Learning Platform. We're excited to have you as part of our learning community!</p>
+        
+        <p>Here's what you can do next:</p>
+        <ul>
+            <li>Browse our extensive course catalog</li>
+            <li>Complete your profile setup</li>
+            <li>Start learning with our interactive courses</li>
+            <li>Connect with instructors and fellow learners</li>
+        </ul>
+        
+        {{#if resetLink}}
+        <p>To get started, please verify your account:</p>
+        <a href="{{resetLink}}" class="button">Verify Account</a>
+        {{/if}}
+        
+        <p>If you have any questions, feel free to reach out to our support team.</p>
+        
+        <p>Happy learning!</p>
+        <p><strong>The JLM E-Learning Team</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 JLM E-Learning Platform. All rights reserved.</p>
+    </div>
+</body>
 </html>

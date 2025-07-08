@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { FilterUsersDto } from './dto/filter-users.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { PlatformStats } from './types/platform-stats.type';
 
 @Injectable()
@@ -77,6 +77,20 @@ export class AdminService {
   async listCertificates() {
     return this.prisma.certificate.findMany({
       orderBy: { issuedAt: 'desc' },
+    });
+  }
+
+  async listCourses() {
+    return this.prisma.course.findMany({
+      include: {
+        instructor: {
+          select: { id: true, name: true, email: true },
+        },
+        _count: {
+          select: { enrollments: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 }

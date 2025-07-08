@@ -79,7 +79,7 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
       this.loggedInUser = user;
       if (user) {
         this.subscribeToProfile();
-        this.loadProfile(user.id);
+        this.loadProfile();
       }
     });
   }
@@ -109,9 +109,9 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
   /**
    * Load profile data (for initial load or refresh)
    */
-  private loadProfile(userId: string): void {
+  private loadProfile(): void {
     this.isLoading = true;
-    this.userProfileService.loadProfileFromBackend(userId).subscribe({
+    this.userProfileService.loadProfileFromBackend().subscribe({
       next: (profile: any) => {
         this.isLoading = false;
         // Profile is automatically updated through subscription

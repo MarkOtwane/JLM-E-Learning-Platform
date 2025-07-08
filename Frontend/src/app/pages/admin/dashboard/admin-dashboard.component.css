@@ -1,8 +1,8 @@
 :root {
-  --color-bg-main: #E1F0F3;
-  --color-accent-light: #6FEBEB;
-  --color-accent: #38EBEB;
-  --color-muted: #D9D9D9;
+  --color-bg-main: #e1f0f3;
+  --color-accent-light: #6febeb;
+  --color-accent: #38ebeb;
+  --color-muted: #d9d9d9;
   --color-white: #ffffff;
   --color-black: #000000;
 }
@@ -46,4 +46,63 @@
   color: var(--color-accent);
   font-size: 24px;
   font-weight: bold;
+}
+
+.dashboard-tabs {
+  display: flex;
+  gap: 12px;
+  margin: 32px 0 16px 0;
+}
+.dashboard-tabs button {
+  background: var(--color-accent-light);
+  color: var(--color-black);
+  border: none;
+  border-radius: 6px 6px 0 0;
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dashboard-tabs button.active,
+.dashboard-tabs button:hover {
+  background: var(--color-accent);
+  color: var(--color-white);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 32px;
+  background: var(--color-white);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+.admin-table th,
+.admin-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-muted);
+  text-align: left;
+}
+.admin-table th {
+  background: var(--color-accent-light);
+  color: var(--color-black);
+  font-weight: 600;
+}
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+.delete-btn {
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.delete-btn:hover {
+  background: #d9363e;
 }

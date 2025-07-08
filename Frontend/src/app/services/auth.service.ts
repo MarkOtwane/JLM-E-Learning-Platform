@@ -41,7 +41,7 @@ export class AuthService {
     const user = localStorage.getItem('user');
     if (user) {
       this.user$.next(JSON.parse(user));
-    }
+  }
   }
 
   login(email: string, password: string): Observable<any> {
@@ -107,5 +107,16 @@ export class AuthService {
 
   register(userData: any) {
     return this.api.post('/auth/register', userData);
+  }
+
+  isAdminUser(): boolean {
+    const user = localStorage.getItem('user');
+    if (!user) return false;
+    try {
+      const parsed = JSON.parse(user);
+      return parsed.role === 'ADMIN' || parsed.role === 'admin';
+    } catch {
+      return false;
+    }
   }
 }

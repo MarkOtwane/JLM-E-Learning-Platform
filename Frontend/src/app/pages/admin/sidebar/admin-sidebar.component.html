@@ -3,44 +3,35 @@
     <li
       routerLink="/admin/dashboard"
       routerLinkActive="active"
-      [routerLinkActiveOptions]="{exact: true}"
+      [routerLinkActiveOptions]="{ exact: true }"
       class="nav-link"
     >
       Dashboard
     </li>
-    <li
-      routerLink="/admin/students"
-      routerLinkActive="active"
-      class="nav-link"
-    >
+    <li class="nav-link" (click)="showDetails('students')">
       Students
+      <span *ngIf="stats.totalStudents !== undefined"
+        >({{ stats.totalStudents }})</span
+      >
     </li>
-    <li
-      routerLink="/admin/instructors"
-      routerLinkActive="active"
-      class="nav-link"
-    >
+    <li class="nav-link" (click)="showDetails('instructors')">
       Instructors
+      <span *ngIf="stats.totalInstructors !== undefined"
+        >({{ stats.totalInstructors }})</span
+      >
     </li>
-    <li
-      routerLink="/admin/courses"
-      routerLinkActive="active"
-      class="nav-link"
-    >
+    <li class="nav-link" (click)="showDetails('courses')">
       Courses
+      <span *ngIf="stats.totalCourses !== undefined"
+        >({{ stats.totalCourses }})</span
+      >
     </li>
-    <li
-      routerLink="/admin/pending-instructors"
-      routerLinkActive="active"
-      class="nav-link"
-    >
+    <li class="nav-link" (click)="showDetails('pendingInstructors')">
       Pending Instructors
+      <span *ngIf="stats.pendingInstructors !== undefined"
+        >({{ stats.pendingInstructors }})</span
+      >
     </li>
-    <li
-      (click)="logout()"
-      class="logout-btn"
-    >
-      Logout
-    </li>
+    <li (click)="logout()" class="logout-btn">Logout</li>
   </ul>
 </aside>

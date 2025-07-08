@@ -47,4 +47,10 @@ export class AdminController {
   async listCertificates() {
     return this.adminService.listCertificates();
   }
+
+  @Get('courses')
+  @Roles(UserRole.ADMIN)
+  async listCourses() {
+    return this.adminService.listCourses();
+  }
 }

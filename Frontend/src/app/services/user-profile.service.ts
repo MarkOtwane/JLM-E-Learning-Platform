@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, map } from 'rxjs';
+import { ApiService } from './api.service';
 
 // ========================================
 // INTERFACES
@@ -34,10 +35,9 @@ export interface PasswordChangeRequest {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserProfileService {
-  
   // ========================================
   // PRIVATE PROPERTIES
   // ========================================
@@ -52,11 +52,13 @@ export class UserProfileService {
     profilePictureUrl: '',
     yearOfStudy: '4th year',
     studentId: '',
-    program: ''
+    program: '',
   };
 
   // BehaviorSubject to maintain current profile state
-  private profileSubject = new BehaviorSubject<StudentProfile>(this.DEFAULT_PROFILE);
+  private profileSubject = new BehaviorSubject<StudentProfile>(
+    this.DEFAULT_PROFILE
+  );
   
   // ========================================
   // PUBLIC OBSERVABLES
@@ -70,7 +72,7 @@ export class UserProfileService {
   // ========================================
   // CONSTRUCTOR
   // ========================================
-  constructor() {
+  constructor(private api: ApiService) {
     this.loadProfileFromStorage();
   }
 
@@ -89,83 +91,29 @@ export class UserProfileService {
    * Update profile data
    */
   updateProfile(updates: ProfileUpdateRequest): Observable<StudentProfile> {
-    return new Observable(observer => {
-      try {
-        const currentProfile = this.getCurrentProfile();
-        const updatedProfile: StudentProfile = {
-          ...currentProfile,
-          ...updates
-        };
-
-        // TODO: Replace with actual API call
-        this.simulateApiCall(() => {
-          this.profileSubject.next(updatedProfile);
-          this.saveProfileToStorage(updatedProfile);
-          observer.next(updatedProfile);
-          observer.complete();
-        });
-        
-      } catch (error) {
-        observer.error(error);
-      }
-    });
+    return this.api.putAuth<StudentProfile>(`/users/me`, updates);
   }
 
   /**
    * Update profile picture
    */
   updateProfilePicture(file: File): Observable<string> {
-    return new Observable(observer => {
-      try {
-        // Validate file
-        if (!file.type.startsWith('image/')) {
-          observer.error('Please select a valid image file');
-          return;
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-          observer.error('File size should not exceed 5MB');
-          return;
-        }
-
-        // TODO: Replace with actual file upload API call
-        // For now, convert to base64 and store locally
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64String = reader.result as string;
-          
-          // Simulate API call
-          this.simulateApiCall(() => {
-            const currentProfile = this.getCurrentProfile();
-            const updatedProfile: StudentProfile = {
-              ...currentProfile,
-              profilePictureUrl: base64String
-            };
-            
-            this.profileSubject.next(updatedProfile);
-            this.saveProfileToStorage(updatedProfile);
-            observer.next(base64String);
-            observer.complete();
-          });
-        };
-
-        reader.onerror = () => {
-          observer.error('Error reading file');
-        };
-
-        reader.readAsDataURL(file);
-        
-      } catch (error) {
-        observer.error(error);
-      }
-    });
+    const userId = this.getCurrentProfile().id;
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.api
+      .postAuth<{ profilePictureUrl: string }>(
+        `/profile/${userId}/picture`,
+        formData
+      )
+      .pipe(map((res) => res.profilePictureUrl));
   }
 
   /**
    * Send verification code for password change
    */
   sendVerificationCode(): Observable<boolean> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       try {
         const email = this.getCurrentProfile().email;
         
@@ -176,7 +124,6 @@ export class UserProfileService {
           observer.next(true);
           observer.complete();
         });
-        
       } catch (error) {
         observer.error(error);
       }
@@ -187,7 +134,7 @@ export class UserProfileService {
    * Change password
    */
   changePassword(request: PasswordChangeRequest): Observable<boolean> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       try {
         // TODO: Replace with actual API call
         console.log('Password change request:', {
@@ -200,7 +147,6 @@ export class UserProfileService {
           observer.next(true);
           observer.complete();
         });
-        
       } catch (error) {
         observer.error(error);
       }
@@ -210,23 +156,8 @@ export class UserProfileService {
   /**
    * Load profile from backend (call this on app initialization)
    */
-  loadProfileFromBackend(userId: string): Observable<StudentProfile> {
-    return new Observable(observer => {
-      try {
-        // TODO: Replace with actual API call
-        console.log(`Loading profile for user ID: ${userId}`);
-        
-        this.simulateApiCall(() => {
-          // For now, load from local storage or use default
-          const profile = this.loadProfileFromStorage();
-          observer.next(profile);
-          observer.complete();
-        });
-        
-      } catch (error) {
-        observer.error(error);
-      }
-    });
+  loadProfileFromBackend(): Observable<StudentProfile> {
+    return this.api.getAuth<StudentProfile>(`/users/me`);
   }
 
   // ========================================
@@ -238,8 +169,15 @@ export class UserProfileService {
    */
   calculateProfileCompletion(): number {
     const profile = this.getCurrentProfile();
-    const fields = ['name', 'email', 'profilePictureUrl', 'phone', 'gender', 'bio'];
-    const filledFields = fields.filter(field => {
+    const fields = [
+      'name',
+      'email',
+      'profilePictureUrl',
+      'phone',
+      'gender',
+      'bio',
+    ];
+    const filledFields = fields.filter((field) => {
       const value = profile[field as keyof StudentProfile];
       return value && value.toString().trim() !== '';
     });
