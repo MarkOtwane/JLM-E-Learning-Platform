@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service'; // Fixed import path
 
 interface CourseData {
   title: string;
   category: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced' | '';
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
   duration: number | null;
   description: string;
   isPremium: boolean;
@@ -25,7 +26,7 @@ export class CreateCourseComponent implements OnInit {
   course: CourseData = {
     title: '',
     category: '',
-    level: '',
+    level: 'Beginner',
     duration: null,
     description: '',
     isPremium: false,
@@ -37,7 +38,7 @@ export class CreateCourseComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private http: HttpClient,
+    private apiService: ApiService,
     private authService: AuthService
   ) {}
 
@@ -45,19 +46,28 @@ export class CreateCourseComponent implements OnInit {
     // Get current user info for instructor data
     this.authService.user$.subscribe((user: any) => {
       this.currentUser = user;
-      if (!user || user.role.toLowerCase() !== 'instructor') {
-        // Redirect if not an instructor
+      if (!user || user.role !== 'INSTRUCTOR' || !user.isApproved) {
+        // Redirect if not an approved instructor
         this.router.navigate(['/']);
       }
     });
   }
 
   onSubmit(): void {
-    if (!this.currentUser) {
+    if (!this.authService.isLoggedIn()) {
       alert('Please log in to create a course.');
+      this.router.navigate(['/auth/login']);
       return;
     }
-
+    if (
+      !this.currentUser ||
+      this.currentUser.role !== 'INSTRUCTOR' ||
+      !this.currentUser.isApproved
+    ) {
+      alert('Only approved instructors can create courses.');
+      this.router.navigate(['/']);
+      return;
+    }
     // Validate required fields
     if (
       !this.course.title ||
@@ -69,10 +79,13 @@ export class CreateCourseComponent implements OnInit {
       alert('Please fill in all required fields.');
       return;
     }
-
+    // Guard for allowed levels
+    const allowedLevels = ['Beginner', 'Intermediate', 'Advanced'];
+    if (!allowedLevels.includes(this.course.level)) {
+      alert('Invalid course level selected.');
+      return;
+    }
     this.isSubmitting = true;
-
-    // Prepare payload matching backend expectations
     const payload = {
       title: this.course.title,
       description: this.course.description,
@@ -81,16 +94,19 @@ export class CreateCourseComponent implements OnInit {
       duration: Number(this.course.duration),
       isPremium: this.course.isPremium,
     };
-
-    this.http.post('http://localhost:3000/api/courses', payload).subscribe({
+    console.log('Sending payload:', payload);
+    this.apiService.postAuth('/courses', payload).subscribe({
       next: (response: any) => {
         alert('Course created successfully!');
-        // Navigate to instructor dashboard or course list
         this.router.navigate(['/instructor/dashboard']);
       },
       error: (error) => {
-        console.error('Error creating course:', error);
-        alert('Failed to create course. Please try again.');
+        if (error.status === 401) {
+          alert('Session expired or unauthorized. Please log in again.');
+          this.authService.logout();
+        } else {
+          alert('Failed to create course. Please try again.');
+        }
         this.isSubmitting = false;
       },
     });

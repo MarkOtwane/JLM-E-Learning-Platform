@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ApiService } from '../../../services/api.service';
 
 interface QuizQuestion {
   question: string;
@@ -44,7 +45,7 @@ export class CourseContentBuilderComponent implements OnInit {
   availableCourses: Course[] = [];
   selectedCourse: Course | null = null;
   isLoadingCourses: boolean = true;
-  
+
   // Course content
   courseId: string = '';
   courseName: string = '';
@@ -54,7 +55,7 @@ export class CourseContentBuilderComponent implements OnInit {
   isSubmitting: boolean = false;
 
   constructor(
-    private http: HttpClient,
+    private apiService: ApiService,
     private route: ActivatedRoute,
     public router: Router
   ) {}
@@ -65,12 +66,10 @@ export class CourseContentBuilderComponent implements OnInit {
 
   loadInstructorCourses(): void {
     this.isLoadingCourses = true;
-    
-    this.http.get<Course[]>(`http://localhost:3000/api/courses`).subscribe({
+    this.apiService.getAuth<Course[]>('/courses').subscribe({
       next: (courses) => {
         this.availableCourses = courses;
         this.isLoadingCourses = false;
-        
         if (courses.length === 0) {
           alert('No courses found. Please create a course first.');
           this.router.navigate(['/create-course']);
@@ -80,7 +79,7 @@ export class CourseContentBuilderComponent implements OnInit {
         console.error('Error loading courses:', error);
         this.isLoadingCourses = false;
         alert('Failed to load your courses. Please try again.');
-      }
+      },
     });
   }
 
@@ -100,7 +99,7 @@ export class CourseContentBuilderComponent implements OnInit {
 
   loadExistingCourseContent(): void {
     // Load existing course content if any
-    this.http.get(`http://localhost:3000/api/courses/${this.courseId}/content`).subscribe({
+    this.apiService.getAuth(`/courses/${this.courseId}/content`).subscribe({
       next: (response: any) => {
         if (response.modules) {
           this.modules = response.modules;
@@ -116,7 +115,7 @@ export class CourseContentBuilderComponent implements OnInit {
         this.modules = [];
         this.hasFinalExam = false;
         this.finalExamQuestions = [];
-      }
+      },
     });
   }
 
@@ -126,10 +125,10 @@ export class CourseContentBuilderComponent implements OnInit {
       alert('Please select a course first.');
       return;
     }
-    
+
     this.modules.push({
       title: '',
-      topics: []
+      topics: [],
     });
   }
 
@@ -145,7 +144,7 @@ export class CourseContentBuilderComponent implements OnInit {
       title: '',
       contentType: 'text',
       hasQuiz: false,
-      questions: []
+      questions: [],
     });
   }
 
@@ -159,25 +158,30 @@ export class CourseContentBuilderComponent implements OnInit {
   onFileSelected(moduleIndex: number, topicIndex: number, event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input?.files?.[0];
-    
+
     if (file) {
       const topic = this.modules[moduleIndex].topics[topicIndex];
-      
+
       // Validate file type
       if (topic.contentType === 'video' && !file.type.startsWith('video/')) {
         alert('Please select a valid video file.');
         return;
       }
-      
+
       if (topic.contentType === 'pdf' && file.type !== 'application/pdf') {
         alert('Please select a valid PDF file.');
         return;
       }
 
       // File size validation (max 100MB for videos, 10MB for PDFs)
-      const maxSize = topic.contentType === 'video' ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+      const maxSize =
+        topic.contentType === 'video' ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
       if (file.size > maxSize) {
-        alert(`File size should be less than ${topic.contentType === 'video' ? '100MB' : '10MB'}.`);
+        alert(
+          `File size should be less than ${
+            topic.contentType === 'video' ? '100MB' : '10MB'
+          }.`
+        );
         return;
       }
 
@@ -191,22 +195,41 @@ export class CourseContentBuilderComponent implements OnInit {
     this.modules[moduleIndex].topics[topicIndex].questions.push({
       question: '',
       options: ['', ''],
-      correctAnswer: 0
+      correctAnswer: 0,
     });
   }
 
-  removeQuestion(moduleIndex: number, topicIndex: number, questionIndex: number): void {
-    this.modules[moduleIndex].topics[topicIndex].questions.splice(questionIndex, 1);
+  removeQuestion(
+    moduleIndex: number,
+    topicIndex: number,
+    questionIndex: number
+  ): void {
+    this.modules[moduleIndex].topics[topicIndex].questions.splice(
+      questionIndex,
+      1
+    );
   }
 
-  addOption(moduleIndex: number, topicIndex: number, questionIndex: number): void {
-    this.modules[moduleIndex].topics[topicIndex].questions[questionIndex].options.push('');
+  addOption(
+    moduleIndex: number,
+    topicIndex: number,
+    questionIndex: number
+  ): void {
+    this.modules[moduleIndex].topics[topicIndex].questions[
+      questionIndex
+    ].options.push('');
   }
 
-  removeOption(moduleIndex: number, topicIndex: number, questionIndex: number, optionIndex: number): void {
-    const question = this.modules[moduleIndex].topics[topicIndex].questions[questionIndex];
+  removeOption(
+    moduleIndex: number,
+    topicIndex: number,
+    questionIndex: number,
+    optionIndex: number
+  ): void {
+    const question =
+      this.modules[moduleIndex].topics[topicIndex].questions[questionIndex];
     question.options.splice(optionIndex, 1);
-    
+
     // Adjust correct answer if needed
     if (question.correctAnswer >= optionIndex && question.correctAnswer > 0) {
       question.correctAnswer--;
@@ -218,7 +241,7 @@ export class CourseContentBuilderComponent implements OnInit {
     this.finalExamQuestions.push({
       question: '',
       options: ['', ''],
-      correctAnswer: 0
+      correctAnswer: 0,
     });
   }
 
@@ -233,7 +256,7 @@ export class CourseContentBuilderComponent implements OnInit {
   removeFinalExamOption(questionIndex: number, optionIndex: number): void {
     const question = this.finalExamQuestions[questionIndex];
     question.options.splice(optionIndex, 1);
-    
+
     // Adjust correct answer if needed
     if (question.correctAnswer >= optionIndex && question.correctAnswer > 0) {
       question.correctAnswer--;
@@ -258,19 +281,25 @@ export class CourseContentBuilderComponent implements OnInit {
     formData.append('courseId', this.courseId);
     formData.append('modules', JSON.stringify(this.modules));
     formData.append('hasFinalExam', this.hasFinalExam.toString());
-    formData.append('finalExamQuestions', JSON.stringify(this.finalExamQuestions));
+    formData.append(
+      'finalExamQuestions',
+      JSON.stringify(this.finalExamQuestions)
+    );
 
     // Add files
     this.modules.forEach((module, moduleIndex) => {
       module.topics.forEach((topic, topicIndex) => {
         if (topic.file) {
-          formData.append(`moduleFile_${moduleIndex}_${topicIndex}`, topic.file);
+          formData.append(
+            `moduleFile_${moduleIndex}_${topicIndex}`,
+            topic.file
+          );
         }
       });
     });
 
     // Submit to backend
-    this.http.post('http://localhost:3000/api/courses/content', formData).subscribe({
+    this.apiService.post('courses/content', formData).subscribe({
       next: (response: any) => {
         alert('Course content saved successfully!');
         this.router.navigate(['/instructor-dashboard']);
@@ -279,7 +308,7 @@ export class CourseContentBuilderComponent implements OnInit {
         console.error('Error saving course content:', error);
         alert('Failed to save course content. Please try again.');
         this.isSubmitting = false;
-      }
+      },
     });
   }
 
@@ -292,7 +321,7 @@ export class CourseContentBuilderComponent implements OnInit {
 
     for (let i = 0; i < this.modules.length; i++) {
       const module = this.modules[i];
-      
+
       if (!module.title.trim()) {
         alert(`Please enter a title for Module ${i + 1}.`);
         return false;
@@ -305,7 +334,7 @@ export class CourseContentBuilderComponent implements OnInit {
 
       for (let j = 0; j < module.topics.length; j++) {
         const topic = module.topics[j];
-        
+
         if (!topic.title.trim()) {
           alert(`Please enter a title for Topic ${j + 1} in Module ${i + 1}.`);
           return false;
@@ -313,37 +342,65 @@ export class CourseContentBuilderComponent implements OnInit {
 
         // Validate content
         if (topic.contentType === 'text' && !topic.textContent?.trim()) {
-          alert(`Please add content for Topic "${topic.title}" in Module ${i + 1}.`);
+          alert(
+            `Please add content for Topic "${topic.title}" in Module ${i + 1}.`
+          );
           return false;
         }
 
-        if ((topic.contentType === 'video' || topic.contentType === 'pdf') && !topic.file) {
-          alert(`Please upload a file for Topic "${topic.title}" in Module ${i + 1}.`);
+        if (
+          (topic.contentType === 'video' || topic.contentType === 'pdf') &&
+          !topic.file
+        ) {
+          alert(
+            `Please upload a file for Topic "${topic.title}" in Module ${
+              i + 1
+            }.`
+          );
           return false;
         }
 
         // Validate quiz questions
         if (topic.hasQuiz) {
           if (topic.questions.length === 0) {
-            alert(`Please add at least one question to the quiz for Topic "${topic.title}" in Module ${i + 1}.`);
+            alert(
+              `Please add at least one question to the quiz for Topic "${
+                topic.title
+              }" in Module ${i + 1}.`
+            );
             return false;
           }
 
           for (let k = 0; k < topic.questions.length; k++) {
             const question = topic.questions[k];
-            
+
             if (!question.question.trim()) {
-              alert(`Please enter Question ${k + 1} for Topic "${topic.title}" in Module ${i + 1}.`);
+              alert(
+                `Please enter Question ${k + 1} for Topic "${
+                  topic.title
+                }" in Module ${i + 1}.`
+              );
               return false;
             }
 
             if (question.options.some((opt: string) => !opt.trim())) {
-              alert(`Please fill all options for Question ${k + 1} in Topic "${topic.title}" in Module ${i + 1}.`);
+              alert(
+                `Please fill all options for Question ${k + 1} in Topic "${
+                  topic.title
+                }" in Module ${i + 1}.`
+              );
               return false;
             }
 
-            if (question.correctAnswer === undefined || question.correctAnswer === null) {
-              alert(`Please select the correct answer for Question ${k + 1} in Topic "${topic.title}" in Module ${i + 1}.`);
+            if (
+              question.correctAnswer === undefined ||
+              question.correctAnswer === null
+            ) {
+              alert(
+                `Please select the correct answer for Question ${
+                  k + 1
+                } in Topic "${topic.title}" in Module ${i + 1}.`
+              );
               return false;
             }
           }
@@ -360,7 +417,7 @@ export class CourseContentBuilderComponent implements OnInit {
 
       for (let i = 0; i < this.finalExamQuestions.length; i++) {
         const question = this.finalExamQuestions[i];
-        
+
         if (!question.question.trim()) {
           alert(`Please enter Final Exam Question ${i + 1}.`);
           return false;
@@ -371,8 +428,13 @@ export class CourseContentBuilderComponent implements OnInit {
           return false;
         }
 
-        if (question.correctAnswer === undefined || question.correctAnswer === null) {
-          alert(`Please select the correct answer for Final Exam Question ${i + 1}.`);
+        if (
+          question.correctAnswer === undefined ||
+          question.correctAnswer === null
+        ) {
+          alert(
+            `Please select the correct answer for Final Exam Question ${i + 1}.`
+          );
           return false;
         }
       }

@@ -1,6 +1,8 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -9,90 +11,132 @@ import { environment } from '../../environments/environment';
 export class ApiService {
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
-  // Generic GET request
-  get<T>(endpoint: string, params?: HttpParams): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    return this.http.get<T>(url, { params });
-  }
-
-  // Generic POST request
-  post<T>(endpoint: string, data: any): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    return this.http.post<T>(url, data);
-  }
-
-  // Generic PUT request
-  put<T>(endpoint: string, data: any): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    return this.http.put<T>(url, data);
-  }
-
-  // Generic DELETE request
-  delete<T>(endpoint: string): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    return this.http.delete<T>(url);
-  }
-
-  // Generic PATCH request
-  patch<T>(endpoint: string, data: any): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    return this.http.patch<T>(url, data);
-  }
-
-  // Method to set authorization header
+  // --- Token Management ---
   setAuthToken(token: string): void {
     localStorage.setItem('authToken', token);
   }
 
-  // Method to get authorization header
+  getToken(): string | null {
+    return localStorage.getItem('authToken');
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
+
+  clearToken(): void {
+    localStorage.removeItem('authToken');
+  }
+
+  // --- Auth Header ---
   getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('authToken');
+    const token = this.getToken();
     return new HttpHeaders({
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
     });
   }
 
-  // Authenticated GET request
+  // --- Error Handler ---
+  private handleAuthError = (error: any) => {
+    if (error.status === 401) {
+      this.clearToken();
+      this.router.navigate(['/auth/login']);
+    }
+    return throwError(() => error);
+  };
+
+  // --- HTTP Methods ---
+  get<T>(endpoint: string, params?: HttpParams): Observable<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    return this.http.get<T>(url, { params });
+  }
+
+  post<T>(endpoint: string, data: any): Observable<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    return this.http.post<T>(url, data);
+  }
+
+  put<T>(endpoint: string, data: any): Observable<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    return this.http.put<T>(url, data);
+  }
+
+  delete<T>(endpoint: string): Observable<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    return this.http.delete<T>(url);
+  }
+
+  patch<T>(endpoint: string, data: any): Observable<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    return this.http.patch<T>(url, data);
+  }
+
+  // --- Authenticated Methods ---
   getAuth<T>(endpoint: string, params?: HttpParams): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    return this.http.get<T>(url, {
-      params,
-      headers: this.getAuthHeaders(),
-    });
+    return this.http
+      .get<T>(url, {
+        params,
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(this.handleAuthError));
   }
 
-  // Authenticated POST request
   postAuth<T>(endpoint: string, data: any): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    return this.http.post<T>(url, data, {
-      headers: this.getAuthHeaders(),
-    });
+    return this.http
+      .post<T>(url, data, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(this.handleAuthError));
   }
 
-  // Authenticated PUT request
   putAuth<T>(endpoint: string, data: any): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    return this.http.put<T>(url, data, {
-      headers: this.getAuthHeaders(),
-    });
+    return this.http
+      .put<T>(url, data, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(this.handleAuthError));
   }
 
-  // Authenticated DELETE request
   deleteAuth<T>(endpoint: string): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    return this.http.delete<T>(url, {
-      headers: this.getAuthHeaders(),
-    });
+    return this.http
+      .delete<T>(url, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(this.handleAuthError));
   }
 
-  // Authenticated PATCH request
   patchAuth<T>(endpoint: string, data: any): Observable<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    return this.http.patch<T>(url, data, {
-      headers: this.getAuthHeaders(),
-    });
+    return this.http
+      .patch<T>(url, data, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(catchError(this.handleAuthError));
+  }
+
+  // --- Role Checking (optional, if user info is stored) ---
+  getUserRole(): string | null {
+    const user = localStorage.getItem('user');
+    if (!user) return null;
+    try {
+      return JSON.parse(user).role || null;
+    } catch {
+      return null;
+    }
+  }
+
+  isInstructor(): boolean {
+    return this.getUserRole() === 'INSTRUCTOR';
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRole() === 'ADMIN';
   }
 }

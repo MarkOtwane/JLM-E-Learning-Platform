@@ -142,23 +142,18 @@ export class TestConnectionComponent implements OnInit {
     this.testingAuth = true;
     this.authResult = 'Attempting login...';
 
-    this.authService
-      .login({
-        email: this.testEmail,
-        password: this.testPassword,
-      })
-      .subscribe({
-        next: (response) => {
-          this.authResult = '✅ Login successful! User authenticated.';
-          this.testingAuth = false;
-        },
-        error: (error) => {
-          this.authResult = `❌ Login failed: ${
-            error.error?.message || error.message || 'Unknown error'
-          }`;
-          this.testingAuth = false;
-        },
-      });
+    this.authService.login(this.testEmail, this.testPassword).subscribe({
+      next: (response) => {
+        this.authResult = '✅ Login successful! User authenticated.';
+        this.testingAuth = false;
+      },
+      error: (error) => {
+        this.authResult = `❌ Login failed: ${
+          error.error?.message || error.message || 'Unknown error'
+        }`;
+        this.testingAuth = false;
+      },
+    });
   }
 
   logout() {

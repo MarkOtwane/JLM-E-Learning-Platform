@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { UserRole } from '@prisma/client';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtPayload } from './types';
@@ -27,10 +28,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // Debug output
     console.log('JwtStrategy.validate payload:', payload);
     console.log('JwtStrategy.validate user:', user);
+    console.log('JwtStrategy.validate payload.role:', payload.role);
+    console.log('JwtStrategy.validate user.role:', user.role);
     // Ensure the role from JWT is used, not from database
+    // Validate that the role from JWT is valid
+    if (!Object.values(UserRole).includes(payload.role as UserRole)) {
+      throw new UnauthorizedException('Invalid role in token');
+    }
+
     return {
       ...user,
-      role: payload.role,
+      role: payload.role as UserRole,
     };
   }
 }

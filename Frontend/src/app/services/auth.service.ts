@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 
 export interface AppUser {
@@ -34,48 +35,64 @@ export interface AuthResponse {
   providedIn: 'root',
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<AppUser | null>(null);
-  user$ = this.currentUserSubject.asObservable();
+  user$ = new BehaviorSubject<any>(null);
 
-  constructor(private apiService: ApiService) {
-    // Check for existing token on app start
-    this.checkAuthStatus();
+  constructor(private api: ApiService, private router: Router) {
+    const user = localStorage.getItem('user');
+    if (user) {
+      this.user$.next(JSON.parse(user));
+    }
   }
 
-  // Login user
-  login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/login', credentials).pipe(
-      tap((response) => {
-        this.apiService.setAuthToken(response.token);
-        this.currentUserSubject.next(response.user);
-      })
-    );
+  login(email: string, password: string): Observable<any> {
+    return new Observable((observer) => {
+      this.api.post('/auth/login', { email, password }).subscribe({
+        next: (res: any) => {
+          if (res.accessToken) {
+            this.api.setAuthToken(res.accessToken);
+            localStorage.setItem('user', JSON.stringify(res.user));
+            this.user$.next(res.user);
+            observer.next(res);
+          } else {
+            observer.error('No token in response');
+          }
+        },
+        error: (err) => observer.error(err),
+      });
+    });
   }
 
-  // Register user
-  register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.apiService.post<AuthResponse>('/auth/register', userData).pipe(
-      tap((response) => {
-        this.apiService.setAuthToken(response.token);
-        this.currentUserSubject.next(response.user);
-      })
-    );
-  }
-
-  // Logout user
   logout(): void {
-    localStorage.removeItem('authToken');
-    this.currentUserSubject.next(null);
+    this.api.clearToken();
+    localStorage.removeItem('user');
+    this.user$.next(null);
+    this.router.navigate(['/auth/login']);
   }
 
-  // Check if user is authenticated
-  isAuthenticated(): Observable<boolean> {
-    return this.user$.pipe(map((user) => !!user));
+  getToken(): string | null {
+    return this.api.getToken();
   }
 
-  // Check if user is instructor
-  isInstructor(): Observable<boolean> {
-    return this.user$.pipe(map((user) => user?.role === 'instructor'));
+  isLoggedIn(): boolean {
+    return this.api.isLoggedIn();
+  }
+
+  getUserRole(): string | null {
+    const user = localStorage.getItem('user');
+    if (!user) return null;
+    try {
+      return JSON.parse(user).role || null;
+    } catch {
+      return null;
+    }
+  }
+
+  isInstructor(): boolean {
+    return this.getUserRole() === 'INSTRUCTOR';
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRole() === 'ADMIN';
   }
 
   // Check if user is student
@@ -83,31 +100,12 @@ export class AuthService {
     return this.user$.pipe(map((user) => user?.role === 'student'));
   }
 
-  // Check if user is admin
-  isAdmin(): Observable<boolean> {
-    return this.user$.pipe(map((user) => user?.role === 'admin'));
-  }
-
   // Get current user
   getCurrentUser(): AppUser | null {
-    return this.currentUserSubject.value;
+    return this.user$.value;
   }
 
-  // Check authentication status on app start
-  private checkAuthStatus(): void {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      // Verify token with backend
-      this.apiService.getAuth<AppUser>('/auth/me').subscribe({
-        next: (user) => {
-          this.currentUserSubject.next(user);
-        },
-        error: () => {
-          // Token is invalid, remove it
-          localStorage.removeItem('authToken');
-          this.currentUserSubject.next(null);
-        },
-      });
-    }
+  register(userData: any) {
+    return this.api.post('/auth/register', userData);
   }
 }

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -7,7 +8,7 @@ import { NotificationComponent } from '../../../shared/notifications/notificatio
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, NotificationComponent],
+  imports: [CommonModule, FormsModule, NotificationComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
@@ -37,27 +38,22 @@ export class LoginComponent {
     this.isLoading = true;
     this.showMessage = false;
 
-  const payload = {
-    email: this.email,
-      password: this.password,
-    };
-
-    this.authService.login(payload).subscribe({
+    this.authService.login(this.email, this.password).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.showNotification('Login successful!', 'success');
 
         // Clear form
-    this.email = '';
-    this.password = '';
+        this.email = '';
+        this.password = '';
 
         // Navigate based on user role
         if (response.user.role.toLowerCase() === 'instructor') {
           if (!response.user.isApproved) {
-    this.router.navigate(['/under-review']);
+            this.router.navigate(['/under-review']);
           } else {
             this.router.navigate(['/instructor/dashboard']);
-  }
+          }
         } else if (response.user.role.toLowerCase() === 'student') {
           this.router.navigate(['/student/dashboard']);
         } else if (response.user.role.toLowerCase() === 'admin') {
@@ -92,6 +88,6 @@ export class LoginComponent {
       setTimeout(() => {
         this.showMessage = false;
       }, 3000);
-}
+    }
   }
 }

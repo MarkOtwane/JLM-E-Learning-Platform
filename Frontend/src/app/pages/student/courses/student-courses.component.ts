@@ -74,7 +74,7 @@ export class StudentCoursesComponent implements OnInit {
   }
 
   continueCourse(courseId: string) {
-    this.router.navigate(['/learning', courseId]);
+    this.router.navigate(['/learning/course', courseId]);
   }
 
   dropCourse(courseId: string) {

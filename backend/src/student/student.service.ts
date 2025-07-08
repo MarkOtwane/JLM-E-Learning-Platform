@@ -31,10 +31,10 @@ export class StudentsService {
     if (existingEnrollment)
       throw new BadRequestException('Already enrolled in this course');
 
-    if (course.isPremium) {
-      // In production you'd check payment validation
-      throw new ForbiddenException('Course requires payment');
-    }
+    // if (course.isPremium) {
+    //   // In production you'd check payment validation
+    //   throw new ForbiddenException('Course requires payment');
+    // }
 
     await this.prisma.enrollment.create({
       data: {
