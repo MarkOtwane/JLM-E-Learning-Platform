@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 
@@ -35,7 +36,7 @@ interface CourseContent {
   standalone: true,
   templateUrl: './course-learning.component.html',
   styleUrls: ['./course-learning.component.css'],
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
 })
 export class CourseLearningComponent implements OnInit {
   courseId: string = '';
@@ -48,6 +49,23 @@ export class CourseLearningComponent implements OnInit {
   currentTopicIndex: number = 0;
   completedTopics: Set<string> = new Set();
   isLoading: boolean = true;
+
+  // Calendar activity properties
+  selectedDate: string = '';
+  activityText: string = '';
+  calendarActivities: { [date: string]: string[] } = {};
+
+  // Editing state for activities
+  editIndex: number | null = null;
+  editText: string = '';
+
+  // Recent activity (placeholder, can be replaced with real data)
+  recentActivity: string[] = [
+    'Completed "Module 1: Introduction"',
+    'Scored 90% on "Quiz 1"',
+    'Watched "Lesson 2: Advanced Topics"',
+    'Downloaded certificate for "Course A"',
+  ];
 
   constructor(
     private http: HttpClient,
@@ -97,6 +115,24 @@ export class CourseLearningComponent implements OnInit {
     );
   }
 
+  getCourseCompletionPercentage(): number {
+    if (!this.courseContent.modules.length) return 0;
+
+    let totalTopics = 0;
+    let completed = 0;
+
+    this.courseContent.modules.forEach((module, mIndex) => {
+      module.topics.forEach((_, tIndex) => {
+        totalTopics++;
+        if (this.isTopicCompleted(mIndex, tIndex)) {
+          completed++;
+        }
+      });
+    });
+
+    return Math.round((completed / totalTopics) * 100);
+  }
+
   markAsComplete(): void {
     const key = `${this.currentModuleIndex}_${this.currentTopicIndex}`;
     this.completedTopics.add(key);
@@ -105,6 +141,13 @@ export class CourseLearningComponent implements OnInit {
 
   isTopicCompleted(moduleIndex: number, topicIndex: number): boolean {
     return this.completedTopics.has(`${moduleIndex}_${topicIndex}`);
+  }
+
+  getCompletedTopicsCount(mIndex: number): number {
+    if (!this.courseContent.modules[mIndex]) return 0;
+    return this.courseContent.modules[mIndex].topics.filter((_, tIndex) =>
+      this.isTopicCompleted(mIndex, tIndex)
+    ).length;
   }
 
   goToTopic(moduleIndex: number, topicIndex: number): void {
@@ -163,6 +206,43 @@ export class CourseLearningComponent implements OnInit {
 
   goToDashboard(): void {
     this.router.navigate(['/student/dashboard']);
+  }
+
+  addActivity() {
+    if (!this.selectedDate || !this.activityText.trim()) return;
+    if (!this.calendarActivities[this.selectedDate]) {
+      this.calendarActivities[this.selectedDate] = [];
+    }
+    this.calendarActivities[this.selectedDate].push(this.activityText.trim());
+    this.activityText = '';
+  }
+
+  startEditActivity(index: number, text: string) {
+    this.editIndex = index;
+    this.editText = text;
+  }
+
+  saveEditActivity(index: number) {
+    if (this.selectedDate && this.editText.trim()) {
+      this.calendarActivities[this.selectedDate][index] = this.editText.trim();
+    }
+    this.editIndex = null;
+    this.editText = '';
+  }
+
+  cancelEditActivity() {
+    this.editIndex = null;
+    this.editText = '';
+  }
+
+  deleteActivity(index: number) {
+    if (this.selectedDate && this.calendarActivities[this.selectedDate]) {
+      this.calendarActivities[this.selectedDate].splice(index, 1);
+      if (this.calendarActivities[this.selectedDate].length === 0) {
+        delete this.calendarActivities[this.selectedDate];
+      }
+    }
+    this.cancelEditActivity();
   }
 }
 

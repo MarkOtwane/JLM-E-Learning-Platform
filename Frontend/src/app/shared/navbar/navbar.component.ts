@@ -34,9 +34,12 @@ export class NavbarComponent implements OnInit {
           '/pending',
           '/under-review',
         ];
-        // Hide auth buttons for all /student pages (including /student/course/...)
+        // Hide auth buttons for all /learning, /student, and /instructor pages
         this.hideAuthButtons =
-          hiddenAuthRoutes.includes(url) || url.startsWith('/student');
+          hiddenAuthRoutes.includes(url) ||
+          url.startsWith('/student') ||
+          url.startsWith('/learning') ||
+          url.startsWith('/instructor');
 
         const hiddenSecondNavbarRoutes = [
           '/login',
@@ -110,5 +113,10 @@ export class NavbarComponent implements OnInit {
     } else {
       this.router.navigate(['/user-dashboard']);
     }
+  }
+
+  logout() {
+    localStorage.clear();
+    this.router.navigate(['/login']);
   }
 }

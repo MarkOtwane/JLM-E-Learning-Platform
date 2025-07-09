@@ -20,6 +20,15 @@ export class InstructorDashboardComponent implements OnInit {
   recentActivity: string[] = [];
   courses: any[] = [];
 
+  // Calendar activity properties
+  selectedDate: string = '';
+  activityText: string = '';
+  calendarActivities: { [date: string]: string[] } = {};
+
+  // Editing state for activities
+  editIndex: number | null = null;
+  editText: string = '';
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -39,6 +48,13 @@ export class InstructorDashboardComponent implements OnInit {
         this.courseCount = data.totalCourses;
         this.totalStudents = data.totalStudents;
         this.courses = data.courses || [];
+        // Use real recent activities if provided by backend
+        this.recentActivity = data.recentActivity || [
+          'Published "Intro to Web Development"',
+          'Updated lesson content for "Angular Basics"',
+          'New enrollment in "Node.js API Design"',
+          'Student review posted on "TypeScript Essentials"',
+        ];
       },
       error: (err) => {
         console.error('Failed to load instructor dashboard data', err);
@@ -46,12 +62,6 @@ export class InstructorDashboardComponent implements OnInit {
     });
     // These values would eventually come from the backend
     this.totalEarnings = 4200;
-    this.recentActivity = [
-      'Published "Intro to Web Development"',
-      'Updated lesson content for "Angular Basics"',
-      'New enrollment in "Node.js API Design"',
-      'Student review posted on "TypeScript Essentials"',
-    ];
   }
 
   goToCreateCourse(): void {
@@ -80,5 +90,42 @@ export class InstructorDashboardComponent implements OnInit {
 
   editCourse(courseId: string) {
     this.router.navigate([`/instructor/edit-course/${courseId}`]);
+  }
+
+  addActivity() {
+    if (!this.selectedDate || !this.activityText.trim()) return;
+    if (!this.calendarActivities[this.selectedDate]) {
+      this.calendarActivities[this.selectedDate] = [];
+    }
+    this.calendarActivities[this.selectedDate].push(this.activityText.trim());
+    this.activityText = '';
+  }
+
+  startEditActivity(index: number, text: string) {
+    this.editIndex = index;
+    this.editText = text;
+  }
+
+  saveEditActivity(index: number) {
+    if (this.selectedDate && this.editText.trim()) {
+      this.calendarActivities[this.selectedDate][index] = this.editText.trim();
+    }
+    this.editIndex = null;
+    this.editText = '';
+  }
+
+  cancelEditActivity() {
+    this.editIndex = null;
+    this.editText = '';
+  }
+
+  deleteActivity(index: number) {
+    if (this.selectedDate && this.calendarActivities[this.selectedDate]) {
+      this.calendarActivities[this.selectedDate].splice(index, 1);
+      if (this.calendarActivities[this.selectedDate].length === 0) {
+        delete this.calendarActivities[this.selectedDate];
+      }
+    }
+    this.cancelEditActivity();
   }
 }

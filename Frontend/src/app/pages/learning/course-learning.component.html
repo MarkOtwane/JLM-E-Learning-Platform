@@ -1,86 +1,223 @@
-<div class="flex h-screen">
-  <!-- Sidebar -->
-  <div class="w-64 sidebar overflow-y-auto">
-    <div class="p-4">
-      <h2 class="sidebar-header text-xl font-bold mb-4">Course Content</h2>
-      <div *ngFor="let module of courseContent.modules; let mIndex = index" class="mb-4">
-        <h3 class="module-title text-lg font-semibold">{{ module.title }}</h3>
-        <ul class="ml-4">
-          <li *ngFor="let topic of module.topics; let tIndex = index" class="py-1">
+<div class="dashboard-container">
+  <!-- Custom Header -->
+  <div class="custom-header">
+    <div class="logo">JLM E-Learning</div>
+    <div class="header-title">Student Learning Page</div>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Sidebar as a card -->
+    <div class="dashboard-card sidebar-card">
+      <div class="sidebar-header">
+        <span>Course Content</span>
+        <span class="text-sm text-gray-500"
+          >{{ getCourseCompletionPercentage() }}% Complete</span
+        >
+      </div>
+      <div
+        *ngFor="let module of courseContent.modules; let mIndex = index"
+        class="module-container"
+      >
+        <h3 class="module-title">
+          <span>{{ module.title }}</span>
+          <span class="module-progress"
+            >{{ getCompletedTopicsCount(mIndex) }}/{{
+              module.topics.length
+            }}</span
+          >
+        </h3>
+        <ul class="topic-list">
+          <li *ngFor="let topic of module.topics; let tIndex = index">
             <button
               (click)="goToTopic(mIndex, tIndex)"
-              class="topic-link text-left w-full"
-              [class.active]="currentModuleIndex === mIndex && currentTopicIndex === tIndex"
+              class="topic-link"
+              [class.active]="
+                currentModuleIndex === mIndex && currentTopicIndex === tIndex
+              "
               [class.line-through]="isTopicCompleted(mIndex, tIndex)"
             >
+              <span class="material-icons text-sm">play_circle</span>
               {{ topic.title }}
+              <span
+                *ngIf="isTopicCompleted(mIndex, tIndex)"
+                class="material-icons ml-auto text-sm text-green-500"
+                >check_circle</span
+              >
             </button>
             <button
               *ngIf="topic.hasQuiz"
               (click)="takeQuiz(mIndex, tIndex)"
-              class="quiz-link ml-2 text-sm"
+              class="quiz-link"
             >
+              <span class="material-icons">quiz</span>
               Take Quiz
             </button>
           </li>
         </ul>
       </div>
-      <button
-        *ngIf="courseContent.hasFinalExam"
-        (click)="takeFinalExam()"
-        class="final-exam-link w-full text-left py-1"
-      >
-        Final Exam
+      <div *ngIf="courseContent.hasFinalExam" class="final-exam-container">
+        <button (click)="takeFinalExam()" class="final-exam-link">
+          <span>Final Exam</span>
+          <span class="material-icons">school</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content as a card -->
+    <div class="dashboard-card main-content-card">
+      <button class="dashboard-link" (click)="goToDashboard()">
+        <span class="material-icons">arrow_back</span>
+        Back to Dashboard
       </button>
+
+      <div *ngIf="isLoading" class="text-center py-16">
+        <div class="inline-flex items-center">
+          <div class="loading-spinner"></div>
+          <p class="text-gray-600">Loading course content...</p>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && getCurrentTopic() as topic">
+        <h2 class="content-title">{{ topic.title }}</h2>
+        <div class="content-card">
+          <ng-container [ngSwitch]="topic.contentType">
+            <div *ngSwitchCase="'text'" class="prose">
+              <p>{{ topic.textContent }}</p>
+            </div>
+            <div *ngSwitchCase="'video'" class="video-container">
+              <video
+                controls
+                class="w-full"
+                [src]="
+                  topic.fileName
+                    ? 'http://localhost:3000/api/files/' + topic.fileName
+                    : ''
+                "
+              >
+                <source type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div *ngSwitchCase="'pdf'">
+              <embed
+                [src]="
+                  topic.fileName
+                    ? 'http://localhost:3000/api/files/' + topic.fileName
+                    : ''
+                "
+                type="application/pdf"
+                class="w-full h-[600px]"
+              />
+            </div>
+          </ng-container>
+        </div>
+        <div class="navigation-buttons">
+          <button
+            (click)="goToPrevious()"
+            [disabled]="currentModuleIndex === 0 && currentTopicIndex === 0"
+            class="nav-button"
+          >
+            <span class="material-icons">chevron_left</span>
+            Previous
+          </button>
+          <button
+            (click)="markAsComplete()"
+            class="complete-button"
+            [class.completed]="
+              isTopicCompleted(currentModuleIndex, currentTopicIndex)
+            "
+          >
+            <span
+              class="material-icons"
+              *ngIf="isTopicCompleted(currentModuleIndex, currentTopicIndex)"
+              >check_circle</span
+            >
+            {{
+              isTopicCompleted(currentModuleIndex, currentTopicIndex)
+                ? "Completed"
+                : "Mark as Complete"
+            }}
+          </button>
+          <button
+            (click)="goToNext()"
+            [disabled]="
+              currentModuleIndex === courseContent.modules.length - 1 &&
+              currentTopicIndex ===
+                courseContent.modules[courseContent.modules.length - 1].topics
+                  .length -
+                  1 &&
+              !courseContent.hasFinalExam
+            "
+            class="nav-button"
+          >
+            Next
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div *ngIf="!isLoading && !getCurrentTopic()" class="text-center py-16">
+        <p class="text-gray-600">No content available for this topic.</p>
+      </div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="flex-1 p-6 main-content overflow-y-auto">
-    <button class="dashboard-link" (click)="goToDashboard()">← Back to Dashboard</button>
-    <div *ngIf="isLoading" class="text-center">
-      <p>Loading course content...</p>
+  <!-- Bottom Section: Calendar and Recent Activity -->
+  <div class="bottom-section">
+    <div class="dashboard-card calendar-card">
+      <h3>Calendar</h3>
+      <div class="calendar-interactive">
+        <input type="date" [(ngModel)]="selectedDate" />
+        <input
+          type="text"
+          [(ngModel)]="activityText"
+          placeholder="Add note or reminder..."
+        />
+        <button (click)="addActivity()">Add</button>
+      </div>
+      <div
+        class="calendar-activities"
+        *ngIf="calendarActivities[selectedDate]?.length"
+      >
+        <h4>Notes for {{ selectedDate }}</h4>
+        <ul class="calendar-activity-list">
+          <li
+            *ngFor="let act of calendarActivities[selectedDate]; let i = index"
+          >
+            <ng-container *ngIf="editIndex !== i; else editBlock">
+              <span>{{ act }}</span>
+              <button
+                class="edit-activity-btn"
+                (click)="startEditActivity(i, act)"
+              >
+                Edit
+              </button>
+              <button class="delete-activity-btn" (click)="deleteActivity(i)">
+                Delete
+              </button>
+            </ng-container>
+            <ng-template #editBlock>
+              <input [(ngModel)]="editText" class="edit-activity-input" />
+              <button class="save-activity-btn" (click)="saveEditActivity(i)">
+                Save
+              </button>
+              <button
+                class="cancel-activity-btn"
+                (click)="cancelEditActivity()"
+              >
+                Cancel
+              </button>
+            </ng-template>
+          </li>
+        </ul>
+      </div>
     </div>
-    <div *ngIf="!isLoading && getCurrentTopic() as topic">
-      <h2 class="content-title text-2xl font-bold mb-4">{{ topic.title }}</h2>
-      <div *ngIf="topic.contentType === 'text'" class="prose max-w-none">
-        <p>{{ topic.textContent }}</p>
-      </div>
-      <div *ngIf="topic.contentType === 'video'" class="mb-4">
-        <video controls class="w-full max-w-full" [src]="topic.fileName ? 'http://localhost:3000/api/files/' + topic.fileName : ''">
-          <source type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      </div>
-      <div *ngIf="topic.contentType === 'pdf'" class="mb-4">
-        <embed [src]="topic.fileName ? 'http://localhost:3000/api/files/' + topic.fileName : ''" type="application/pdf" class="w-full h-[500px]" />
-      </div>
-      <div class="mt-4 flex justify-between">
-        <button
-          (click)="goToPrevious()"
-          [disabled]="currentModuleIndex === 0 && currentTopicIndex === 0"
-          class="nav-button px-4 py-2 rounded"
-        >
-          Previous
-        </button>
-        <button
-          (click)="markAsComplete()"
-          class="complete-button px-4 py-2 rounded"
-          [class.completed]="isTopicCompleted(currentModuleIndex, currentTopicIndex)"
-        >
-          {{ isTopicCompleted(currentModuleIndex, currentTopicIndex) ? 'Completed' : 'Mark as Complete' }}
-        </button>
-        <button
-          (click)="goToNext()"
-          [disabled]="currentModuleIndex === courseContent.modules.length - 1 && currentTopicIndex === courseContent.modules[courseContent.modules.length - 1].topics.length - 1 && !courseContent.hasFinalExam"
-          class="nav-button px-4 py-2 rounded"
-        >
-          Next
-        </button>
-      </div>
-    </div>
-    <div *ngIf="!isLoading && !getCurrentTopic()" class="text-center">
-      <p>No content available.</p>
+    <div class="dashboard-card recent-activity-card">
+      <h3>Recent Activity</h3>
+      <ul class="activity-list">
+        <li *ngFor="let activity of recentActivity">
+          {{ activity }}
+        </li>
+      </ul>
     </div>
   </div>
 </div>

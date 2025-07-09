@@ -2,13 +2,7 @@
   <div class="navbar-logo">JLM E-Learning</div>
 
   <ul class="navbar-links">
-    <li><a routerLink="/">Home</a></li>
-    <li><a routerLink="/about">About</a></li>
-    <li><a routerLink="/courses">Courses</a></li>
-    <li><a routerLink="/mentor">Mentor</a></li>
-    <li><a routerLink="/testimonials">Testimonials</a></li>
-    <li><a routerLink="/blog">Blog</a></li>
-    <li><a routerLink="/test-connection">Test Connection</a></li>
+    <li><button class="logout-btn" (click)="logout()">Log Out</button></li>
   </ul>
 
   <div class="navbar-auth" *ngIf="!hideAuthButtons">

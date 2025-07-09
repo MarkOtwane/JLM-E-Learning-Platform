@@ -7,7 +7,7 @@
   padding: 0;
   background-color: var(--color-bg-main);
   min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .main-content {
@@ -21,7 +21,11 @@
    ======================================== */
 
 .welcome-section {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent) 0%,
+    var(--color-accent-light) 100%
+  );
   border-radius: 24px;
   padding: 2.5rem;
   margin-bottom: 2rem;
@@ -31,19 +35,28 @@
 }
 
 .welcome-section::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   right: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
   animation: float 6s ease-in-out infinite;
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(180deg); }
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
 }
 
 .profile {
@@ -156,8 +169,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-section p {
@@ -191,13 +208,17 @@
 }
 
 .enrolled-courses h3::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -8px;
   left: 0;
   width: 60px;
   height: 3px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
   border-radius: 2px;
 }
 
@@ -232,13 +253,17 @@
 }
 
 .course-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
@@ -325,13 +350,17 @@
 }
 
 .instructors-section h3::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -8px;
   left: 0;
   width: 60px;
   height: 3px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
   border-radius: 2px;
 }
 
@@ -391,13 +420,18 @@
 }
 
 .instructor-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(56, 235, 235, 0.1), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(56, 235, 235, 0.1),
+    transparent
+  );
   transition: left 0.6s ease;
 }
 
@@ -409,7 +443,11 @@
   transform: translateY(-8px) scale(1.02);
   box-shadow: 0 20px 40px rgba(56, 235, 235, 0.25);
   border-color: var(--color-accent-light);
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-main) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-main) 100%
+  );
 }
 
 .instructor-image {
@@ -432,7 +470,11 @@
   width: 70px;
   height: 70px;
   border-radius: 16px;
-  background: linear-gradient(45deg, var(--color-accent), var(--color-accent-light));
+  background: linear-gradient(
+    45deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -532,7 +574,17 @@
   margin: 0;
 }
 
+.available-courses .course-card {
+  margin-bottom: 20px;
+}
 
+.available-courses .course-card:hover,
+.available-courses .course-card:hover::before {
+  background: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  border-color: inherit !important;
+}
 
 /* ========================================
    RESPONSIVE DESIGN
@@ -542,34 +594,34 @@
   .dashboard-container {
     margin-left: 0;
   }
-  
+
   .main-content {
     padding: 1rem;
   }
-  
+
   .welcome-section {
     padding: 1.5rem;
   }
-  
+
   .welcome-text h2 {
     font-size: 2rem;
   }
-  
+
   .user-stats {
     gap: 1rem;
   }
-  
+
   .stat {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
   }
-  
+
   .course-card {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .course-details {
     flex-direction: column;
     align-items: flex-start;
@@ -581,12 +633,12 @@
   .welcome-text h2 {
     font-size: 1.5rem;
   }
-  
+
   .user-stats {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .profile {
     flex-direction: column;
     text-align: center;
@@ -603,26 +655,26 @@
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .instructor-card {
     min-width: 250px;
     padding: 1.25rem;
   }
-  
+
   .instructor-image,
   .instructor-image-placeholder {
     width: 60px;
     height: 60px;
   }
-  
+
   .instructor-name {
     font-size: 1rem;
   }
-  
+
   .instructor-subject {
     font-size: 0.85rem;
   }
-  
+
   .instructor-stats {
     flex-direction: column;
     gap: 0.5rem;
@@ -633,18 +685,18 @@
   .instructors-horizontal {
     gap: 1rem;
   }
-  
+
   .instructor-card {
     min-width: 220px;
     flex-direction: column;
     text-align: center;
     gap: 1rem;
   }
-  
+
   .instructor-info {
     text-align: center;
   }
-  
+
   .instructor-stats {
     justify-content: center;
   }

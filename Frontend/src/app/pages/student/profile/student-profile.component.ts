@@ -140,13 +140,16 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
     this.userProfileService.updateProfilePicture(file).subscribe({
       next: (profilePictureUrl: any) => {
         this.isUpdatingPicture = false;
-        console.log('Profile picture updated successfully');
-        // Profile is automatically updated through subscription
+        this.loadProfile(); // Reload profile from backend
       },
       error: (error: any) => {
         this.isUpdatingPicture = false;
         console.error('Error updating profile picture:', error);
-        alert(error || 'Error updating profile picture. Please try again.');
+        let message = 'Error updating profile picture. Please try again.';
+        if (error?.error?.message) message = error.error.message;
+        else if (error?.message) message = error.message;
+        else if (typeof error === 'string') message = error;
+        alert(message);
       },
     });
   }
@@ -195,26 +198,18 @@ export class StudentProfileComponent implements OnInit, OnDestroy {
     const updateRequest: ProfileUpdateRequest = {
       name: this.updatedProfile.name,
       email: this.updatedProfile.email,
-      phone: this.updatedProfile.phone,
-      gender: this.updatedProfile.gender,
-      bio: this.updatedProfile.bio,
       yearOfStudy: this.updatedProfile.yearOfStudy,
       program: this.updatedProfile.program,
     };
 
-    this.isLoading = true;
-
     this.userProfileService.updateProfile(updateRequest).subscribe({
-      next: (updatedProfile: any) => {
-        this.isLoading = false;
+      next: (profile: any) => {
         this.closeEditModal();
-        console.log('Profile updated successfully');
-        // Profile is automatically updated through subscription
+        this.loadProfile(); // Reload profile from backend
       },
       error: (error: any) => {
-        this.isLoading = false;
         console.error('Error updating profile:', error);
-        alert('Error updating profile. Please try again.');
+        alert(error?.error?.message || 'Error updating profile. Please try again.');
       },
     });
   }

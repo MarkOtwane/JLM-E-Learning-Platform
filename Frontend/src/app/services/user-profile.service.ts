@@ -21,9 +21,6 @@ export interface StudentProfile {
 export interface ProfileUpdateRequest {
   name?: string;
   email?: string;
-  phone?: string;
-  gender?: string;
-  bio?: string;
   yearOfStudy?: string;
   program?: string;
 }
@@ -91,7 +88,13 @@ export class UserProfileService {
    * Update profile data
    */
   updateProfile(updates: ProfileUpdateRequest): Observable<StudentProfile> {
-    return this.api.putAuth<StudentProfile>(`/users/me`, updates);
+    // Only send allowed fields
+    const allowed: any = {};
+    if (updates.name) allowed.name = updates.name;
+    if (updates.email) allowed.email = updates.email;
+    if (updates.yearOfStudy) allowed.yearOfStudy = updates.yearOfStudy;
+    if (updates.program) allowed.program = updates.program;
+    return this.api.putAuth<StudentProfile>(`/users/me`, allowed);
   }
 
   /**
@@ -103,7 +106,7 @@ export class UserProfileService {
     formData.append('file', file);
     return this.api
       .postAuth<{ profilePictureUrl: string }>(
-        `/profile/${userId}/picture`,
+        `/users/profile/${userId}/picture`,
         formData
       )
       .pipe(map((res) => res.profilePictureUrl));
@@ -157,7 +160,13 @@ export class UserProfileService {
    * Load profile from backend (call this on app initialization)
    */
   loadProfileFromBackend(): Observable<StudentProfile> {
-    return this.api.getAuth<StudentProfile>(`/users/me`);
+    return this.api.getAuth<StudentProfile>(`/users/me`).pipe(
+      map((profile) => {
+        this.profileSubject.next(profile);
+        this.saveProfileToStorage(profile);
+        return profile;
+      })
+    );
   }
 
   // ========================================

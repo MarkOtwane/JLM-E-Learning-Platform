@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 export class App {
   protected title = 'Frontend';
   hideFooter = false;
+  hideNavbar = false;
 
  constructor(private router: Router) {
   this.router.events.subscribe(event => {
@@ -27,6 +28,8 @@ this.hideFooter =
   url.startsWith('/instructor') ||
   url.startsWith('/admin');
 
+      // Hide navbar on learning page
+      this.hideNavbar = url.startsWith('/learning/course');
     }
   });
 }

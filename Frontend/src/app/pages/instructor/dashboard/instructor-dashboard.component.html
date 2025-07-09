@@ -45,8 +45,12 @@
           <td>{{ course.courseTitle }}</td>
           <td style="text-align: right">{{ course.totalStudents }}</td>
           <td style="text-align: right">
-            <button (click)="editCourse(course.courseId)" class="edit-btn">Edit</button>
-            <button (click)="deleteCourse(course.courseId)" class="delete-btn">Delete</button>
+            <button (click)="editCourse(course.courseId)" class="edit-btn">
+              Edit
+            </button>
+            <button (click)="deleteCourse(course.courseId)" class="delete-btn">
+              Delete
+            </button>
           </td>
         </tr>
       </tbody>
@@ -58,8 +62,50 @@
     <!-- Calendar -->
     <div class="dashboard-card calendar-card">
       <h3>Calendar</h3>
-      <div class="calendar-placeholder">
-        <p>Select a date to add a reminder</p>
+      <div class="calendar-interactive">
+        <input type="date" [(ngModel)]="selectedDate" />
+        <input
+          type="text"
+          [(ngModel)]="activityText"
+          placeholder="Add activity..."
+        />
+        <button (click)="addActivity()">Add</button>
+      </div>
+      <div
+        class="calendar-activities"
+        *ngIf="calendarActivities[selectedDate]?.length"
+      >
+        <h4>Activities for {{ selectedDate }}</h4>
+        <ul class="calendar-activity-list">
+          <li
+            *ngFor="let act of calendarActivities[selectedDate]; let i = index"
+          >
+            <ng-container *ngIf="editIndex !== i; else editBlock">
+              <span>{{ act }}</span>
+              <button
+                class="edit-activity-btn"
+                (click)="startEditActivity(i, act)"
+              >
+                Edit
+              </button>
+              <button class="delete-activity-btn" (click)="deleteActivity(i)">
+                Delete
+              </button>
+            </ng-container>
+            <ng-template #editBlock>
+              <input [(ngModel)]="editText" class="edit-activity-input" />
+              <button class="save-activity-btn" (click)="saveEditActivity(i)">
+                Save
+              </button>
+              <button
+                class="cancel-activity-btn"
+                (click)="cancelEditActivity()"
+              >
+                Cancel
+              </button>
+            </ng-template>
+          </li>
+        </ul>
       </div>
     </div>
 
