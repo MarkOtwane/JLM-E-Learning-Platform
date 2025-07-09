@@ -55,7 +55,6 @@ export class CreateCourseComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.authService.isLoggedIn()) {
-      alert('Please log in to create a course.');
       this.router.navigate(['/auth/login']);
       return;
     }
@@ -64,7 +63,6 @@ export class CreateCourseComponent implements OnInit {
       this.currentUser.role !== 'INSTRUCTOR' ||
       !this.currentUser.isApproved
     ) {
-      alert('Only approved instructors can create courses.');
       this.router.navigate(['/']);
       return;
     }
@@ -76,13 +74,11 @@ export class CreateCourseComponent implements OnInit {
       !this.course.duration ||
       !this.course.description
     ) {
-      alert('Please fill in all required fields.');
       return;
     }
     // Guard for allowed levels
     const allowedLevels = ['Beginner', 'Intermediate', 'Advanced'];
     if (!allowedLevels.includes(this.course.level)) {
-      alert('Invalid course level selected.');
       return;
     }
     this.isSubmitting = true;
@@ -97,15 +93,12 @@ export class CreateCourseComponent implements OnInit {
     console.log('Sending payload:', payload);
     this.apiService.postAuth('/courses', payload).subscribe({
       next: (response: any) => {
-        alert('Course created successfully!');
         this.router.navigate(['/instructor/dashboard']);
       },
       error: (error) => {
         if (error.status === 401) {
-          alert('Session expired or unauthorized. Please log in again.');
           this.authService.logout();
         } else {
-          alert('Failed to create course. Please try again.');
         }
         this.isSubmitting = false;
       },

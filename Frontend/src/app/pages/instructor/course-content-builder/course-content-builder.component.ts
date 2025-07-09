@@ -71,14 +71,13 @@ export class CourseContentBuilderComponent implements OnInit {
         this.availableCourses = courses;
         this.isLoadingCourses = false;
         if (courses.length === 0) {
-          alert('No courses found. Please create a course first.');
           this.router.navigate(['/create-course']);
         }
       },
       error: (error) => {
         console.error('Error loading courses:', error);
         this.isLoadingCourses = false;
-        alert('Failed to load your courses. Please try again.');
+        // alert('Failed to load your courses. Please try again.');
       },
     });
   }
@@ -122,7 +121,7 @@ export class CourseContentBuilderComponent implements OnInit {
   // Module Management
   addModule(): void {
     if (!this.selectedCourse) {
-      alert('Please select a course first.');
+      // alert('Please select a course first.');
       return;
     }
 
@@ -164,12 +163,12 @@ export class CourseContentBuilderComponent implements OnInit {
 
       // Validate file type
       if (topic.contentType === 'video' && !file.type.startsWith('video/')) {
-        alert('Please select a valid video file.');
+        // alert('Please select a valid video file.');
         return;
       }
 
       if (topic.contentType === 'pdf' && file.type !== 'application/pdf') {
-        alert('Please select a valid PDF file.');
+        // alert('Please select a valid PDF file.');
         return;
       }
 
@@ -177,11 +176,11 @@ export class CourseContentBuilderComponent implements OnInit {
       const maxSize =
         topic.contentType === 'video' ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
       if (file.size > maxSize) {
-        alert(
-          `File size should be less than ${
-            topic.contentType === 'video' ? '100MB' : '10MB'
-          }.`
-        );
+        // alert(
+        //   `File size should be less than ${
+        //     topic.contentType === 'video' ? '100MB' : '10MB'
+        //   }.`
+        // );
         return;
       }
 
@@ -266,7 +265,7 @@ export class CourseContentBuilderComponent implements OnInit {
   // Save Course Content
   onSave(): void {
     if (!this.selectedCourse) {
-      alert('Please select a course first.');
+      // alert('Please select a course first.');
       return;
     }
 
@@ -301,12 +300,12 @@ export class CourseContentBuilderComponent implements OnInit {
     // Submit to backend
     this.apiService.postAuth('/courses/content', formData).subscribe({
       next: (response: any) => {
-        alert('Course content saved successfully!');
+        // alert('Course content saved successfully!');
         this.router.navigate(['/instructor/dashboard']);
       },
       error: (error) => {
         console.error('Error saving course content:', error);
-        alert('Failed to save course content. Please try again.');
+        // alert('Failed to save course content. Please try again.');
         this.isSubmitting = false;
       },
     });
@@ -315,7 +314,7 @@ export class CourseContentBuilderComponent implements OnInit {
   // Validation
   validateContent(): boolean {
     if (this.modules.length === 0) {
-      alert('Please add at least one module.');
+      // alert('Please add at least one module.');
       return false;
     }
 
@@ -323,12 +322,12 @@ export class CourseContentBuilderComponent implements OnInit {
       const module = this.modules[i];
 
       if (!module.title.trim()) {
-        alert(`Please enter a title for Module ${i + 1}.`);
+        // alert(`Please enter a title for Module ${i + 1}.`);
         return false;
       }
 
       if (module.topics.length === 0) {
-        alert(`Please add at least one topic to Module ${i + 1}.`);
+        // alert(`Please add at least one topic to Module ${i + 1}.`);
         return false;
       }
 
@@ -336,15 +335,15 @@ export class CourseContentBuilderComponent implements OnInit {
         const topic = module.topics[j];
 
         if (!topic.title.trim()) {
-          alert(`Please enter a title for Topic ${j + 1} in Module ${i + 1}.`);
+          // alert(`Please enter a title for Topic ${j + 1} in Module ${i + 1}.`);
           return false;
         }
 
         // Validate content
         if (topic.contentType === 'text' && !topic.textContent?.trim()) {
-          alert(
-            `Please add content for Topic "${topic.title}" in Module ${i + 1}.`
-          );
+          // alert(
+          //   `Please add content for Topic "${topic.title}" in Module ${i + 1}.`
+          // );
           return false;
         }
 
@@ -352,22 +351,22 @@ export class CourseContentBuilderComponent implements OnInit {
           (topic.contentType === 'video' || topic.contentType === 'pdf') &&
           !topic.file
         ) {
-          alert(
-            `Please upload a file for Topic "${topic.title}" in Module ${
-              i + 1
-            }.`
-          );
+          // alert(
+          //   `Please upload a file for Topic "${topic.title}" in Module ${
+          //     i + 1
+          //   }.`
+          // );
           return false;
         }
 
         // Validate quiz questions
         if (topic.hasQuiz) {
           if (topic.questions.length === 0) {
-            alert(
-              `Please add at least one question to the quiz for Topic "${
-                topic.title
-              }" in Module ${i + 1}.`
-            );
+            // alert(
+            //   `Please add at least one question to the quiz for Topic "${
+            //     topic.title
+            //   }" in Module ${i + 1}.`
+            // );
             return false;
           }
 
@@ -375,20 +374,20 @@ export class CourseContentBuilderComponent implements OnInit {
             const question = topic.questions[k];
 
             if (!question.question.trim()) {
-              alert(
-                `Please enter Question ${k + 1} for Topic "${
-                  topic.title
-                }" in Module ${i + 1}.`
-              );
+              // alert(
+              //   `Please enter Question ${k + 1} for Topic "${
+              //     topic.title
+              //   }" in Module ${i + 1}.`
+              // );
               return false;
             }
 
             if (question.options.some((opt: string) => !opt.trim())) {
-              alert(
-                `Please fill all options for Question ${k + 1} in Topic "${
-                  topic.title
-                }" in Module ${i + 1}.`
-              );
+              // alert(
+              //   `Please fill all options for Question ${k + 1} in Topic "${
+              //     topic.title
+              //   }" in Module ${i + 1}.`
+              // );
               return false;
             }
 
@@ -396,11 +395,11 @@ export class CourseContentBuilderComponent implements OnInit {
               question.correctAnswer === undefined ||
               question.correctAnswer === null
             ) {
-              alert(
-                `Please select the correct answer for Question ${
-                  k + 1
-                } in Topic "${topic.title}" in Module ${i + 1}.`
-              );
+              // alert(
+              //   `Please select the correct answer for Question ${
+              //     k + 1
+              //   } in Topic "${topic.title}" in Module ${i + 1}.`
+              // );
               return false;
             }
           }
@@ -411,7 +410,7 @@ export class CourseContentBuilderComponent implements OnInit {
     // Validate final exam
     if (this.hasFinalExam) {
       if (this.finalExamQuestions.length === 0) {
-        alert('Please add at least one question to the final exam.');
+        // alert('Please add at least one question to the final exam.');
         return false;
       }
 
@@ -419,12 +418,12 @@ export class CourseContentBuilderComponent implements OnInit {
         const question = this.finalExamQuestions[i];
 
         if (!question.question.trim()) {
-          alert(`Please enter Final Exam Question ${i + 1}.`);
+          // alert(`Please enter Final Exam Question ${i + 1}.`);
           return false;
         }
 
         if (question.options.some((opt: string) => !opt.trim())) {
-          alert(`Please fill all options for Final Exam Question ${i + 1}.`);
+          // alert(`Please fill all options for Final Exam Question ${i + 1}.`);
           return false;
         }
 
@@ -432,9 +431,9 @@ export class CourseContentBuilderComponent implements OnInit {
           question.correctAnswer === undefined ||
           question.correctAnswer === null
         ) {
-          alert(
-            `Please select the correct answer for Final Exam Question ${i + 1}.`
-          );
+          // alert(
+          //   `Please select the correct answer for Final Exam Question ${i + 1}.`
+          // );
           return false;
         }
       }

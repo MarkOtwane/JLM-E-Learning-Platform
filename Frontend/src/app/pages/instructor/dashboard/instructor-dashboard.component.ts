@@ -81,8 +81,7 @@ export class InstructorDashboardComponent implements OnInit {
           // Optionally, refresh dashboard data from backend
         },
         error: (err) => {
-          alert('Failed to delete course.');
-          console.error(err);
+          console.error('Failed to delete course.', err);
         },
       });
     }
