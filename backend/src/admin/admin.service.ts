@@ -44,7 +44,10 @@ export class AdminService {
         name: inst.name,
         email: inst.email,
         courseCount: inst.courses.length,
-        totalStudentsEnrolled: inst.courses.reduce((sum, c) => sum + c.enrollments.length, 0),
+        totalStudentsEnrolled: inst.courses.reduce(
+          (sum, c) => sum + c.enrollments.length,
+          0,
+        ),
       }));
     }
     if (filter?.role === 'STUDENT') {
@@ -131,6 +134,31 @@ export class AdminService {
         },
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async approveInstructor(instructorId: string) {
+    return this.prisma.user.update({
+      where: { id: instructorId },
+      data: { isApproved: true },
+    });
+  }
+
+  async rejectInstructor(instructorId: string) {
+    return this.prisma.user.delete({
+      where: { id: instructorId },
+    });
+  }
+
+  async listPendingInstructors() {
+    return this.prisma.user.findMany({
+      where: { role: 'INSTRUCTOR', isApproved: false },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
     });
   }
 }

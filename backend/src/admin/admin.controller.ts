@@ -1,11 +1,21 @@
-import { Body, Controller, Get, Post, Query, UseGuards, Delete, Param } from '@nestjs/common';
-import { AdminService } from './admin.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { UserRole } from '@prisma/client';
+import { Roles } from '../auth/decorators';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/decorators';
-import { UserRole } from '@prisma/client';
-import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { AdminService } from './admin.service';
 import { FilterUsersDto } from './dto/filter-users.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('admin')
@@ -52,5 +62,23 @@ export class AdminController {
   @Roles(UserRole.ADMIN)
   async listCourses() {
     return this.adminService.listCourses();
+  }
+
+  @Get('pending-instructors')
+  @Roles(UserRole.ADMIN)
+  async listPendingInstructors() {
+    return this.adminService.listPendingInstructors();
+  }
+
+  @Patch('pending-instructors/:id/accept')
+  @Roles(UserRole.ADMIN)
+  async approveInstructor(@Param('id') instructorId: string) {
+    return this.adminService.approveInstructor(instructorId);
+  }
+
+  @Delete('pending-instructors/:id')
+  @Roles(UserRole.ADMIN)
+  async rejectInstructor(@Param('id') instructorId: string) {
+    return this.adminService.rejectInstructor(instructorId);
   }
 }

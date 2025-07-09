@@ -1,8 +1,8 @@
 import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
@@ -35,7 +35,7 @@ export class AuthService {
         email: dto.email,
         password: hashed,
         role: dto.role,
-        isApproved: true, // approve all users for testing
+        isApproved: dto.role === UserRole.INSTRUCTOR ? false : true, // Only approve students by default
       },
     });
 
@@ -66,9 +66,9 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
 
-    // if (!user.isApproved && user.role === UserRole.INSTRUCTOR) {
-    //   throw new UnauthorizedException('Instructor account not approved yet');
-    // }
+    if (!user.isApproved && user.role === UserRole.INSTRUCTOR) {
+      throw new UnauthorizedException('Instructor account not approved yet');
+    }
 
     const token = await this.jwtService.signAsync({
       sub: user.id,

@@ -93,19 +93,19 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadStudents(): void {
-    this.api.getAuth<any[]>("/admin/users?role=STUDENT").subscribe({
+    this.api.getAuth<any[]>('/admin/users?role=STUDENT').subscribe({
       next: (data) => {
-        this.students = data.map(student => ({
+        this.students = data.map((student) => ({
           ...student,
-          enrollmentDate: student.createdAt || "-"
+          enrollmentDate: student.createdAt || '-',
         }));
       },
-      error: (err) => console.error("Error loading students:", err),
+      error: (err) => console.error('Error loading students:', err),
     });
   }
 
   loadInstructors(): void {
-    this.api.getAuth<Instructor[]>('/admin/users?role=INSTRUCTOR').subscribe({
+    this.api.getAuth<Instructor[]>('/admin/users?role=INSTRUCTOR&isApproved=false').subscribe({
       next: (data) => (this.instructors = data),
       error: (err) => console.error('Error loading instructors:', err),
     });
@@ -126,14 +126,34 @@ export class AdminDashboardComponent implements OnInit {
 
   loadPendingInstructors(): void {
     this.api
-      .getAuth<PendingInstructor[]>(
-        '/admin/users?role=INSTRUCTOR&isApproved=false'
-      )
+      .getAuth<PendingInstructor[]>('/admin/pending-instructors')
       .subscribe({
         next: (data) => (this.pendingInstructors = data),
         error: (err) =>
           console.error('Error loading pending instructors:', err),
       });
+  }
+
+  approvePendingInstructor(id: string): void {
+    this.api.patchAuth(`/admin/pending-instructors/${id}/accept`, {}).subscribe({
+      next: () => {
+        this.pendingInstructors = this.pendingInstructors.filter((instructor) => instructor.id !== id);
+      },
+      error: (error) => {
+        console.error('Error approving instructor:', error);
+      },
+    });
+  }
+
+  rejectPendingInstructor(id: string): void {
+    this.api.deleteAuth(`/admin/pending-instructors/${id}`).subscribe({
+      next: () => {
+        this.pendingInstructors = this.pendingInstructors.filter((instructor) => instructor.id !== id);
+      },
+      error: (error) => {
+        console.error('Error rejecting instructor:', error);
+      },
+    });
   }
 
   deleteStudent(id: string): void {

@@ -23,6 +23,7 @@ export class NavbarComponent implements OnInit {
   searchQuery = '';
   selectedCategory = 'all';
   isHomePage = false;
+  isAuthPage = false;
 
   constructor(private router: Router, private route: ActivatedRoute) {
     this.router.events.subscribe((event) => {
@@ -61,6 +62,7 @@ export class NavbarComponent implements OnInit {
         // Remove hash fragment for route matching
         const cleanUrl = url.split('#')[0];
         this.isHomePage = cleanUrl === '/' || cleanUrl.startsWith('/courses');
+        this.isAuthPage = cleanUrl === '/login' || cleanUrl === '/register';
 
         this.route.queryParams.subscribe((params) => {
           if (params['category']) {

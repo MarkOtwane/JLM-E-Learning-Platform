@@ -10,9 +10,7 @@
     <div *ngFor="let instructor of pendingInstructors" class="instructor-card">
       <h3 class="card-title">{{ instructor.name }}</h3>
       <p class="card-detail"><strong>Email:</strong> {{ instructor.email }}</p>
-      <p class="card-detail"><strong>Expertise:</strong> {{ instructor.expertise }}</p>
       <div class="card-actions">
-        <button class="download-btn" (click)="downloadCv(instructor.cvUrl)">Download CV</button>
         <button class="accept-btn" (click)="acceptInstructor(instructor.id)">Accept</button>
         <button class="reject-btn" (click)="rejectInstructor(instructor.id)">Reject</button>
       </div>

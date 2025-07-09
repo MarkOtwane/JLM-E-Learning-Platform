@@ -91,7 +91,8 @@
           <td>{{ instructor.name }}</td>
           <td>{{ instructor.email }}</td>
           <td>
-            <!-- Add approve/reject buttons here if needed -->
+            <button class="approve-btn" (click)="approvePendingInstructor(instructor.id)">Approve</button>
+            <button class="reject-btn" (click)="rejectPendingInstructor(instructor.id)">Reject</button>
           </td>
         </tr>
       </tbody>
