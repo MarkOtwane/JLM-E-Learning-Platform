@@ -1,7 +1,7 @@
 <aside class="sidebar">
   <ul>
     <li
-      routerLink="/admin/dashboard"
+      (click)="tabChange.emit(null)"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
       class="nav-link"
@@ -32,6 +32,5 @@
         >({{ stats.pendingInstructors }})</span
       >
     </li>
-    <li (click)="logout()" class="logout-btn">Logout</li>
   </ul>
 </aside>

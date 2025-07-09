@@ -2,7 +2,21 @@
   <div class="navbar-logo">JLM E-Learning</div>
 
   <ul class="navbar-links">
-    <li><button class="logout-btn" (click)="logout()">Log Out</button></li>
+    <li *ngIf="isHomePage">
+      <a routerLink="/" class="home-link">Home</a>
+    </li>
+    <li *ngIf="isHomePage">
+      <a href="#about-grid-section" class="about-link">About</a>
+    </li>
+    <li *ngIf="isHomePage">
+      <a href="#reviews-section" class="testimonials-link">Testimonials</a>
+    </li>
+    <li *ngIf="isHomePage">
+      <a routerLink="/courses" class="courses-link">Courses</a>
+    </li>
+    <li *ngIf="!isHomePage">
+      <button class="logout-btn" (click)="logout()">Log Out</button>
+    </li>
   </ul>
 
   <div class="navbar-auth" *ngIf="!hideAuthButtons">

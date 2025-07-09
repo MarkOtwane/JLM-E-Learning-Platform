@@ -3,7 +3,7 @@
   <div *ngIf="isLoading" class="loading">
     <p>Loading dashboard...</p>
   </div>
-  <div *ngIf="!isLoading" class="cards-grid">
+  <div *ngIf="!isLoading && tab === null" class="cards-grid">
     <div class="card">
       <h3 class="card-title">Total Students Enrolled</h3>
       <p class="card-value">{{ stats.totalStudents }}</p>
@@ -21,63 +21,84 @@
       <p class="card-value">${{ stats.totalEarnings | number : "1.2-2" }}</p>
     </div>
   </div>
+  <div *ngIf="!isLoading && tab === 'students'">
+    <h3>All Students</h3>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Enrollment Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of students">
+          <td>{{ student.name }}</td>
+          <td>{{ student.email }}</td>
+          <td>{{ student.enrollmentDate | date : "dd MMM yyyy" }}</td>
+          <td>
+            <button (click)="deleteStudent(student.id)" class="delete-btn">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="!isLoading && tab === 'instructors'">
+    <h3>All Instructors</h3>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Courses</th>
+          <th>Enrolled Students</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let instructor of instructors">
+          <td>{{ instructor.name }}</td>
+          <td>{{ instructor.email }}</td>
+          <td>{{ instructor.courseCount }}</td>
+          <td>{{ instructor.totalStudentsEnrolled }}</td>
+          <td>
+            <button
+              (click)="deleteInstructor(instructor.id)"
+              class="delete-btn"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="!isLoading && tab === 'pendingInstructors'">
+    <h3>Pending Instructors</h3>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let instructor of pendingInstructors">
+          <td>{{ instructor.name }}</td>
+          <td>{{ instructor.email }}</td>
+          <td>
+            <!-- Add approve/reject buttons here if needed -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
-
-<div *ngIf="tab === 'students'">
-  <h3>All Students</h3>
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Enrollment Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let student of students">
-        <td>{{ student.name }}</td>
-        <td>{{ student.email }}</td>
-        <td>{{ student.enrollmentDate }}</td>
-        <td>
-          <button (click)="deleteStudent(student.id)" class="delete-btn">
-            Delete
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div *ngIf="tab === 'instructors'">
-  <h3>All Instructors</h3>
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Courses</th>
-        <th>Enrolled Students</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let instructor of instructors">
-        <td>{{ instructor.name }}</td>
-        <td>{{ instructor.email }}</td>
-        <td>{{ instructor.courseCount }}</td>
-        <td>{{ instructor.totalStudentsEnrolled }}</td>
-        <td>
-          <button (click)="deleteInstructor(instructor.id)" class="delete-btn">
-            Delete
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div *ngIf="tab === 'courses'">
+<div *ngIf="!isLoading && tab === 'courses'">
   <h3>All Courses</h3>
   <table class="admin-table">
     <thead>
@@ -92,7 +113,9 @@
     </thead>
     <tbody>
       <tr *ngFor="let course of courses">
-        <td>{{ course.title }}</td>
+        <td>
+          <strong>{{ course.title }}</strong>
+        </td>
         <td>{{ course.instructorName }}</td>
         <td>{{ course.category }}</td>
         <td>{{ course.level }}</td>
@@ -101,28 +124,6 @@
           <button (click)="deleteCourse(course.id)" class="delete-btn">
             Delete
           </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div *ngIf="tab === 'pendingInstructors'">
-  <h3>Pending Instructors</h3>
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let instructor of pendingInstructors">
-        <td>{{ instructor.name }}</td>
-        <td>{{ instructor.email }}</td>
-        <td>
-          <!-- Add approve/reject buttons here if needed -->
         </td>
       </tr>
     </tbody>

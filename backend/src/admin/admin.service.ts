@@ -21,6 +21,46 @@ export class AdminService {
   }
 
   async listUsers(filter?: FilterUsersDto) {
+    if (filter?.role === 'INSTRUCTOR') {
+      // For instructors, include course and enrollment counts
+      const instructors = await this.prisma.user.findMany({
+        where: { role: 'INSTRUCTOR' },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          courses: {
+            select: {
+              id: true,
+              enrollments: { select: { id: true } },
+            },
+          },
+        },
+      });
+      // Map to include courseCount and totalStudentsEnrolled
+      return instructors.map((inst) => ({
+        id: inst.id,
+        name: inst.name,
+        email: inst.email,
+        courseCount: inst.courses.length,
+        totalStudentsEnrolled: inst.courses.reduce((sum, c) => sum + c.enrollments.length, 0),
+      }));
+    }
+    if (filter?.role === 'STUDENT') {
+      // For students, include enrollment date
+      return this.prisma.user.findMany({
+        where: { role: 'STUDENT' },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          createdAt: true,
+        },
+      });
+    }
+    // Default for other roles
     return this.prisma.user.findMany({
       where: {
         ...(filter?.role && { role: filter.role }),

@@ -22,6 +22,7 @@ export class NavbarComponent implements OnInit {
   userRole: string | null = null;
   searchQuery = '';
   selectedCategory = 'all';
+  isHomePage = false;
 
   constructor(private router: Router, private route: ActivatedRoute) {
     this.router.events.subscribe((event) => {
@@ -34,12 +35,13 @@ export class NavbarComponent implements OnInit {
           '/pending',
           '/under-review',
         ];
-        // Hide auth buttons for all /learning, /student, and /instructor pages
+        // Hide auth buttons for all /learning, /student, /instructor, and /admin pages
         this.hideAuthButtons =
           hiddenAuthRoutes.includes(url) ||
           url.startsWith('/student') ||
           url.startsWith('/learning') ||
-          url.startsWith('/instructor');
+          url.startsWith('/instructor') ||
+          url.startsWith('/admin');
 
         const hiddenSecondNavbarRoutes = [
           '/login',
@@ -55,6 +57,10 @@ export class NavbarComponent implements OnInit {
 
         this.userName = localStorage.getItem('userName');
         this.userRole = localStorage.getItem('userRole');
+
+        // Remove hash fragment for route matching
+        const cleanUrl = url.split('#')[0];
+        this.isHomePage = cleanUrl === '/' || cleanUrl.startsWith('/courses');
 
         this.route.queryParams.subscribe((params) => {
           if (params['category']) {

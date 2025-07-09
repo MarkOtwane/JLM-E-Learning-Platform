@@ -29,7 +29,8 @@ interface Instructor {
 interface Course {
   id: string;
   title: string;
-  instructorName: string;
+  instructor: { id: string; name: string; email: string };
+  instructorName?: string; // for convenience
   category: string;
   level: string;
   duration: string;
@@ -64,8 +65,8 @@ export class AdminDashboardComponent implements OnInit {
   instructors: Instructor[] = [];
   courses: Course[] = [];
   pendingInstructors: PendingInstructor[] = [];
-  tab: 'students' | 'instructors' | 'courses' | 'pendingInstructors' =
-    'students';
+  tab: 'students' | 'instructors' | 'courses' | 'pendingInstructors' | null =
+    null;
 
   constructor(private api: ApiService) {}
 
@@ -92,9 +93,14 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadStudents(): void {
-    this.api.getAuth<Student[]>('/admin/users?role=STUDENT').subscribe({
-      next: (data) => (this.students = data),
-      error: (err) => console.error('Error loading students:', err),
+    this.api.getAuth<any[]>("/admin/users?role=STUDENT").subscribe({
+      next: (data) => {
+        this.students = data.map(student => ({
+          ...student,
+          enrollmentDate: student.createdAt || "-"
+        }));
+      },
+      error: (err) => console.error("Error loading students:", err),
     });
   }
 
@@ -107,7 +113,13 @@ export class AdminDashboardComponent implements OnInit {
 
   loadCourses(): void {
     this.api.getAuth<Course[]>('/admin/courses').subscribe({
-      next: (data) => (this.courses = data),
+      next: (data) => {
+        // Map instructorName for template compatibility
+        this.courses = data.map((course) => ({
+          ...course,
+          instructorName: course.instructor?.name || '-',
+        }));
+      },
       error: (err) => console.error('Error loading courses:', err),
     });
   }
@@ -184,7 +196,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   onTabChange(
-    tab: 'students' | 'instructors' | 'courses' | 'pendingInstructors'
+    tab: 'students' | 'instructors' | 'courses' | 'pendingInstructors' | null
   ) {
     this.tab = tab;
     if (tab === 'pendingInstructors') {

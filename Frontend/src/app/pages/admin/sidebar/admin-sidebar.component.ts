@@ -12,7 +12,7 @@ import { ApiService } from '../../../services/api.service';
 })
 export class AdminSidebarComponent implements OnInit {
   @Output() tabChange = new EventEmitter<
-    'students' | 'instructors' | 'courses' | 'pendingInstructors'
+    'students' | 'instructors' | 'courses' | 'pendingInstructors' | null
   >();
   navItems = [
     { path: '/admin/dashboard', label: 'Dashboard' },
