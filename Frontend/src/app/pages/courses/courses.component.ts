@@ -1,10 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
-import { AuthService } from '../../services/auth.service'; // Import your AuthService
-import { Observable } from 'rxjs';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service'; // Import your AuthService
 
 interface CourseInstructor {
   name: string;
@@ -44,7 +42,7 @@ interface Course {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './courses.component.html',
-  styleUrls: ['./courses.component.css']
+  styleUrls: ['./courses.component.css'],
 })
 export class CoursesComponent implements OnInit {
   @ViewChild('carouselWrapper', { static: false }) carouselWrapper!: ElementRef;
@@ -79,14 +77,14 @@ export class CoursesComponent implements OnInit {
 
   setupAuth() {
     // Subscribe to user authentication state
-    this.authService.user$.subscribe(user => {
+    this.authService.user$.subscribe((user) => {
       this.isLoggedIn = !!user; // True if user is logged in
       this.isInstructor = user?.role === 'instructor'; // True if user is an instructor
     });
   }
 
   setupUrlParams() {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       this.activeCategory = params['category'] || 'all';
       this.searchQuery = params['q'] || '';
       this.filterCourses();
@@ -95,10 +93,10 @@ export class CoursesComponent implements OnInit {
 
   loadCourses(): void {
     this.isLoading = true;
-    this.apiService.getAuth<any[]>('/courses').subscribe({
+    this.apiService.get<any[]>('/courses/public').subscribe({
       next: (courses) => {
         this.courses = courses;
-        this.featuredCourses = this.courses.filter(course => course.featured);
+        this.featuredCourses = this.courses.filter((course) => course.featured);
         this.filterCourses();
         this.isLoading = false;
       },
@@ -112,13 +110,19 @@ export class CoursesComponent implements OnInit {
   }
 
   filterCourses() {
-    this.filteredCourses = this.courses.filter(course => {
-      const matchesCategory = this.activeCategory === 'all' || course.level === this.activeCategory;
-      const matchesSearch = !this.searchQuery || 
+    this.filteredCourses = this.courses.filter((course) => {
+      const matchesCategory =
+        this.activeCategory === 'all' || course.level === this.activeCategory;
+      const matchesSearch =
+        !this.searchQuery ||
         course.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        course.category.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        course.description.toLowerCase().includes(this.searchQuery.toLowerCase());
-      
+        course.category
+          .toLowerCase()
+          .includes(this.searchQuery.toLowerCase()) ||
+        course.description
+          .toLowerCase()
+          .includes(this.searchQuery.toLowerCase());
+
       return matchesCategory && matchesSearch;
     });
   }
@@ -134,22 +138,48 @@ export class CoursesComponent implements OnInit {
   }
 
   scrollCarousel(direction: 'prev' | 'next') {
-    const maxOffset = -(this.featuredCourses.length - this.cardsVisible) * this.cardWidth;
-    
+    const maxOffset =
+      -(this.featuredCourses.length - this.cardsVisible) * this.cardWidth;
+
     if (direction === 'prev') {
       this.carouselOffset = Math.min(this.carouselOffset + this.cardWidth, 0);
     } else {
-      this.carouselOffset = Math.max(this.carouselOffset - this.cardWidth, maxOffset);
+      this.carouselOffset = Math.max(
+        this.carouselOffset - this.cardWidth,
+        maxOffset
+      );
     }
-    
+
     this.isCarouselAtEnd = this.carouselOffset <= maxOffset;
   }
 
   getStarArray(rating: number): number[] {
-    return Array(Math.floor(rating)).fill(0);
+    if (!rating || rating < 0 || isNaN(rating)) {
+      return [];
+    }
+    const fullStars = Math.floor(Math.min(rating, 5));
+    return Array(fullStars).fill(0);
   }
 
   getEmptyStarArray(rating: number): number[] {
-    return Array(5 - Math.floor(rating)).fill(0);
+    if (!rating || rating < 0 || isNaN(rating)) {
+      return Array(5).fill(0); // Show 5 empty stars if no rating
+    }
+    const fullStars = Math.floor(Math.min(rating, 5));
+    const emptyStars = Math.max(0, 5 - fullStars);
+    return Array(emptyStars).fill(0);
+  }
+
+  onEnroll(course: Course) {
+    if (!this.isLoggedIn) {
+      // Assuming router is available, otherwise this will cause an error
+      // If router is not available, you might need to import Router from '@angular/router'
+      // For now, commenting out the navigation as it's not defined in the provided context
+      // this.router.navigate(['/register'], { queryParams: { redirect: '/login' } });
+      console.warn('User not logged in. Redirecting to login.');
+      return;
+    }
+    // If logged in, you can add enroll logic here
+    // this.enrollInCourse(course);
   }
 }

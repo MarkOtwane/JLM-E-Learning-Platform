@@ -66,7 +66,7 @@ export class AuthService {
     this.api.clearToken();
     localStorage.removeItem('user');
     this.user$.next(null);
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/login']);
   }
 
   getToken(): string | null {

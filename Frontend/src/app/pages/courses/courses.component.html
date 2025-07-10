@@ -3,13 +3,17 @@
   <div class="page-header">
     <div class="header-content">
       <h1>Discover Amazing Courses</h1>
-      <p class="subtitle">Learn from industry experts and advance your career</p>
+      <p class="subtitle">
+        Learn from industry experts and advance your career
+      </p>
     </div>
   </div>
 
   <!-- Filter Results Info -->
   <div class="filter-info" *ngIf="filteredCourses.length > 0">
-    <span class="results-count">{{ filteredCourses.length }} courses found</span>
+    <span class="results-count"
+      >{{ filteredCourses.length }} courses found</span
+    >
     <span class="filter-badge" *ngIf="activeCategory !== 'all'">
       {{ activeCategory | titlecase }} Level
     </span>
@@ -23,10 +27,20 @@
     <h2>Featured Courses</h2>
     <div class="carousel-container">
       <div class="carousel-wrapper" #carouselWrapper>
-        <div class="carousel-track" [style.transform]="'translateX(' + carouselOffset + 'px)'">
-          <div class="featured-card" *ngFor="let course of featuredCourses" (click)="openCourseModal(course)">
+        <div
+          class="carousel-track"
+          [style.transform]="'translateX(' + carouselOffset + 'px)'"
+        >
+          <div
+            class="featured-card"
+            *ngFor="let course of featuredCourses"
+            (click)="openCourseModal(course)"
+          >
             <div class="featured-image">
-              <img [src]="course.image" [alt]="course.title">
+              <img
+                [src]="course.image || '/assets/default-course.jpg'"
+                [alt]="course.title"
+              />
               <div class="level-badge" [class]="'level-' + course.level">
                 {{ course.level }}
               </div>
@@ -42,10 +56,18 @@
           </div>
         </div>
       </div>
-      <button class="carousel-btn prev" (click)="scrollCarousel('prev')" [disabled]="carouselOffset === 0">
+      <button
+        class="carousel-btn prev"
+        (click)="scrollCarousel('prev')"
+        [disabled]="carouselOffset === 0"
+      >
         <i class="fas fa-chevron-left"></i>
       </button>
-      <button class="carousel-btn next" (click)="scrollCarousel('next')" [disabled]="isCarouselAtEnd">
+      <button
+        class="carousel-btn next"
+        (click)="scrollCarousel('next')"
+        [disabled]="isCarouselAtEnd"
+      >
         <i class="fas fa-chevron-right"></i>
       </button>
     </div>
@@ -55,9 +77,16 @@
   <section class="courses-grid" *ngIf="filteredCourses.length > 0">
     <h2>All Courses</h2>
     <div class="grid-container">
-      <div class="course-card" *ngFor="let course of filteredCourses" (click)="openCourseModal(course)">
+      <div
+        class="course-card"
+        *ngFor="let course of filteredCourses"
+        (click)="openCourseModal(course)"
+      >
         <div class="card-image">
-          <img [src]="course.image" [alt]="course.title">
+          <img
+            [src]="course.image || '/assets/default-course.jpg'"
+            [alt]="course.title"
+          />
           <div class="level-badge" [class]="'level-' + course.level">
             {{ course.level }}
           </div>
@@ -80,17 +109,33 @@
           </div>
           <div class="course-rating">
             <div class="stars">
-              <i class="fas fa-star" *ngFor="let star of getStarArray(course.rating)"></i>
-              <i class="far fa-star" *ngFor="let star of getEmptyStarArray(course.rating)"></i>
+              <i
+                class="fas fa-star"
+                *ngFor="let star of getStarArray(course.rating)"
+              ></i>
+              <i
+                class="far fa-star"
+                *ngFor="let star of getEmptyStarArray(course.rating)"
+              ></i>
             </div>
-            <span class="rating-text">{{ course.rating }} ({{ course.reviewsCount }} reviews)</span>
+            <span class="rating-text"
+              >{{ course.rating }} ({{ course.reviewsCount }} reviews)</span
+            >
           </div>
           <div class="instructor">
-            <img [src]="course.instructor.profilePicture" [alt]="course.instructor.name" class="instructor-avatar">
-            <span>{{ course.instructor.name }}</span>
+            <img
+              [src]="
+                course.instructor.profilePicture || '/assets/default-avatar.png'
+              "
+              [alt]="course.instructor.name || 'Instructor'"
+              class="instructor-avatar"
+            />
+            <span>{{ course.instructor.name || "Instructor" }}</span>
           </div>
           <div class="card-footer">
-            <span class="price">${{ course.price }}</span>
+            <span class="price"
+              >${{ course.price !== undefined ? course.price : "Free" }}</span
+            >
             <button class="start-btn">Start Learning</button>
           </div>
         </div>
@@ -111,21 +156,33 @@
       <p *ngIf="!searchQuery && activeCategory === 'all'">
         Be the first to create a course and share your knowledge!
       </p>
-      <button class="cta-btn" routerLink="/instructor-dashboard" *ngIf="isLoggedIn && isInstructor">
+      <button
+        class="cta-btn"
+        routerLink="/instructor-dashboard"
+        *ngIf="isLoggedIn && isInstructor"
+      >
         Create Your Course
       </button>
     </div>
   </div>
 
   <!-- Course Detail Modal -->
-  <div class="modal-overlay" *ngIf="selectedCourse" (click)="closeCourseModal()">
+  <div
+    class="modal-overlay"
+    *ngIf="selectedCourse"
+    (click)="closeCourseModal()"
+  >
     <div class="modal-content" (click)="$event.stopPropagation()">
       <button class="close-btn" (click)="closeCourseModal()">
         <i class="fas fa-times"></i>
       </button>
-      
+
       <div class="modal-header">
-        <img [src]="selectedCourse.image" [alt]="selectedCourse.title" class="modal-image">
+        <img
+          [src]="selectedCourse.image || '/assets/default-course.jpg'"
+          [alt]="selectedCourse.title"
+          class="modal-image"
+        />
         <div class="modal-info">
           <div class="level-badge" [class]="'level-' + selectedCourse.level">
             {{ selectedCourse.level }}
@@ -133,9 +190,15 @@
           <h2>{{ selectedCourse.title }}</h2>
           <p class="category">{{ selectedCourse.category }}</p>
           <div class="instructor-info">
-            <img [src]="selectedCourse.instructor.profilePicture" [alt]="selectedCourse.instructor.name">
+            <img
+              [src]="
+                selectedCourse.instructor.profilePicture ||
+                '/assets/default-avatar.png'
+              "
+              [alt]="selectedCourse.instructor.name || 'Instructor'"
+            />
             <div>
-              <h4>{{ selectedCourse.instructor.name }}</h4>
+              <h4>{{ selectedCourse.instructor.name || "Instructor" }}</h4>
               <p>Course Instructor</p>
             </div>
           </div>
@@ -145,7 +208,9 @@
       <div class="modal-body">
         <div class="course-overview">
           <h3>Course Overview</h3>
-          <p>{{ selectedCourse.fullDescription || selectedCourse.description }}</p>
+          <p>
+            {{ selectedCourse.fullDescription || selectedCourse.description }}
+          </p>
         </div>
 
         <div class="course-details">
@@ -176,17 +241,29 @@
           </ul>
         </div>
 
-        <div class="course-reviews" *ngIf="selectedCourse.reviews && selectedCourse.reviews.length > 0">
+        <div
+          class="course-reviews"
+          *ngIf="selectedCourse.reviews && selectedCourse.reviews.length > 0"
+        >
           <h3>Student Reviews</h3>
           <div class="reviews-list">
-            <div class="review-item" *ngFor="let review of selectedCourse.reviews">
+            <div
+              class="review-item"
+              *ngFor="let review of selectedCourse.reviews"
+            >
               <div class="review-header">
-                <img [src]="review.studentAvatar" [alt]="review.studentName">
+                <img [src]="review.studentAvatar" [alt]="review.studentName" />
                 <div>
                   <h5>{{ review.studentName }}</h5>
                   <div class="review-stars">
-                    <i class="fas fa-star" *ngFor="let star of getStarArray(review.rating)"></i>
-                    <i class="far fa-star" *ngFor="let star of getEmptyStarArray(review.rating)"></i>
+                    <i
+                      class="fas fa-star"
+                      *ngFor="let star of getStarArray(review.rating)"
+                    ></i>
+                    <i
+                      class="far fa-star"
+                      *ngFor="let star of getEmptyStarArray(review.rating)"
+                    ></i>
                   </div>
                 </div>
               </div>

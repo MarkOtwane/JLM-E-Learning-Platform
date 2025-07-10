@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { EnrollDto } from './dto/enroll.dto';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { UserRole } from '@prisma/client';
+import { Roles, User } from '../auth/decorators';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { Roles, User } from '../auth/decorators';
-import { UserRole } from '@prisma/client';
+import { EnrollDto } from './dto/enroll.dto';
 import { StudentsService } from './student.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -30,5 +30,11 @@ export class StudentsController {
     @Param('courseId') courseId: string,
   ) {
     return this.studentsService.getCourseContent(studentId, courseId);
+  }
+
+  @Delete('courses/:courseId')
+  @Roles(UserRole.STUDENT)
+  async dropCourse(@User('id') studentId: string, @Param('courseId') courseId: string) {
+    return this.studentsService.dropCourse(studentId, courseId);
   }
 }

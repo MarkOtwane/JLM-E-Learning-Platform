@@ -78,9 +78,13 @@ export class StudentCoursesComponent implements OnInit {
   }
 
   dropCourse(courseId: string) {
-    this.enrolledCourses = this.enrolledCourses.filter(
-      (c) => c.id !== courseId
-    );
-    // TODO: Add logic to notify backend and reset progress
+    this.apiService.deleteAuth(`/students/courses/${courseId}`).subscribe({
+      next: () => {
+        this.enrolledCourses = this.enrolledCourses.filter((c) => c.id !== courseId);
+      },
+      error: (err) => {
+        console.error('Failed to drop course', err);
+      }
+    });
   }
 }

@@ -67,7 +67,7 @@ model Module {
   id       String @id @default(cuid())
   title    String
   order    Int
-  course   Course @relation(fields: [courseId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId String
 
   createdAt DateTime @default(now())
@@ -90,7 +90,7 @@ model Enrollment {
   id         String   @id @default(cuid())
   user       User     @relation(fields: [userId], references: [id])
   userId     String
-  course     Course   @relation(fields: [courseId], references: [id])
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId   String
   enrolledAt DateTime @default(now())
 }
@@ -98,7 +98,7 @@ model Enrollment {
 model Quiz {
   id        String     @id @default(cuid())
   title     String
-  course    Course     @relation(fields: [courseId], references: [id])
+  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId  String
   questions Question[]
 
@@ -146,7 +146,7 @@ model Certificate {
   id             String   @id @default(cuid())
   user           User     @relation(fields: [userId], references: [id])
   userId         String
-  course         Course   @relation(fields: [courseId], references: [id])
+  course         Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId       String
   issuedAt       DateTime @default(now())
   certificateUrl String
@@ -156,7 +156,7 @@ model Payment {
   id        String   @id @default(cuid())
   user      User     @relation(fields: [userId], references: [id])
   userId    String
-  course    Course   @relation(fields: [courseId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId  String
   amount    Float
   status    String // pending, completed, failed

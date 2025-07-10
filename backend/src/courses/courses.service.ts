@@ -77,6 +77,30 @@ export class CoursesService {
     return course;
   }
 
+  async getPublicCourses(filter: FilterCoursesDto) {
+    const where: any = {};
+
+    if (filter.keyword) {
+      where.title = { contains: filter.keyword, mode: 'insensitive' };
+    }
+    if (filter.category) {
+      where.category = filter.category;
+    }
+    if (filter.level) {
+      where.level = filter.level;
+    }
+
+    return this.prisma.course.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        instructor: {
+          select: { id: true, name: true, profilePicture: true },
+        },
+      },
+    });
+  }
+
   async listCourses(filter: FilterCoursesDto, role: UserRole, userId: string) {
     const where: any = {};
 

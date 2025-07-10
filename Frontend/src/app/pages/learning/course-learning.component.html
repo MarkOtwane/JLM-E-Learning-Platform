@@ -82,16 +82,17 @@
         <div class="content-card">
           <ng-container [ngSwitch]="topic.contentType">
             <div *ngSwitchCase="'text'" class="prose">
-              <p>{{ topic.textContent }}</p>
+              <p>{{ topic.textContent || topic.url }}</p>
             </div>
             <div *ngSwitchCase="'video'" class="video-container">
               <video
                 controls
                 class="w-full"
                 [src]="
-                  topic.fileName
+                  topic.url ||
+                  (topic.fileName
                     ? 'http://localhost:3000/api/files/' + topic.fileName
-                    : ''
+                    : '')
                 "
               >
                 <source type="video/mp4" />
@@ -101,9 +102,10 @@
             <div *ngSwitchCase="'pdf'">
               <embed
                 [src]="
-                  topic.fileName
+                  topic.url ||
+                  (topic.fileName
                     ? 'http://localhost:3000/api/files/' + topic.fileName
-                    : ''
+                    : '')
                 "
                 type="application/pdf"
                 class="w-full h-[600px]"

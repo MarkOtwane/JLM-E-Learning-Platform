@@ -17,6 +17,7 @@ interface Topic {
   textContent?: string;
   file?: File;
   fileName?: string;
+  url?: string; // <-- Added for backend compatibility
   hasQuiz: boolean;
   questions: QuizQuestion[];
 }
@@ -277,8 +278,22 @@ export class CourseContentBuilderComponent implements OnInit {
 
     // Prepare form data for submission
     const formData = new FormData();
+
+    // Prepare modules for backend: for text topics, set url = textContent
+    const modulesForBackend = this.modules.map((mod) => ({
+      ...mod,
+      topics: mod.topics.map((topic) => {
+        const { contentType, ...rest } = topic;
+        return {
+          ...rest,
+          type: contentType.toUpperCase(),
+          url: contentType === 'text' ? topic.textContent : topic.url || '',
+        };
+      }),
+    }));
+
     formData.append('courseId', this.courseId);
-    formData.append('modules', JSON.stringify(this.modules));
+    formData.append('modules', JSON.stringify(modulesForBackend));
     formData.append('hasFinalExam', this.hasFinalExam.toString());
     formData.append(
       'finalExamQuestions',

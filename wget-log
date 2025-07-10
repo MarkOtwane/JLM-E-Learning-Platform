@@ -1,0 +1,11 @@
+--2025-07-10 14:46:35--  https://ui-avatars.com/api/?name=User
+Resolving ui-avatars.com (ui-avatars.com)... 104.26.8.185, 172.67.75.120, 104.26.9.185, ...
+Connecting to ui-avatars.com (ui-avatars.com)|104.26.8.185|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [image/svg+xml]
+Saving to: ‘Frontend/public/assets/default-avatar.png’
+
+            Frontend/pu     [<=>                            ]       0  --.-KB/s               Frontend/public/assets/     [ <=>                           ]     560  --.-KB/s    in 0s      
+
+2025-07-10 14:46:36 (7.20 MB/s) - ‘Frontend/public/assets/default-avatar.png’ saved [560]
+

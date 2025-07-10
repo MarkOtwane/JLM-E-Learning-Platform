@@ -95,4 +95,13 @@ export class StudentsService {
     if (!course) throw new NotFoundException('Course not found');
     return course;
   }
+
+  async dropCourse(studentId: string, courseId: string) {
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: { userId: studentId, courseId },
+    });
+    if (!enrollment) throw new NotFoundException('Not enrolled in this course');
+    await this.prisma.enrollment.delete({ where: { id: enrollment.id } });
+    return { message: 'Dropped course successfully' };
+  }
 }

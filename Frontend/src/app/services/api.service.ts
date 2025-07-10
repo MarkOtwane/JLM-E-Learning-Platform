@@ -43,7 +43,7 @@ export class ApiService {
   private handleAuthError = (error: any) => {
     if (error.status === 401) {
       this.clearToken();
-      this.router.navigate(['/auth/login']);
+      this.router.navigate(['/login']);
     }
     return throwError(() => error);
   };

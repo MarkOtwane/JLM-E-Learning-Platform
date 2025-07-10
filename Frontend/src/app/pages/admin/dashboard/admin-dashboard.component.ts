@@ -105,7 +105,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadInstructors(): void {
-    this.api.getAuth<Instructor[]>('/admin/users?role=INSTRUCTOR&isApproved=false').subscribe({
+    this.api.getAuth<Instructor[]>('/admin/users?role=INSTRUCTOR').subscribe({
       next: (data) => (this.instructors = data),
       error: (err) => console.error('Error loading instructors:', err),
     });
@@ -157,62 +157,36 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   deleteStudent(id: string): void {
-    if (
-      confirm(
-        'Are you sure you want to delete this student? This action cannot be undone.'
-      )
-    ) {
-      this.api.deleteAuth(`/admin/users/${id}`).subscribe({
-        next: () => {
-          this.students = this.students.filter((student) => student.id !== id);
-          alert('Student deleted successfully.');
-        },
-        error: (error) => {
-          console.error('Error deleting student:', error);
-          alert('Failed to delete student.');
-        },
-      });
-    }
+    this.api.deleteAuth(`/admin/users/${id}`).subscribe({
+      next: () => {
+        this.students = this.students.filter((student) => student.id !== id);
+      },
+      error: (error) => {
+        console.error('Error deleting student:', error);
+      },
+    });
   }
 
   deleteInstructor(id: string): void {
-    if (
-      confirm(
-        'Are you sure you want to delete this instructor? This action cannot be undone.'
-      )
-    ) {
-      this.api.deleteAuth(`/admin/users/${id}`).subscribe({
-        next: () => {
-          this.instructors = this.instructors.filter(
-            (instructor) => instructor.id !== id
-          );
-          // alert('Instructor deleted successfully.');
-        },
-        error: (error) => {
-          console.error('Error deleting instructor:', error);
-          alert('Failed to delete instructor.');
-        },
-      });
-    }
+    this.api.deleteAuth(`/admin/users/${id}`).subscribe({
+      next: () => {
+        this.instructors = this.instructors.filter((instructor) => instructor.id !== id);
+      },
+      error: (error) => {
+        console.error('Error deleting instructor:', error);
+      },
+    });
   }
 
   deleteCourse(id: string): void {
-    if (
-      confirm(
-        'Are you sure you want to delete this course? This action cannot be undone.'
-      )
-    ) {
-      this.api.deleteAuth(`/admin/courses/${id}`).subscribe({
-        next: () => {
-          this.courses = this.courses.filter((course) => course.id !== id);
-          // alert('Course deleted successfully.');
-        },
-        error: (error) => {
-          console.error('Error deleting course:', error);
-          alert('Failed to delete course.');
-        },
-      });
-    }
+    this.api.deleteAuth(`/admin/courses/${id}`).subscribe({
+      next: () => {
+        this.courses = this.courses.filter((course) => course.id !== id);
+      },
+      error: (error) => {
+        console.error('Error deleting course:', error);
+      },
+    });
   }
 
   onTabChange(

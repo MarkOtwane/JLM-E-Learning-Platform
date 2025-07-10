@@ -55,7 +55,7 @@ export class CreateCourseComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/auth/login']);
+      this.router.navigate(['/login']);
       return;
     }
     if (

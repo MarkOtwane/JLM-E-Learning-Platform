@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { UserRole } from '@prisma/client';
-import { Roles, User } from '../auth/decorators';
+import { Public, Roles, User } from '../auth/decorators';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { ContentService } from '../content/content.service';
@@ -104,6 +104,13 @@ export class CoursesController {
     await this.coursesService.deleteCourse(userId, courseId, role);
   }
 
+  @Public()
+  @Get('public')
+  async getPublicCourses(@Query() filters: FilterCoursesDto) {
+    return this.coursesService.getPublicCourses(filters);
+  }
+
+  @Public()
   @Get(':id')
   async getCourseById(@Param('id') courseId: string) {
     return this.coursesService.getCourseById(courseId);

@@ -16,6 +16,7 @@ interface Topic {
   contentType: 'text' | 'video' | 'pdf';
   textContent?: string;
   fileName?: string;
+  url?: string; // <-- Added for Cloudinary/URL support
   hasQuiz: boolean;
   questions: QuizQuestion[];
 }
@@ -87,7 +88,15 @@ export class CourseLearningComponent implements OnInit {
         if (content && content.modules) {
           content.modules = content.modules.map((mod: any) => ({
             ...mod,
-            topics: mod.contents || [],
+            topics: (mod.contents || []).map((c: any) => ({
+              title: c.title,
+              contentType: c.type ? c.type.toLowerCase() : 'text',
+              url: c.url,
+              fileName: c.fileName, // in case you add this in the future
+              hasQuiz: false, // set as needed
+              questions: [], // set as needed
+              textContent: c.textContent, // in case you add this in the future
+            })),
           }));
         }
         this.courseContent = content;
