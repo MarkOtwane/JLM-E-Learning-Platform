@@ -92,10 +92,10 @@ export class CourseLearningComponent implements OnInit {
               title: c.title,
               contentType: c.type ? c.type.toLowerCase() : 'text',
               url: c.url,
-              fileName: c.fileName, // in case you add this in the future
-              hasQuiz: false, // set as needed
-              questions: [], // set as needed
-              textContent: c.textContent, // in case you add this in the future
+              fileName: c.fileName,
+              hasQuiz: !!c.hasQuiz,
+              questions: c.questions || [],
+              textContent: c.textContent,
             })),
           }));
         }

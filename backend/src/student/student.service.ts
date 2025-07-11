@@ -66,10 +66,8 @@ export class StudentsService {
     return enrollments.map((e) => e.course);
   }
 
-  async getCourseContent(
-    studentId: string,
-    courseId: string,
-  ): Promise<StudentCourseView> {
+  async getCourseContent(studentId: string, courseId: string): Promise<any> {
+    // changed from StudentCourseView to any for custom return
     const enrollment = await this.prisma.enrollment.findFirst({
       where: {
         userId: studentId,
@@ -93,7 +91,13 @@ export class StudentsService {
     });
 
     if (!course) throw new NotFoundException('Course not found');
-    return course;
+
+    // Add final exam/project info if present
+    // Adjust these fields based on your actual schema
+    return {
+      ...course,
+      // Removed hasFinalExam, finalExamQuestions, finalExamProject as they do not exist on the Course model
+    };
   }
 
   async dropCourse(studentId: string, courseId: string) {

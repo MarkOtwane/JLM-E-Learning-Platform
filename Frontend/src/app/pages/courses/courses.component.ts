@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service'; // Import your AuthService
 
@@ -65,6 +65,7 @@ export class CoursesComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private authService: AuthService, // Inject AuthService
     private apiService: ApiService // Inject ApiService
   ) {}
@@ -172,14 +173,38 @@ export class CoursesComponent implements OnInit {
 
   onEnroll(course: Course) {
     if (!this.isLoggedIn) {
-      // Assuming router is available, otherwise this will cause an error
-      // If router is not available, you might need to import Router from '@angular/router'
-      // For now, commenting out the navigation as it's not defined in the provided context
-      // this.router.navigate(['/register'], { queryParams: { redirect: '/login' } });
-      console.warn('User not logged in. Redirecting to login.');
+      // Redirect to register page, then login
+      this.router.navigate(['/register'], {
+        queryParams: { redirect: '/login' },
+      });
       return;
     }
-    // If logged in, you can add enroll logic here
-    // this.enrollInCourse(course);
+
+    // If logged in, enroll in the course
+    this.enrollInCourse(course);
+  }
+
+  enrollInCourse(course: Course) {
+    this.apiService
+      .postAuth(`/students/enroll`, { courseId: course.id })
+      .subscribe({
+        next: (response) => {
+          alert(`Successfully enrolled in "${course.title}"!`);
+          this.closeCourseModal();
+        },
+        error: (error) => {
+          if (error.status === 401 || error.status === 403) {
+            this.closeCourseModal();
+            this.router.navigate(['/login'], {
+              queryParams: { redirect: '/courses' },
+            });
+            return;
+          }
+          const errorMessage =
+            error?.error?.message ||
+            'Failed to enroll in course. Please try again.';
+          alert(errorMessage);
+        },
+      });
   }
 }

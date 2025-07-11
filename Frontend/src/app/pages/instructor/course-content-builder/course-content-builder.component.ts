@@ -456,6 +456,14 @@ export class CourseContentBuilderComponent implements OnInit {
 
     return true;
   }
+
+  trackByOption(index: number, option: string) {
+    return index;
+  }
+
+  trackByFinalExamOption(index: number, option: string) {
+    return index;
+  }
 }
 
 // Export the component to make it a module

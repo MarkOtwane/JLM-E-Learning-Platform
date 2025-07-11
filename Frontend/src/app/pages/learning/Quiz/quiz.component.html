@@ -6,45 +6,64 @@
     <h2 class="quiz-title text-2xl font-bold mb-4">
       {{ isFinalExam ? 'Final Exam' : (moduleIndex !== null && topicIndex !== null ? courseContent.modules[moduleIndex].topics[topicIndex].title + ' Quiz' : '') }}
     </h2>
-    <div *ngFor="let question of questions; let qIndex = index" class="mb-6">
-      <p class="question-text font-semibold mb-2">{{ qIndex + 1 }}. {{ question.question }}</p>
-      <div *ngFor="let option of question.options; let oIndex = index" class="mb-2">
-        <label class="flex items-center">
-          <input
-            type="radio"
-            [name]="'question' + qIndex"
-            [value]="oIndex"
-            [(ngModel)]="answers[qIndex]"
-            (change)="selectAnswer(qIndex, oIndex)"
-            [disabled]="isSubmitted"
-            class="mr-2"
-          />
-          <span class="option-label"
-                [class.correct]="isSubmitted && oIndex === question.correctAnswer"
-                [class.incorrect]="isSubmitted && oIndex === answers[qIndex] && oIndex !== question.correctAnswer">
-            {{ option }}
-          </span>
-        </label>
+    <!-- Final Exam Project Submission UI -->
+    <div *ngIf="isFinalExam">
+      <div *ngIf="submissionStatus === 'not_submitted' || submissionStatus === 'rejected'">
+        <label for="github-link">Submit your project GitHub link:</label>
+        <input id="github-link" type="text" [(ngModel)]="projectLink" placeholder="https://github.com/your-repo" class="option-input" />
+        <button (click)="submitProject()" [disabled]="!projectLink">Submit Project</button>
+        <div *ngIf="submissionStatus === 'rejected'" class="text-red-500">Your submission was rejected. Please resubmit.</div>
+      </div>
+      <div *ngIf="submissionStatus === 'pending'">
+        <p>Your project is under review. Please wait for instructor approval.</p>
+      </div>
+      <div *ngIf="submissionStatus === 'approved'">
+        <p>Congratulations! Your project was approved.</p>
+        <button (click)="downloadCertificate()">Download Certificate</button>
       </div>
     </div>
-    <div *ngIf="isSubmitted" class="mb-4">
-      <p class="score-text font-semibold">Score: {{ score }} / {{ questions.length }}</p>
-    </div>
-    <div class="flex justify-between">
-      <button
-        (click)="backToCourse()"
-        class="back-button px-4 py-2 rounded"
-      >
-        Back to Course
-      </button>
-      <button
-        *ngIf="!isSubmitted"
-        (click)="submitQuiz()"
-        [disabled]="isQuizIncomplete()"
-        class="submit-button px-4 py-2 rounded"
-      >
-        Submit Quiz
-      </button>
+    <!-- End Final Exam Project Submission UI -->
+    <div *ngIf="!isFinalExam">
+      <div *ngFor="let question of questions; let qIndex = index" class="mb-6">
+        <p class="question-text font-semibold mb-2">{{ qIndex + 1 }}. {{ question.question }}</p>
+        <div *ngFor="let option of question.options; let oIndex = index" class="mb-2">
+          <label class="flex items-center">
+            <input
+              type="radio"
+              [name]="'question' + qIndex"
+              [value]="oIndex"
+              [(ngModel)]="answers[qIndex]"
+              (change)="selectAnswer(qIndex, oIndex)"
+              [disabled]="isSubmitted"
+              class="mr-2"
+            />
+            <span class="option-label"
+                  [class.correct]="isSubmitted && oIndex === question.correctAnswer"
+                  [class.incorrect]="isSubmitted && oIndex === answers[qIndex] && oIndex !== question.correctAnswer">
+              {{ option }}
+            </span>
+          </label>
+        </div>
+      </div>
+      <div *ngIf="isSubmitted" class="mb-4">
+        <p class="score-text font-semibold">Score: {{ score }} / {{ questions.length }}</p>
+      </div>
+      <div class="flex justify-between">
+        <button
+          (click)="backToCourse()"
+          class="back-button px-4 py-2 rounded"
+        >
+          Back to Course
+        </button>
+        <button
+          *ngIf="!isSubmitted"
+          (click)="submitQuiz()"
+          [disabled]="isQuizIncomplete()"
+          class="submit-button px-4 py-2 rounded"
+        >
+          Submit Quiz
+        </button>
+      </div>
     </div>
   </div>
 </div>

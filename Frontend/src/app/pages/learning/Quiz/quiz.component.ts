@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface QuizQuestion {
   question: string;
@@ -42,12 +42,20 @@ export class QuizComponent implements OnInit {
   moduleIndex: number | null = null;
   topicIndex: number | null = null;
   isFinalExam: boolean = false;
-  courseContent: CourseContent = { modules: [], hasFinalExam: false, finalExamQuestions: [] };
+  courseContent: CourseContent = {
+    modules: [],
+    hasFinalExam: false,
+    finalExamQuestions: [],
+  };
   questions: QuizQuestion[] = [];
   answers: number[] = [];
   isSubmitted: boolean = false;
   score: number = 0;
   isLoading: boolean = true;
+  projectLink: string = '';
+  submissionStatus: 'not_submitted' | 'pending' | 'approved' | 'rejected' =
+    'not_submitted';
+  certificateUrl: string = '';
 
   constructor(
     private http: HttpClient,
@@ -61,27 +69,37 @@ export class QuizComponent implements OnInit {
     this.topicIndex = Number(this.route.snapshot.paramMap.get('topicIndex'));
     this.isFinalExam = this.router.url.includes('final-exam');
     this.loadCourseContent();
+    if (this.isFinalExam) {
+      this.checkProjectSubmission();
+    }
   }
 
   loadCourseContent(): void {
     this.isLoading = true;
-    this.http.get<CourseContent>(`http://localhost:3000/api/courses/${this.courseId}/content`).subscribe({
-      next: (content) => {
-        this.courseContent = content;
-        if (this.isFinalExam) {
-          this.questions = content.finalExamQuestions;
-        } else if (this.moduleIndex !== null && this.topicIndex !== null) {
-          this.questions = content.modules[this.moduleIndex].topics[this.topicIndex].questions;
-        }
-        this.answers = new Array(this.questions.length).fill(-1);
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading quiz:', error);
-        alert('Failed to load quiz. Please try again.');
-        this.isLoading = false;
-      }
-    });
+    this.http
+      .get<CourseContent>(
+        `http://localhost:3000/api/courses/${this.courseId}/content`
+      )
+      .subscribe({
+        next: (content) => {
+          this.courseContent = content;
+          if (this.isFinalExam) {
+            this.questions = content.finalExamQuestions;
+          } else if (this.moduleIndex !== null && this.topicIndex !== null) {
+            this.questions =
+              content.modules[this.moduleIndex].topics[
+                this.topicIndex
+              ].questions;
+          }
+          this.answers = new Array(this.questions.length).fill(-1);
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading quiz:', error);
+          alert('Failed to load quiz. Please try again.');
+          this.isLoading = false;
+        },
+      });
   }
 
   selectAnswer(questionIndex: number, optionIndex: number): void {
@@ -104,6 +122,43 @@ export class QuizComponent implements OnInit {
 
   isQuizIncomplete(): boolean {
     return this.answers.some((answer: number) => answer === -1);
+  }
+
+  checkProjectSubmission() {
+    this.http
+      .get<any>(
+        `http://localhost:3000/api/courses/${this.courseId}/project-submission/status`
+      )
+      .subscribe({
+        next: (res) => {
+          this.submissionStatus = res.status;
+          this.certificateUrl = res.certificateUrl || '';
+          this.projectLink = res.projectLink || '';
+        },
+        error: () => {
+          this.submissionStatus = 'not_submitted';
+        },
+      });
+  }
+
+  submitProject() {
+    if (!this.projectLink) return;
+    this.http
+      .post<any>(
+        `http://localhost:3000/api/courses/${this.courseId}/project-submission`,
+        { projectLink: this.projectLink }
+      )
+      .subscribe({
+        next: () => {
+          this.submissionStatus = 'pending';
+        },
+      });
+  }
+
+  downloadCertificate() {
+    if (this.certificateUrl) {
+      window.open(this.certificateUrl, '_blank');
+    }
   }
 }
 

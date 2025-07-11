@@ -1,16 +1,16 @@
 <div class="content-builder-container">
   <div class="builder-header">
     <h2>Build Course Content</h2>
-    
+
     <!-- Course Selection Dropdown -->
     <div class="course-selection-section">
       <div class="course-select-container">
         <label for="courseSelect">Select Course to Build:</label>
         <div class="select-wrapper">
-          <select 
-            id="courseSelect" 
-            [(ngModel)]="selectedCourse" 
-            (change)="onCourseSelected()" 
+          <select
+            id="courseSelect"
+            [(ngModel)]="selectedCourse"
+            (change)="onCourseSelected()"
             class="course-select"
             [disabled]="isLoadingCourses"
           >
@@ -19,10 +19,12 @@
               {{ course.title }}
             </option>
           </select>
-          <span class="loading-text" *ngIf="isLoadingCourses">Loading your courses...</span>
+          <span class="loading-text" *ngIf="isLoadingCourses"
+            >Loading your courses...</span
+          >
         </div>
       </div>
-      
+
       <!-- Selected Course Info -->
       <div class="selected-course-info" *ngIf="selectedCourse">
         <div class="course-info-card">
@@ -63,7 +65,10 @@
         <!-- Topics/Lessons -->
         <div class="topics-section">
           <h4>Topics</h4>
-          <div *ngFor="let topic of module.topics; let j = index" class="topic-item">
+          <div
+            *ngFor="let topic of module.topics; let j = index"
+            class="topic-item"
+          >
             <div class="topic-header">
               <span class="topic-number">{{ j + 1 }}.</span>
               <input
@@ -82,7 +87,10 @@
               <!-- Content Type Selection -->
               <div class="content-type-section">
                 <label>Content Type:</label>
-                <select [(ngModel)]="topic.contentType" class="content-type-select">
+                <select
+                  [(ngModel)]="topic.contentType"
+                  class="content-type-select"
+                >
                   <option value="text">Text/Reading</option>
                   <option value="video">Video</option>
                   <option value="pdf">PDF Document</option>
@@ -90,7 +98,10 @@
               </div>
 
               <!-- Text Content -->
-              <div *ngIf="topic.contentType === 'text'" class="text-content-section">
+              <div
+                *ngIf="topic.contentType === 'text'"
+                class="text-content-section"
+              >
                 <label>Topic Content:</label>
                 <textarea
                   [(ngModel)]="topic.textContent"
@@ -101,8 +112,16 @@
               </div>
 
               <!-- File Upload (Video/PDF) -->
-              <div *ngIf="topic.contentType === 'video' || topic.contentType === 'pdf'" class="file-upload-section">
-                <label>Upload {{ topic.contentType === 'video' ? 'Video' : 'PDF' }}:</label>
+              <div
+                *ngIf="
+                  topic.contentType === 'video' || topic.contentType === 'pdf'
+                "
+                class="file-upload-section"
+              >
+                <label
+                  >Upload
+                  {{ topic.contentType === "video" ? "Video" : "PDF" }}:</label
+                >
                 <input
                   type="file"
                   [accept]="topic.contentType === 'video' ? 'video/*' : '.pdf'"
@@ -118,16 +137,26 @@
               <div class="quiz-section">
                 <div class="quiz-header">
                   <h5>Topic Quiz</h5>
-                  <button type="button" class="toggle-quiz-btn" (click)="topic.hasQuiz = !topic.hasQuiz">
-                    {{ topic.hasQuiz ? 'Remove Quiz' : 'Add Quiz' }}
+                  <button
+                    type="button"
+                    class="toggle-quiz-btn"
+                    (click)="topic.hasQuiz = !topic.hasQuiz"
+                  >
+                    {{ topic.hasQuiz ? "Remove Quiz" : "Add Quiz" }}
                   </button>
                 </div>
 
                 <div *ngIf="topic.hasQuiz" class="quiz-content">
-                  <div *ngFor="let question of topic.questions; let k = index" class="question-item">
+                  <div
+                    *ngFor="let question of topic.questions; let k = index"
+                    class="question-item"
+                  >
                     <div class="question-header">
                       <span class="question-number">Question {{ k + 1 }}</span>
-                      <button class="remove-question-btn" (click)="removeQuestion(i, j, k)">
+                      <button
+                        class="remove-question-btn"
+                        (click)="removeQuestion(i, j, k)"
+                      >
                         <i class="fas fa-times"></i>
                       </button>
                     </div>
@@ -142,7 +171,14 @@
                       />
 
                       <div class="options-section">
-                        <div *ngFor="let option of question.options; let l = index" class="option-item">
+                        <div
+                          *ngFor="
+                            let option of question.options;
+                            let l = index;
+                            trackBy: trackByOption
+                          "
+                          class="option-item"
+                        >
                           <input
                             type="radio"
                             [name]="'correct-' + i + '-' + j + '-' + k"
@@ -157,11 +193,19 @@
                             class="option-input"
                             required
                           />
-                          <button class="remove-option-btn" (click)="removeOption(i, j, k, l)" [disabled]="question.options.length <= 2">
+                          <button
+                            class="remove-option-btn"
+                            (click)="removeOption(i, j, k, l)"
+                            [disabled]="question.options.length <= 2"
+                          >
                             <i class="fas fa-times"></i>
                           </button>
                         </div>
-                        <button class="add-option-btn" (click)="addOption(i, j, k)" [disabled]="question.options.length >= 4">
+                        <button
+                          class="add-option-btn"
+                          (click)="addOption(i, j, k)"
+                          [disabled]="question.options.length >= 4"
+                        >
                           <i class="fas fa-plus"></i> Add Option
                         </button>
                       </div>
@@ -187,16 +231,26 @@
     <div class="final-exam-section" *ngIf="modules.length > 0">
       <div class="exam-header">
         <h3>Final Course Exam</h3>
-        <button type="button" class="toggle-exam-btn" (click)="hasFinalExam = !hasFinalExam">
-          {{ hasFinalExam ? 'Remove Final Exam' : 'Add Final Exam' }}
+        <button
+          type="button"
+          class="toggle-exam-btn"
+          (click)="hasFinalExam = !hasFinalExam"
+        >
+          {{ hasFinalExam ? "Remove Final Exam" : "Add Final Exam" }}
         </button>
       </div>
 
       <div *ngIf="hasFinalExam" class="exam-content">
-        <div *ngFor="let question of finalExamQuestions; let i = index" class="question-item">
+        <div
+          *ngFor="let question of finalExamQuestions; let i = index"
+          class="question-item"
+        >
           <div class="question-header">
             <span class="question-number">Question {{ i + 1 }}</span>
-            <button class="remove-question-btn" (click)="removeFinalExamQuestion(i)">
+            <button
+              class="remove-question-btn"
+              (click)="removeFinalExamQuestion(i)"
+            >
               <i class="fas fa-times"></i>
             </button>
           </div>
@@ -211,7 +265,14 @@
             />
 
             <div class="options-section">
-              <div *ngFor="let option of question.options; let j = index" class="option-item">
+              <div
+                *ngFor="
+                  let option of question.options;
+                  let j = index;
+                  trackBy: trackByFinalExamOption
+                "
+                class="option-item"
+              >
                 <input
                   type="radio"
                   [name]="'final-correct-' + i"
@@ -226,11 +287,19 @@
                   class="option-input"
                   required
                 />
-                <button class="remove-option-btn" (click)="removeFinalExamOption(i, j)" [disabled]="question.options.length <= 2">
+                <button
+                  class="remove-option-btn"
+                  (click)="removeFinalExamOption(i, j)"
+                  [disabled]="question.options.length <= 2"
+                >
                   <i class="fas fa-times"></i>
                 </button>
               </div>
-              <button class="add-option-btn" (click)="addFinalExamOption(i)" [disabled]="question.options.length >= 4">
+              <button
+                class="add-option-btn"
+                (click)="addFinalExamOption(i)"
+                [disabled]="question.options.length >= 4"
+              >
                 <i class="fas fa-plus"></i> Add Option
               </button>
             </div>
@@ -253,20 +322,35 @@
   </div>
 
   <!-- No Course Selected Message -->
-  <div class="no-course-selected" *ngIf="!selectedCourse && !isLoadingCourses && availableCourses.length > 0">
+  <div
+    class="no-course-selected"
+    *ngIf="!selectedCourse && !isLoadingCourses && availableCourses.length > 0"
+  >
     <div class="placeholder-message">
       <i class="fas fa-arrow-up"></i>
-      <p>Please select a course from the dropdown above to start building content.</p>
+      <p>
+        Please select a course from the dropdown above to start building
+        content.
+      </p>
     </div>
   </div>
 
   <!-- No Courses Available Message -->
-  <div class="no-courses-available" *ngIf="!isLoadingCourses && availableCourses.length === 0">
+  <div
+    class="no-courses-available"
+    *ngIf="!isLoadingCourses && availableCourses.length === 0"
+  >
     <div class="empty-state">
       <i class="fas fa-book"></i>
       <h3>No Courses Found</h3>
-      <p>You haven't created any courses yet. Create your first course to start building content.</p>
-      <button class="create-course-btn" (click)="router.navigate(['/create-course'])">
+      <p>
+        You haven't created any courses yet. Create your first course to start
+        building content.
+      </p>
+      <button
+        class="create-course-btn"
+        (click)="router.navigate(['/create-course'])"
+      >
         <i class="fas fa-plus"></i> Create New Course
       </button>
     </div>
