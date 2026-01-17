@@ -121,7 +121,10 @@ export class ContentService {
     const courseId = body.courseId as string;
     const modulesRaw = body.modules as string | object;
     if (!courseId || !modulesRaw) {
-      console.error('[uploadBulkCourseContent] Missing courseId or modules', { courseId, modulesRaw });
+      console.error('[uploadBulkCourseContent] Missing courseId or modules', {
+        courseId,
+        modulesRaw,
+      });
       throw new NotFoundException('Missing courseId or modules');
     }
     // Check instructor ownership or admin
@@ -183,7 +186,10 @@ export class ContentService {
           file = files.find((f) => f.originalname === topic.fileName);
         }
         if (topic.fileName && !file) {
-          console.warn('[uploadBulkCourseContent] File referenced in topic.fileName but not found in uploaded files:', topic.fileName);
+          console.warn(
+            '[uploadBulkCourseContent] File referenced in topic.fileName but not found in uploaded files:',
+            topic.fileName,
+          );
           continue; // skip this topic if file is missing
         }
         // Upload file if present
@@ -196,16 +202,25 @@ export class ContentService {
             });
             url = upload.secure_url;
           } catch (err) {
-            console.error('[uploadBulkCourseContent] Cloudinary upload failed', err);
+            console.error(
+              '[uploadBulkCourseContent] Cloudinary upload failed',
+              err,
+            );
             throw err;
           }
         } else if (file) {
           // Defensive: file object exists but path is missing
-          console.warn('[uploadBulkCourseContent] File object present but path is missing for:', file.originalname);
+          console.warn(
+            '[uploadBulkCourseContent] File object present but path is missing for:',
+            file.originalname,
+          );
           continue; // skip this topic
         }
         // Log topic and content data
-        console.log('[uploadBulkCourseContent] Creating content for topic:', topic);
+        console.log(
+          '[uploadBulkCourseContent] Creating content for topic:',
+          topic,
+        );
         console.log('[uploadBulkCourseContent] Content data:', {
           title: topic.title,
           type: topic.contentType ? topic.contentType.toUpperCase() : 'TEXT',
@@ -216,13 +231,18 @@ export class ContentService {
           await this.prisma.content.create({
             data: {
               title: topic.title,
-              type: topic.contentType ? topic.contentType.toUpperCase() : 'TEXT',
+              type: topic.contentType
+                ? topic.contentType.toUpperCase()
+                : 'TEXT',
               url,
               moduleId: dbModule.id,
             },
           });
         } catch (err) {
-          console.error('[uploadBulkCourseContent] Failed to create content in DB', err);
+          console.error(
+            '[uploadBulkCourseContent] Failed to create content in DB',
+            err,
+          );
           throw err;
         }
         // TODO: Save quiz questions if needed
