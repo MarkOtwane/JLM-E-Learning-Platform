@@ -12,6 +12,12 @@ export class AppController {
   }
 
   @Public()
+  @Get('/')
+  getRoot(): string {
+    return this.appService.getRoot();
+  }
+
+  @Public()
   @Get('health')
   getHealth(): string {
     return 'OK';
