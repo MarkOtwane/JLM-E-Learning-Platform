@@ -38,6 +38,7 @@ export class MailerService {
       const templatePath = path.join(
         __dirname,
         '..',
+        '..',
         'notification',
         'template',
         `${template}.hbs`,
