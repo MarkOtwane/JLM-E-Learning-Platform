@@ -32,7 +32,7 @@ export const CloudinaryProvider = {
       },
     });
 
-    return multer.default({ storage });
+    return multer({ storage });
   },
 };
 
