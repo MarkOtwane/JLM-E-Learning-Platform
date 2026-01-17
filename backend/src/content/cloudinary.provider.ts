@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
 
 import { v2 as cloudinary } from 'cloudinary';
-import multer from 'multer';
+import * as multer from 'multer';
 import * as CloudinaryStorage from 'multer-storage-cloudinary';
 
 cloudinary.config({
@@ -30,7 +32,7 @@ export const CloudinaryProvider = {
       },
     });
 
-    return multer({ storage });
+    return multer.default({ storage });
   },
 };
 
