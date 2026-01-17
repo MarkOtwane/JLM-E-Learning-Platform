@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
 
 import { v2 as cloudinary } from 'cloudinary';
-import * as multer from 'multer';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import multer from 'multer';
+import CloudinaryStorage from 'multer-storage-cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
