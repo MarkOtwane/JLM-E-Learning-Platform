@@ -3,8 +3,10 @@ services:
     name: jlm-elearning-backend
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
-    startCommand: npm run start:prod
+
+    buildCommand: cd backend && npm install && npx nest build
+    startCommand: cd backend && node dist/main.js
+
     envVars:
       - key: NODE_ENV
         value: production
@@ -34,5 +36,6 @@ services:
         sync: false
       - key: MPESA_PASSKEY
         sync: false
+
     autoDeploy: true
     healthCheckPath: /api/health
