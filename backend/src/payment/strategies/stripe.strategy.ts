@@ -5,7 +5,7 @@ import { PaymentStatus } from '../types/payment-status.type';
 @Injectable()
 export class StripeStrategy {
   private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-06-30.basil',
+    apiVersion: '2025-08-27.basil',
   });
 
   async createCheckoutSession(email: string, courseId: string, amount: number) {
