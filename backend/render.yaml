@@ -3,7 +3,7 @@ services:
     name: jlm-elearning-backend
     runtime: node
     plan: free
-
+# render file
     buildCommand: cd backend && npm install --include=dev && npm run build
     startCommand: cd backend && node dist/main.js
 
