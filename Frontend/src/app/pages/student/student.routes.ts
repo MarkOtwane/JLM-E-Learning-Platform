@@ -1,8 +1,4 @@
 import { Routes } from '@angular/router';
-import { StudentDashboardComponent } from './dashboard/student-dashboard.component';
-import { StudentCoursesComponent } from './courses/student-courses.component';
-import { StudentPaymentComponent } from './payment/student-payment.component';
-import { StudentProfileComponent } from './profile/student-profile.component';
 
 export const STUDENT_ROUTES: Routes = [
   {
@@ -11,19 +7,28 @@ export const STUDENT_ROUTES: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'dashboard',  // Changed from '' to 'dashboard'
-    component: StudentDashboardComponent,
-    title: 'Student Dashboard'
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./pages/new-dashboard/new-dashboard.component').then(
+        m => m.NewDashboardComponent
+      ),
+    title: 'Dashboard'
   },
   {
     path: 'courses',
-    component: StudentCoursesComponent,
+    loadComponent: () =>
+      import('./courses/student-courses.component').then(
+        m => m.StudentCoursesComponent
+      ),
     title: 'My Courses'
   },
   {
-    path: 'payment',
-    component: StudentPaymentComponent,
-    title: 'Payment Info'
+    path: 'catalog',
+    loadComponent: () =>
+      import('./pages/catalog/catalog.component').then(
+        m => m.CatalogComponent
+      ),
+    title: 'Course Catalog'
   },
   {
     path: 'certifications',
@@ -31,11 +36,78 @@ export const STUDENT_ROUTES: Routes = [
       import('./certifications/student-certifications.component').then(
         m => m.StudentCertificationsComponent
       ),
-    title: 'Certifications'
+    title: 'Certificates'
+  },
+  {
+    path: 'assignments',
+    loadComponent: () =>
+      import('./pages/assignments/assignments.component').then(
+        m => m.AssignmentsComponent
+      ),
+    title: 'Assignments'
+  },
+  {
+    path: 'exams',
+    loadComponent: () =>
+      import('./pages/exams/exams.component').then(
+        m => m.ExamsComponent
+      ),
+    title: 'Exams'
+  },
+  {
+    path: 'live-classes',
+    loadComponent: () =>
+      import('./pages/live-classes/live-classes.component').then(
+        m => m.LiveClassesComponent
+      ),
+    title: 'Live Classes'
+  },
+  {
+    path: 'messages',
+    loadComponent: () =>
+      import('./pages/messages/messages.component').then(
+        m => m.MessagesComponent
+      ),
+    title: 'Messages'
+  },
+  {
+    path: 'notifications',
+    loadComponent: () =>
+      import('./pages/notifications/notifications.component').then(
+        m => m.NotificationsComponent
+      ),
+    title: 'Notifications'
+  },
+  {
+    path: 'payment',
+    loadComponent: () =>
+      import('./payment/student-payment.component').then(
+        m => m.StudentPaymentComponent
+      ),
+    title: 'Payments'
   },
   {
     path: 'profile',
-    component: StudentProfileComponent,
-    title: 'My Profile'
+    loadComponent: () =>
+      import('./profile/student-profile.component').then(
+        m => m.StudentProfileComponent
+      ),
+    title: 'Profile'
+  },
+  {
+    path: 'settings',
+    loadComponent: () =>
+      import('./pages/settings/settings.component').then(
+        m => m.SettingsComponent
+      ),
+    title: 'Settings'
+  },
+  {
+    path: 'help',
+    loadComponent: () =>
+      import('./pages/help/help.component').then(
+        m => m.HelpComponent
+      ),
+    title: 'Help & Support'
   }
 ];

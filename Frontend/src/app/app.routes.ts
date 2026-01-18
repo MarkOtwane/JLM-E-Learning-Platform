@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ADMIN_ROUTES } from './pages/admin/admin.routes'; // ✅ Import Admin routes
+import { ADMIN_ROUTES } from './pages/admin/admin.routes';
 import { LoginComponent } from './pages/auth/login/login.component';
 import { RegisterComponent } from './pages/auth/register/register.component';
 import { CoursesComponent } from './pages/courses/courses.component';
@@ -42,8 +42,8 @@ export const routes: Routes = [
   {
     path: 'student',
     loadComponent: () =>
-      import('./pages/student/layout/student-layout.component').then(
-        (m) => m.StudentLayoutComponent
+      import('./pages/student/layout/new-student-layout.component').then(
+        (m) => m.NewStudentLayoutComponent
       ),
     children: STUDENT_ROUTES,
   },

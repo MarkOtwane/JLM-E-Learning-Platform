@@ -11,6 +11,7 @@ export interface AppUser {
   firstName?: string;
   lastName?: string;
   isApproved?: boolean;
+  profilePictureUrl?: string;
 }
 
 export interface LoginRequest {
