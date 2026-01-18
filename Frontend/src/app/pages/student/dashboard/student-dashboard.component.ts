@@ -145,7 +145,8 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.loadAvailableCourses();
       },
-      error: () => {
+      error: (error) => {
+        console.error('Failed to load enrolled courses:', error);
         this.enrolledCourses = [];
         this.isLoading = false;
         this.loadAvailableCourses();
@@ -163,7 +164,8 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
         const enrolledIds = new Set(this.enrolledCourses.map((c) => c.id));
         this.availableCourses = courses.filter((c) => !enrolledIds.has(c.id));
       },
-      error: () => {
+      error: (error) => {
+        console.error('Failed to load available courses:', error);
         this.availableCourses = [];
       },
     });
@@ -179,6 +181,7 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
         this.loadAvailableCourses();
       },
       error: (err) => {
+        console.error('Enrollment error:', err);
         alert(err?.error?.message || 'Failed to enroll in course.');
       },
     });
@@ -245,28 +248,18 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
   // ========================================
 
   /**
-   * TODO: Replace these with actual API calls
+   * API Integration Notes:
    *
-   * Example API endpoints you'll need:
-   * - GET /api/student/{studentId}/courses - Get enrolled courses
-   * - GET /api/student/{studentId}/instructors - Get course instructors
-   * - GET /api/student/{studentId}/dashboard - Get dashboard data
+   * Current API endpoints being used:
+   * - GET /students/courses - Get enrolled courses
+   * - GET /courses - Get all available courses
+   * - POST /students/enroll - Enroll in a course
+   *
+   * Additional endpoints that could be integrated:
+   * - GET /me - Get current user profile
+   * - GET /certificates - Get student certificates
+   * - GET /assignments - Get student assignments
+   * - GET /payments - Get payment history
+   * - GET /notifications - Get notifications
    */
-
-  /*
-  // Example of how to implement with HttpClient:
-  
-  private http = inject(HttpClient);
-  private apiUrl = 'http://your-api-url.com/api';
-  
-  loadEnrolledCourses(): Observable<Course[]> {
-    const studentId = this.userProfile.id;
-    return this.http.get<Course[]>(`${this.apiUrl}/student/${studentId}/courses`);
-  }
-  
-  loadInstructors(): Observable<Instructor[]> {
-    const studentId = this.userProfile.id;
-    return this.http.get<Instructor[]>(`${this.apiUrl}/student/${studentId}/instructors`);
-  }
-  */
 }

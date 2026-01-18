@@ -35,13 +35,15 @@ export class StudentCoursesComponent implements OnInit {
             this.allCourses = all;
             this.isLoading = false;
           },
-          error: () => {
+          error: (error) => {
+            console.error('Failed to load all courses:', error);
             this.allCourses = [];
             this.isLoading = false;
           },
         });
       },
-      error: () => {
+      error: (error) => {
+        console.error('Failed to load enrolled courses:', error);
         this.enrolledCourses = [];
         this.isLoading = false;
       },
@@ -62,12 +64,14 @@ export class StudentCoursesComponent implements OnInit {
             this.enrolledCourses = enrolled;
             this.enrolling = null;
           },
-          error: () => {
+          error: (error) => {
+            console.error('Failed to refresh enrolled courses after enrollment:', error);
             this.enrolling = null;
           },
         });
       },
-      error: () => {
+      error: (error) => {
+        console.error('Enrollment failed:', error);
         this.enrolling = null;
       },
     });

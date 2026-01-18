@@ -29,14 +29,20 @@ export class StudentCertificationsComponent implements OnInit {
       next: (certs) => {
         this.certificates = certs;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Failed to load certificates:', error);
         this.certificates = [];
       },
     });
   }
 
   async downloadCertificate(certUrl: string) {
-    // For now, just open the certificate URL in a new tab
-    window.open(certUrl, '_blank');
+    try {
+      // For now, just open the certificate URL in a new tab
+      window.open(certUrl, '_blank');
+    } catch (error) {
+      console.error('Failed to download certificate:', error);
+      alert('Failed to download certificate. Please try again.');
+    }
   }
 }

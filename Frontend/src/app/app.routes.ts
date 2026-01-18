@@ -7,7 +7,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { INSTRUCTOR_ROUTES } from './pages/instructor/instructor.routes';
 import { LEARNING_ROUTES } from './pages/learning/learning.routes';
 import { STUDENT_ROUTES } from './pages/student/student.routes';
-import { AdminAuthGuard } from './services/admin-auth.guard';
+import { AdminAuthGuard, StudentAuthGuard } from './services/admin-auth.guard';
 import { NavbarComponent } from './shared/navbar/navbar.component';
 
 export const routes: Routes = [
@@ -41,6 +41,7 @@ export const routes: Routes = [
 
   {
     path: 'student',
+    canActivate: [StudentAuthGuard],
     loadComponent: () =>
       import('./pages/student/layout/new-student-layout.component').then(
         (m) => m.NewStudentLayoutComponent

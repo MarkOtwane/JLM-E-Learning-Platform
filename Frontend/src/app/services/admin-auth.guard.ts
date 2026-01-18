@@ -14,4 +14,18 @@ export class AdminAuthGuard implements CanActivate {
       return false;
     }
   }
+}
+
+@Injectable({ providedIn: 'root' })
+export class StudentAuthGuard implements CanActivate {
+  constructor(private auth: AuthService, private router: Router) {}
+
+  canActivate(): boolean {
+    if (this.auth.isLoggedIn() && this.auth.isStudent()) {
+      return true;
+    } else {
+      this.router.navigate(['/login']);
+      return false;
+    }
+  }
 } 
