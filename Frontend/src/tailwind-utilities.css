@@ -1,0 +1,246 @@
+/* 
+  Tailwind CSS Responsive Utilities
+  These are custom utilities that extend Tailwind for common patterns
+  Add these to your component CSS or global styles.css
+*/
+
+/* ============================================
+   CONTAINER & LAYOUT UTILITIES
+   ============================================ */
+
+/* Responsive container with max-width and auto margins */
+.container-responsive {
+  @apply max-w-7xl mx-auto px-4 md:px-6 lg:px-8;
+}
+
+/* Responsive section padding */
+.section-padding {
+  @apply py-8 md:py-12 lg:py-16;
+}
+
+.section-padding-sm {
+  @apply py-4 md:py-6 lg:py-8;
+}
+
+.section-padding-lg {
+  @apply py-12 md:py-16 lg:py-24;
+}
+
+/* ============================================
+   RESPONSIVE GRID UTILITIES
+   ============================================ */
+
+/* Auto responsive grid - 1 col mobile, 2 md, 3 lg */
+.grid-responsive {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+}
+
+/* 2-column responsive grid */
+.grid-responsive-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6;
+}
+
+/* 4-column responsive grid */
+.grid-responsive-4 {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4;
+}
+
+/* ============================================
+   RESPONSIVE TEXT UTILITIES
+   ============================================ */
+
+/* Responsive heading sizes */
+.heading-responsive-lg {
+  @apply text-3xl md:text-4xl lg:text-5xl font-bold;
+}
+
+.heading-responsive-md {
+  @apply text-2xl md:text-3xl lg:text-4xl font-bold;
+}
+
+.heading-responsive-sm {
+  @apply text-xl md:text-2xl lg:text-3xl font-bold;
+}
+
+/* Responsive body text */
+.text-responsive {
+  @apply text-sm md:text-base lg:text-lg;
+}
+
+.text-responsive-sm {
+  @apply text-xs md:text-sm lg:text-base;
+}
+
+.text-responsive-lg {
+  @apply text-base md:text-lg lg:text-xl;
+}
+
+/* ============================================
+   RESPONSIVE SPACING UTILITIES
+   ============================================ */
+
+/* Responsive horizontal spacing */
+.px-responsive {
+  @apply px-4 md:px-6 lg:px-8;
+}
+
+.px-responsive-sm {
+  @apply px-2 md:px-4 lg:px-6;
+}
+
+.px-responsive-lg {
+  @apply px-6 md:px-8 lg:px-12;
+}
+
+/* Responsive vertical spacing */
+.py-responsive {
+  @apply py-4 md:py-6 lg:py-8;
+}
+
+.py-responsive-sm {
+  @apply py-2 md:py-4 lg:py-6;
+}
+
+.py-responsive-lg {
+  @apply py-6 md:py-8 lg:py-12;
+}
+
+/* ============================================
+   RESPONSIVE BUTTON UTILITIES
+   ============================================ */
+
+/* Responsive button sizing */
+.btn-responsive {
+  @apply px-4 md:px-6 py-2 md:py-3 text-sm md:text-base;
+}
+
+.btn-responsive-lg {
+  @apply px-6 md:px-8 py-3 md:py-4 text-base md:text-lg;
+}
+
+/* ============================================
+   RESPONSIVE FLEX UTILITIES
+   ============================================ */
+
+/* Stack on mobile, row on tablet+ */
+.flex-responsive {
+  @apply flex flex-col md:flex-row;
+}
+
+/* Stack on mobile, centered row on tablet+ */
+.flex-responsive-center {
+  @apply flex flex-col md:flex-row items-center justify-center;
+}
+
+/* Stack with full width children on mobile, auto on desktop */
+.flex-responsive-full {
+  @apply flex flex-col md:flex-row gap-4;
+}
+
+.flex-responsive-full > * {
+  @apply w-full md:w-auto;
+}
+
+/* ============================================
+   RESPONSIVE IMAGE UTILITIES
+   ============================================ */
+
+/* Responsive image container - maintains aspect ratio */
+.image-responsive {
+  @apply w-full h-auto object-cover;
+}
+
+/* Responsive rounded images */
+.image-rounded {
+  @apply rounded-lg md:rounded-xl;
+}
+
+/* ============================================
+   RESPONSIVE CARD UTILITIES
+   ============================================ */
+
+/* Basic responsive card */
+.card-responsive {
+  @apply p-4 md:p-6 lg:p-8 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow;
+}
+
+/* Minimal responsive card */
+.card-responsive-minimal {
+  @apply p-3 md:p-4 lg:p-6 bg-white rounded-md;
+}
+
+/* ============================================
+   RESPONSIVE FORM UTILITIES
+   ============================================ */
+
+/* Responsive form input */
+.input-responsive {
+  @apply w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors;
+}
+
+/* Responsive form label */
+.label-responsive {
+  @apply block text-sm md:text-base font-medium mb-1 md:mb-2 text-gray-700;
+}
+
+/* ============================================
+   RESPONSIVE MODAL/DIALOG UTILITIES
+   ============================================ */
+
+/* Responsive modal width */
+.modal-responsive {
+  @apply w-full md:w-3/4 lg:w-2/3 xl:w-1/2 mx-auto;
+}
+
+/* ============================================
+   RESPONSIVE NAVIGATION UTILITIES
+   ============================================ */
+
+/* Hide on mobile, show on tablet+ */
+.hidden-mobile {
+  @apply hidden md:block;
+}
+
+/* Show on mobile, hide on tablet+ */
+.mobile-only {
+  @apply md:hidden;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINT DEBUG
+   ============================================ */
+
+/* Add this class to any element to see current breakpoint */
+.breakpoint-debug::after {
+  content: "mobile";
+}
+
+@media (min-width: 640px) {
+  .breakpoint-debug::after {
+    content: "sm";
+  }
+}
+
+@media (min-width: 768px) {
+  .breakpoint-debug::after {
+    content: "md";
+  }
+}
+
+@media (min-width: 1024px) {
+  .breakpoint-debug::after {
+    content: "lg";
+  }
+}
+
+@media (min-width: 1280px) {
+  .breakpoint-debug::after {
+    content: "xl";
+  }
+}
+
+@media (min-width: 1536px) {
+  .breakpoint-debug::after {
+    content: "2xl";
+  }
+}

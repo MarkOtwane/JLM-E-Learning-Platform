@@ -1,258 +1,64 @@
-.navbar {
-  position: sticky;
-  top: 0;
-  height: 40px;
-  z-index: 1000;
-  background-color: var(--color-white);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 32px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Navbar Component Styles - Using Tailwind CSS utilities with custom enhancements */
+
+/* Smooth transitions for interactive elements */
+:host ::ng-deep {
+  /* Ensure smooth animations for button state changes */
+  button,
+  a {
+    transition: all 0.3s ease;
+  }
+
+  /* Custom animation for user dropdown */
+  .user-info {
+    animation: slideIn 0.3s ease-out;
+  }
 }
 
-.navbar-logo {
-  font-size: 34px;
-  font-weight: bold;
-  color: var(--color-black);
-  white-space: nowrap;
-}
-
-.navbar-links {
-  list-style: none;
-  display: flex;
-  gap: 24px;
-  margin: 0;
-  padding: 0;
-  flex-wrap: wrap;
-}
-
-.navbar-links li a {
-  text-decoration: none;
-  color: var(--color-black);
-  font-weight: 500;
-  font-size: 16px;
-  transition: color 0.3s;
-}
-
-.navbar-links li a:hover {
-  color: var(--color-accent);
-}
-
-.navbar-auth {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-outline {
-  padding: 8px 16px;
-  background-color: transparent;
-  border: 1px solid var(--color-accent);
-  color: var(--color-accent);
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.btn-outline:hover {
-  background-color: var(--color-accent-light);
-  color: var(--color-black);
-}
-
-.btn-filled {
-  padding: 8px 16px;
-  background-color: var(--color-accent);
-  border: none;
-  color: var(--color-black);
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-}
-
-.btn-filled:hover {
-  background-color: var(--color-accent-light);
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.user-info i {
-  font-size: 24px;
-  color: var(--color-accent);
-}
-
-/* Secondary Navigation Bar */
-.secondary-navbar {
-  position: sticky;
-  top: 70px; 
-  z-index: 999;
-  background-color: var(--color-white);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 32px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  border-top: 1px solid #eee;
-}
-
-.category-filters {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.category-btn {
-  padding: 8px 16px;
-  background-color: transparent;
-  border: 1px solid #ddd;
-  color: var(--color-black);
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-
-.category-btn:hover {
-  background-color: var(--color-accent-light);
-  border-color: var(--color-accent);
-  color: var(--color-black);
-}
-
-.category-btn.active {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-black);
-}
-
-.navbar-search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #f8f9fa;
-  border-radius: 20px;
-  padding: 6px 12px;
-  min-width: 280px;
-}
-
-.navbar-search input {
-  border: none;
-  background: transparent;
-  padding: 6px 12px;
-  font-size: 14px;
-  outline: none;
-  width: 100%;
-}
-
-.navbar-search button {
-  background: var(--color-accent);
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.navbar-search button:hover {
-  background-color: var(--color-accent-light);
-}
-
-.navbar-search button i {
-  font-size: 14px;
-  color: var(--color-black);
-}
-
-/* Slide animation */
-@keyframes slideDown {
+/* Slide-in animation for user menu */
+@keyframes slideIn {
   from {
-    transform: translateY(-20px);
     opacity: 0;
+    transform: translateX(10px);
   }
   to {
-    transform: translateY(0);
     opacity: 1;
+    transform: translateX(0);
   }
 }
 
-/* Mobile Responsive */
-@media (max-width: 900px) {
-  .navbar {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    padding: 16px;
-  }
+/* Active state styling for category buttons */
+.category-btn.active {
+  background-color: #0284c7;
+  color: white;
+}
 
-  .navbar-links {
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-top: 12px;
-  }
+/* Hover effect for category buttons */
+.category-btn:hover:not(.active) {
+  background-color: #f3f4f6;
+  color: #374151;
+}
 
-  .navbar-auth {
-    margin-top: 12px;
-    align-self: flex-end;
-  }
-
-  .navbar-logo {
-    font-size: 20px;
-  }
-
-  .btn-outline,
-  .btn-filled {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
-
-  .navbar-links li a {
-    font-size: 14px;
-  }
-
-  .secondary-navbar {
+/* Mobile menu toggle button (if added later) */
+@media (max-width: 768px) {
+  /* Stack layout for mobile */
+  nav {
     flex-direction: column;
-    gap: 12px;
-    padding: 12px 16px;
+    gap: 1rem;
   }
 
-  .category-filters {
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-  }
-
-  .category-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .navbar-search {
-    min-width: auto;
+  /* Full width buttons on mobile */
+  button {
+    width: 100%;
   }
 }
 
-@media (max-width: 600px) {
-  .category-filters {
-    gap: 6px;
-  }
-  
-  .category-btn {
-    padding: 4px 8px;
-    font-size: 11px;
-  }
-  
-  .navbar-search {
-    min-width: auto;
-  }
+/* Search input styling */
+input[type="text"]:focus {
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+}
+
+/* Ensure navbar doesn't interfere with content */
+router-outlet {
+  display: block;
+  margin-top: 0;
 }

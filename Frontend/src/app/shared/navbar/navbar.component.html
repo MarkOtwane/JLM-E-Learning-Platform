@@ -1,83 +1,162 @@
-<nav class="navbar">
-  <div class="navbar-logo">JLM E-Learning</div>
+<nav class="sticky top-0 z-50 bg-white shadow-md p-4 md:p-6 lg:p-8">
+  <div
+    class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0"
+  >
+    <!-- Logo -->
+    <div class="text-2xl md:text-3xl font-bold text-gray-900 whitespace-nowrap">
+      JLM E-Learning
+    </div>
 
-  <ul class="navbar-links">
-    <li *ngIf="isAuthPage">
-      <a routerLink="/" class="home-link">Home</a>
-    </li>
-    <li *ngIf="isHomePage">
-      <a routerLink="/" class="home-link">Home</a>
-    </li>
-    <li *ngIf="isHomePage">
-      <a href="#about-grid-section" class="about-link">About</a>
-    </li>
-    <li *ngIf="isHomePage">
-      <a href="#reviews-section" class="testimonials-link">Testimonials</a>
-    </li>
-    <li *ngIf="isHomePage">
-      <a routerLink="/courses" class="courses-link">Courses</a>
-    </li>
-    <li *ngIf="!isHomePage && !isAuthPage">
-      <button class="logout-btn" (click)="logout()">Log Out</button>
-    </li>
-  </ul>
+    <!-- Navigation Links - Hidden on mobile, shown on md+ -->
+    <ul class="hidden md:flex list-none gap-6 lg:gap-8 m-0 p-0">
+      <li *ngIf="isAuthPage">
+        <a
+          routerLink="/"
+          class="text-gray-800 font-medium hover:text-blue-600 transition-colors"
+        >
+          Home
+        </a>
+      </li>
+      <li *ngIf="isHomePage">
+        <a
+          routerLink="/"
+          class="text-gray-800 font-medium hover:text-blue-600 transition-colors"
+        >
+          Home
+        </a>
+      </li>
+      <li *ngIf="isHomePage">
+        <a
+          href="#about-grid-section"
+          class="text-gray-800 font-medium hover:text-blue-600 transition-colors"
+        >
+          About
+        </a>
+      </li>
+      <li *ngIf="isHomePage">
+        <a
+          href="#reviews-section"
+          class="text-gray-800 font-medium hover:text-blue-600 transition-colors"
+        >
+          Testimonials
+        </a>
+      </li>
+      <li *ngIf="isHomePage">
+        <a
+          routerLink="/courses"
+          class="text-gray-800 font-medium hover:text-blue-600 transition-colors"
+        >
+          Courses
+        </a>
+      </li>
+      <li *ngIf="!isHomePage && !isAuthPage">
+        <button
+          (click)="logout()"
+          class="text-gray-800 font-medium hover:text-red-600 transition-colors"
+        >
+          Log Out
+        </button>
+      </li>
+    </ul>
 
-  <div class="navbar-auth" *ngIf="!hideAuthButtons">
-    <ng-container *ngIf="!userName; else loggedIn">
-      <button routerLink="/login" class="btn-outline">Sign In</button>
-      <button routerLink="/register" class="btn-filled">Sign Up</button>
-    </ng-container>
+    <!-- Auth Buttons / User Info -->
+    <div
+      class="flex flex-col sm:flex-row items-center gap-3 md:gap-4"
+      *ngIf="!hideAuthButtons"
+    >
+      <ng-container *ngIf="!userName; else loggedIn">
+        <button
+          routerLink="/login"
+          class="w-full sm:w-auto px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
+        >
+          Sign In
+        </button>
+        <button
+          routerLink="/register"
+          class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+        >
+          Sign Up
+        </button>
+      </ng-container>
 
-    <ng-template #loggedIn>
-      <div class="user-info" (click)="goToDashboard()">
-        <i class="fas fa-user-circle"></i>
-        <span>{{ userName }}</span>
-      </div>
-    </ng-template>
+      <ng-template #loggedIn>
+        <div
+          (click)="goToDashboard()"
+          class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <i class="fas fa-user-circle text-2xl text-blue-600"></i>
+          <span class="font-medium text-gray-800 hidden sm:inline">{{
+            userName
+          }}</span>
+        </div>
+      </ng-template>
+    </div>
   </div>
 </nav>
 
-<!-- Second Navigation Bar -->
-<nav class="secondary-navbar" *ngIf="!hideSecondNavbar">
-  <div class="category-filters">
-    <!-- <button 
-      class="category-btn" 
-      [class.active]="selectedCategory === 'all'"
-      (click)="filterByCategory('all')">
-      All Courses
-    </button> -->
-    <button
-      class="category-btn"
-      [class.active]="selectedCategory === 'beginner'"
-      (click)="filterByCategory('beginner')"
-    >
-      Beginner
-    </button>
-    <button
-      class="category-btn"
-      [class.active]="selectedCategory === 'intermediate'"
-      (click)="filterByCategory('intermediate')"
-    >
-      Intermediate
-    </button>
-    <button
-      class="category-btn"
-      [class.active]="selectedCategory === 'advanced'"
-      (click)="filterByCategory('advanced')"
-    >
-      Advanced
-    </button>
-  </div>
+<!-- Secondary Navigation Bar -->
+<nav
+  class="sticky top-16 md:top-20 z-40 bg-white border-b border-gray-200 p-4 md:p-6"
+  *ngIf="!hideSecondNavbar"
+>
+  <div
+    class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+  >
+    <!-- Category Filters -->
+    <div class="flex flex-wrap gap-2 md:gap-4 w-full md:w-auto">
+      <button
+        [class.active]="selectedCategory === 'beginner'"
+        (click)="filterByCategory('beginner')"
+        class="px-3 md:px-4 py-2 text-sm md:text-base rounded-lg font-medium transition-all"
+        [ngClass]="
+          selectedCategory === 'beginner'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+        "
+      >
+        Beginner
+      </button>
+      <button
+        [class.active]="selectedCategory === 'intermediate'"
+        (click)="filterByCategory('intermediate')"
+        class="px-3 md:px-4 py-2 text-sm md:text-base rounded-lg font-medium transition-all"
+        [ngClass]="
+          selectedCategory === 'intermediate'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+        "
+      >
+        Intermediate
+      </button>
+      <button
+        [class.active]="selectedCategory === 'advanced'"
+        (click)="filterByCategory('advanced')"
+        class="px-3 md:px-4 py-2 text-sm md:text-base rounded-lg font-medium transition-all"
+        [ngClass]="
+          selectedCategory === 'advanced'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+        "
+      >
+        Advanced
+      </button>
+    </div>
 
-  <div class="navbar-search">
-    <input
-      type="text"
-      [(ngModel)]="searchQuery"
-      placeholder="Search courses..."
-      (keydown.enter)="performSearch()"
-    />
-    <button (click)="performSearch()">
-      <i class="fas fa-search"></i>
-    </button>
+    <!-- Search Bar -->
+    <div class="flex w-full md:w-auto gap-2">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        placeholder="Search courses..."
+        (keydown.enter)="performSearch()"
+        class="flex-1 md:flex-none px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 transition-colors text-sm md:text-base"
+      />
+      <button
+        (click)="performSearch()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
   </div>
 </nav>
