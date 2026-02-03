@@ -1,3 +1,7 @@
 {
-	"vsicons.presets.nestjs": true
+	"vsicons.presets.nestjs": true,
+	"css.validate": false,
+	"less.validate": false,
+	"scss.validate": false,
+	"css.lint.unknownAtRules": "ignore"
 }
