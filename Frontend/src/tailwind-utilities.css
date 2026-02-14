@@ -51,28 +51,38 @@
 
 /* Responsive heading sizes */
 .heading-responsive-lg {
-  @apply text-3xl md:text-4xl lg:text-5xl font-bold;
+  @apply text-3xl md:text-4xl lg:text-5xl font-bold text-black;
 }
 
 .heading-responsive-md {
-  @apply text-2xl md:text-3xl lg:text-4xl font-bold;
+  @apply text-2xl md:text-3xl lg:text-4xl font-bold text-black;
 }
 
 .heading-responsive-sm {
-  @apply text-xl md:text-2xl lg:text-3xl font-bold;
+  @apply text-xl md:text-2xl lg:text-3xl font-bold text-black;
+}
+
+/* Heading with blue color */
+.heading-blue {
+  @apply font-bold text-blue-600;
+}
+
+/* Heading with white text (for dark backgrounds) */
+.heading-white {
+  @apply font-bold text-white;
 }
 
 /* Responsive body text */
 .text-responsive {
-  @apply text-sm md:text-base lg:text-lg;
+  @apply text-sm md:text-base lg:text-lg text-black;
 }
 
 .text-responsive-sm {
-  @apply text-xs md:text-sm lg:text-base;
+  @apply text-xs md:text-sm lg:text-base text-black;
 }
 
 .text-responsive-lg {
-  @apply text-base md:text-lg lg:text-xl;
+  @apply text-base md:text-lg lg:text-xl text-black;
 }
 
 /* ============================================
@@ -118,6 +128,21 @@
   @apply px-6 md:px-8 py-3 md:py-4 text-base md:text-lg;
 }
 
+/* Blue button */
+.btn-blue {
+  @apply bg-blue-600 text-white hover:bg-blue-700 transition-colors;
+}
+
+/* Black button */
+.btn-black {
+  @apply bg-black text-white hover:bg-gray-900 transition-colors;
+}
+
+/* White button with blue border */
+.btn-white {
+  @apply bg-white text-blue-600 border border-blue-600 hover:bg-blue-50 transition-colors;
+}
+
 /* ============================================
    RESPONSIVE FLEX UTILITIES
    ============================================ */
@@ -156,17 +181,64 @@
 }
 
 /* ============================================
+   COLOR UTILITIES
+   ============================================ */
+
+/* Primary colors - Blue, White, Black */
+.bg-primary-blue {
+  @apply bg-blue-600;
+}
+
+.bg-primary-dark {
+  @apply bg-black;
+}
+
+.bg-primary-light {
+  @apply bg-white;
+}
+
+.text-primary-blue {
+  @apply text-blue-600;
+}
+
+.text-primary-dark {
+  @apply text-black;
+}
+
+.text-primary-light {
+  @apply text-white;
+}
+
+.border-primary-blue {
+  @apply border-blue-600;
+}
+
+.border-primary-dark {
+  @apply border-black;
+}
+
+/* ============================================
    RESPONSIVE CARD UTILITIES
    ============================================ */
 
 /* Basic responsive card */
 .card-responsive {
-  @apply p-4 md:p-6 lg:p-8 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow;
+  @apply p-4 md:p-6 lg:p-8 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-blue-200;
 }
 
 /* Minimal responsive card */
 .card-responsive-minimal {
-  @apply p-3 md:p-4 lg:p-6 bg-white rounded-md;
+  @apply p-3 md:p-4 lg:p-6 bg-white rounded-md border border-blue-100;
+}
+
+/* Blue card style */
+.card-responsive-blue {
+  @apply p-4 md:p-6 lg:p-8 bg-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-shadow;
+}
+
+/* Dark card style */
+.card-responsive-dark {
+  @apply p-4 md:p-6 lg:p-8 bg-black text-white rounded-lg shadow-md hover:shadow-lg transition-shadow;
 }
 
 /* ============================================
@@ -175,12 +247,17 @@
 
 /* Responsive form input */
 .input-responsive {
-  @apply w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors;
+  @apply w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-gray-400 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-colors;
 }
 
 /* Responsive form label */
 .label-responsive {
-  @apply block text-sm md:text-base font-medium mb-1 md:mb-2 text-gray-700;
+  @apply block text-sm md:text-base font-medium mb-1 md:mb-2 text-black;
+}
+
+/* Dark form input */
+.input-dark {
+  @apply w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base bg-black text-white border border-gray-700 rounded-lg focus:outline-none focus:border-blue-600 transition-colors;
 }
 
 /* ============================================
