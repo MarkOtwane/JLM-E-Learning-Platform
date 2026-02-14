@@ -7,15 +7,19 @@ import {
   Router,
   RouterModule,
 } from '@angular/router';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faSearch, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, FontAwesomeModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit {
+  faUserCircle = faUserCircle;
+  faSearch = faSearch;
   hideAuthButtons = false;
   hideSecondNavbar = false;
   userName: string | null = null;
@@ -25,7 +29,10 @@ export class NavbarComponent implements OnInit {
   isHomePage = false;
   isAuthPage = false;
 
-  constructor(private router: Router, private route: ActivatedRoute) {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects || event.url;
