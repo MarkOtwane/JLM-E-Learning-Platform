@@ -1,18 +1,20 @@
 import {
-    BadRequestException,
-    Injectable,
-    NotFoundException,
-    UnauthorizedException,
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { addDays } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { MailerService } from '../mailer/mailer.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/regtister.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/reset-password.dto';
+import { EmailVerificationService } from './email-verification.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
+    private readonly emailVerificationService: EmailVerificationService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -35,26 +38,26 @@ export class AuthService {
         email: dto.email,
         password: hashed,
         role: dto.role,
-        isApproved: dto.role === UserRole.INSTRUCTOR ? false : true, // Only approve students by default
+        isApproved: dto.role === UserRole.INSTRUCTOR ? false : true,
+        emailVerified: false, // NEW: Start unverified
       },
     });
 
-    // Send verification email only for students (instructors need approval first)
-    if (user.role === UserRole.STUDENT) {
-      try {
-        await this.mailerService.sendMail({
-          to: user.email,
-          subject: 'Welcome to JLM E-Learning Platform',
-          template: 'welcome-user',
-          context: { name: user.name },
-        });
-      } catch (error) {
-        console.error('Failed to send welcome email:', error);
-        // Don't fail registration if email fails
-      }
+    // Send verification email to all users
+    try {
+      await this.emailVerificationService.sendVerificationEmail(
+        user.id,
+        user.email,
+      );
+    } catch (error) {
+      // Don't fail registration if email fails
     }
 
-    return { message: 'Registration successful. Please check your email.' };
+    return {
+      message:
+        'Registration successful. Please check your email to verify your account.',
+      userId: user.id,
+    };
   }
 
   async login(dto: LoginDto) {
@@ -66,16 +69,42 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
 
+    // Check email verification
+    if (!user.emailVerified) {
+      throw new UnauthorizedException(
+        'Please verify your email before logging in',
+      );
+    }
+
     if (!user.isApproved && user.role === UserRole.INSTRUCTOR) {
       throw new UnauthorizedException('Instructor account not approved yet');
     }
 
-    const token = await this.jwtService.signAsync({
-      sub: user.id,
-      role: user.role,
+    // Generate access token (15 minutes)
+    const accessToken = await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        role: user.role,
+      },
+      { expiresIn: '15m' },
+    );
+
+    // Generate refresh token (7 days)
+    const refreshToken = uuidv4();
+    const expiresAt = addDays(new Date(), 7);
+
+    // Store refresh token in database
+    await this.prisma.refreshToken.create({
+      data: {
+        token: refreshToken,
+        userId: user.id,
+        expiresAt,
+      },
     });
+
     return {
-      accessToken: token,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         name: user.name,
@@ -122,5 +151,48 @@ export class AuthService {
     await this.prisma.passwordReset.delete({ where: { token: dto.token } });
 
     return { message: 'Password successfully reset' };
+  }
+
+  async refreshAccessToken(
+    userId: string,
+    refreshToken: string,
+  ): Promise<{ accessToken: string }> {
+    // Verify refresh token exists in database
+    const storedToken = await this.prisma.refreshToken.findUnique({
+      where: { token: refreshToken },
+    });
+
+    if (!storedToken || storedToken.userId !== userId) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    // Check if token has expired
+    if (new Date() > storedToken.expiresAt) {
+      // Delete expired token
+      await this.prisma.refreshToken.delete({
+        where: { token: refreshToken },
+      });
+      throw new UnauthorizedException('Refresh token has expired');
+    }
+
+    // Get user to verify still active
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.emailVerified) {
+      throw new UnauthorizedException('User account is no longer valid');
+    }
+
+    // Generate new access token
+    const accessToken = await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        role: user.role,
+      },
+      { expiresIn: '15m' },
+    );
+
+    return { accessToken };
   }
 }

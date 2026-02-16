@@ -108,33 +108,16 @@ export class ContentService {
     body: Record<string, unknown>,
     files: Array<Express.Multer.File>,
   ) {
-    // Debug log for troubleshooting 403 errors
-    console.log(
-      '[uploadBulkCourseContent] userId:',
-      userId,
-      'role:',
-      role,
-      'courseId:',
-      body.courseId,
-    );
     // Parse body fields
     const courseId = body.courseId as string;
     const modulesRaw = body.modules as string | object;
     if (!courseId || !modulesRaw) {
-      console.error('[uploadBulkCourseContent] Missing courseId or modules', {
-        courseId,
-        modulesRaw,
-      });
       throw new NotFoundException('Missing courseId or modules');
     }
     // Check instructor ownership or admin
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
     });
-    console.log(
-      '[uploadBulkCourseContent] course.instructorId:',
-      course?.instructorId,
-    );
     if (!course) throw new NotFoundException('Course not found');
     if (role !== 'ADMIN' && course.instructorId !== userId) {
       throw new ForbiddenException('You do not own this course');
@@ -148,9 +131,7 @@ export class ContentService {
               topics: Array<any>;
             }>)
           : (modulesRaw as Array<{ title: string; topics: Array<any> }>);
-      console.log('[uploadBulkCourseContent] parsedModules:', parsedModules);
     } catch (err) {
-      console.error('[uploadBulkCourseContent] Invalid modules format', err);
       throw new NotFoundException('Invalid modules format');
     }
     // Create modules and topics
@@ -186,10 +167,6 @@ export class ContentService {
           file = files.find((f) => f.originalname === topic.fileName);
         }
         if (topic.fileName && !file) {
-          console.warn(
-            '[uploadBulkCourseContent] File referenced in topic.fileName but not found in uploaded files:',
-            topic.fileName,
-          );
           continue; // skip this topic if file is missing
         }
         // Upload file if present
@@ -202,31 +179,12 @@ export class ContentService {
             });
             url = upload.secure_url;
           } catch (err) {
-            console.error(
-              '[uploadBulkCourseContent] Cloudinary upload failed',
-              err,
-            );
             throw err;
           }
         } else if (file) {
           // Defensive: file object exists but path is missing
-          console.warn(
-            '[uploadBulkCourseContent] File object present but path is missing for:',
-            file.originalname,
-          );
           continue; // skip this topic
         }
-        // Log topic and content data
-        console.log(
-          '[uploadBulkCourseContent] Creating content for topic:',
-          topic,
-        );
-        console.log('[uploadBulkCourseContent] Content data:', {
-          title: topic.title,
-          type: topic.contentType ? topic.contentType.toUpperCase() : 'TEXT',
-          url,
-          moduleId: dbModule.id,
-        });
         try {
           await this.prisma.content.create({
             data: {
@@ -239,10 +197,6 @@ export class ContentService {
             },
           });
         } catch (err) {
-          console.error(
-            '[uploadBulkCourseContent] Failed to create content in DB',
-            err,
-          );
           throw err;
         }
         // TODO: Save quiz questions if needed

@@ -25,12 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    // Debug output
-    console.log('JwtStrategy.validate payload:', payload);
-    console.log('JwtStrategy.validate user:', user);
-    console.log('JwtStrategy.validate payload.role:', payload.role);
-    console.log('JwtStrategy.validate user.role:', user.role);
-    // Ensure the role from JWT is used, not from database
+
     // Validate that the role from JWT is valid
     if (!Object.values(UserRole).includes(payload.role as UserRole)) {
       throw new UnauthorizedException('Invalid role in token');

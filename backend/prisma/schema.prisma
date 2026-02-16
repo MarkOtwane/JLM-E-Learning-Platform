@@ -20,6 +20,7 @@ model User {
   password       String
   role           UserRole
   isApproved     Boolean  @default(false)
+  emailVerified  Boolean  @default(false)
   profilePicture String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -31,7 +32,9 @@ model User {
   certificates Certificate[]
   payments     Payment[]
 
-  PasswordReset PasswordReset[]
+  PasswordReset     PasswordReset[]
+  EmailVerification EmailVerification?
+  RefreshToken      RefreshToken[]
 }
 
 model PasswordReset {
@@ -39,6 +42,27 @@ model PasswordReset {
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   expiresAt DateTime
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
 
 model Course {
@@ -61,6 +85,12 @@ model Course {
   payments    Payment[]
 
   Certificate Certificate[]
+
+  @@index([instructorId])
+  @@index([category])
+  @@index([level])
+  @@index([isPremium])
+  @@index([createdAt])
 }
 
 model Module {
@@ -75,6 +105,9 @@ model Module {
   contents Content[]
 
   Progress Progress[]
+
+  @@index([courseId])
+  @@index([createdAt])
 }
 
 model Content {
@@ -84,6 +117,9 @@ model Content {
   title    String
   module   Module @relation(fields: [moduleId], references: [id])
   moduleId String
+
+  @@index([moduleId])
+  @@index([type])
 }
 
 model Enrollment {
@@ -93,6 +129,11 @@ model Enrollment {
   course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId   String
   enrolledAt DateTime @default(now())
+
+  @@unique([userId, courseId]) // Prevent duplicate enrollments
+  @@index([userId])
+  @@index([courseId])
+  @@index([enrolledAt])
 }
 
 model Quiz {
@@ -103,6 +144,8 @@ model Quiz {
   questions Question[]
 
   QuizAttempt QuizAttempt[]
+
+  @@index([courseId])
 }
 
 model Question {
@@ -113,6 +156,9 @@ model Question {
   quizId  String
   options Option[] // Only for MCQs
   correct String // Store correct answer (simple string or json)
+
+  @@index([quizId])
+  @@index([type])
 }
 
 model Option {
@@ -120,6 +166,8 @@ model Option {
   text       String
   question   Question @relation(fields: [questionId], references: [id])
   questionId String
+
+  @@index([questionId])
 }
 
 model QuizAttempt {
@@ -130,6 +178,10 @@ model QuizAttempt {
   quizId      String
   score       Float
   attemptDate DateTime @default(now())
+
+  @@index([userId])
+  @@index([quizId])
+  @@index([attemptDate])
 }
 
 model Progress {
@@ -140,6 +192,10 @@ model Progress {
   moduleId    String
   completed   Boolean   @default(false)
   completedAt DateTime?
+
+  @@index([userId])
+  @@index([moduleId])
+  @@index([completed])
 }
 
 model Certificate {
@@ -150,6 +206,10 @@ model Certificate {
   courseId       String
   issuedAt       DateTime @default(now())
   certificateUrl String
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([issuedAt])
 }
 
 model Payment {
@@ -162,4 +222,10 @@ model Payment {
   status    String // pending, completed, failed
   provider  String // Stripe, PayPal
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@index([provider])
+  @@index([createdAt])
 }

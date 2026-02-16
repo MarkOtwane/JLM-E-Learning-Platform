@@ -46,7 +46,6 @@ export class NotificationsService {
 
       return { success: true };
     } catch (error) {
-      console.error('Notification sending failed:', error);
       throw new InternalServerErrorException('Failed to send notification');
     }
   }

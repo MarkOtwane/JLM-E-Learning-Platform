@@ -32,20 +32,6 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    console.log('=== ROLES GUARD DEBUG ===');
-    console.log('Required roles:', requiredRoles);
-    console.log('User object:', JSON.stringify(user, null, 2));
-    console.log('User role:', user?.role);
-    console.log('User role type:', typeof user?.role);
-    console.log(
-      'Required roles types:',
-      requiredRoles.map((r) => typeof r),
-    );
-    console.log('Required roles values:', requiredRoles);
-    console.log('User role value:', user?.role);
-    console.log('Includes check:', requiredRoles.includes(user?.role));
-    console.log('=== END DEBUG ===');
-
     if (!user || !requiredRoles.includes(user.role as UserRole)) {
       throw new ForbiddenException('Access denied: insufficient role');
     }
