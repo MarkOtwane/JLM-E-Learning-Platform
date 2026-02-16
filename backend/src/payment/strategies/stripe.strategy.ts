@@ -8,7 +8,13 @@ export class StripeStrategy {
     apiVersion: '2025-08-27.basil',
   });
 
-  async createCheckoutSession(email: string, courseId: string, amount: number) {
+  async createCheckoutSession(
+    email: string,
+    courseId: string,
+    amount: number,
+    userId?: string,
+    metadata?: { amount: number; tax: number; total: number; currency: string },
+  ) {
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       customer_email: email,
@@ -27,7 +33,14 @@ export class StripeStrategy {
       mode: 'payment',
       success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
-      metadata: { courseId },
+      metadata: {
+        courseId,
+        userId: userId || 'unknown',
+        amount: metadata ? String(metadata.amount) : String(amount),
+        tax: metadata ? String(metadata.tax) : '0',
+        total: metadata ? String(metadata.total) : String(amount),
+        currency: metadata?.currency || 'USD',
+      },
     });
 
     return {

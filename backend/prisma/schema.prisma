@@ -73,6 +73,8 @@ model Course {
   category    String
   duration    Int // duration in minutes
   isPremium   Boolean  @default(false)
+  price       Float    @default(0) // Price in dollars
+  currency    String   @default("USD") // Currency code
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -90,6 +92,7 @@ model Course {
   @@index([category])
   @@index([level])
   @@index([isPremium])
+  @@index([price])
   @@index([createdAt])
 }
 
@@ -219,13 +222,20 @@ model Payment {
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId  String
   amount    Float
+  tax       Float    @default(0)
+  total     Float    @default(0)
+  currency  String   @default("USD")
   status    String // pending, completed, failed
   provider  String // Stripe, PayPal
+  transactionId String? @unique
+  metadata  String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([courseId])
   @@index([status])
+  @@index([currency])
   @@index([provider])
   @@index([createdAt])
 }

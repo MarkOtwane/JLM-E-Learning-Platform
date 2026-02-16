@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { RequestCertificateDto } from './dto/request-certificate.dto';
 import { generateCertificate } from './utils/generate-certificate.util';
@@ -96,9 +97,15 @@ export class CertificatesService {
     );
   }
 
-  async getStudentCertificates(studentId: string) {
-    return this.prisma.certificate.findMany({
+  async getStudentCertificates(studentId: string, pagination: PaginationDto) {
+    const total = await this.prisma.certificate.count({
       where: { userId: studentId },
+    });
+
+    const certificates = await this.prisma.certificate.findMany({
+      where: { userId: studentId },
+      skip: pagination.skip,
+      take: pagination.limit,
       include: {
         course: {
           select: {
@@ -109,5 +116,7 @@ export class CertificatesService {
       },
       orderBy: { issuedAt: 'desc' },
     });
+
+    return { certificates, total };
   }
 }

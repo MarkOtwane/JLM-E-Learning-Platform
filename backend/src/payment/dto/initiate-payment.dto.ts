@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export enum PaymentProvider {
   STRIPE = 'STRIPE',
@@ -16,4 +16,8 @@ export class InitiatePaymentDto {
   @IsString()
   @IsNotEmpty()
   phoneOrEmail: string; // phone for M-Pesa, email for Stripe
+
+  @IsString()
+  @IsOptional()
+  country?: string;
 }

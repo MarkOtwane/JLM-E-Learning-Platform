@@ -3,6 +3,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as express from 'express';
 import helmet from 'helmet';
 import { join } from 'path';
 import { AppModule } from './app.module';
@@ -13,8 +14,20 @@ async function bootstrap() {
   const logger = createWinstonLogger();
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false, // Disable default body parsing for Stripe webhooks
     logger: new (require('nest-winston').WinstonModule)(logger),
   });
+
+  // Middleware to capture raw body for Stripe signature verification
+  app.use(
+    express.json({
+      verify: (req: any, res: any, buf: Buffer) => {
+        if (req.path === '/api/webhooks/stripe') {
+          req.rawBody = buf;
+        }
+      },
+    }),
+  );
 
   // Enable CORS for frontend
   app.enableCors({

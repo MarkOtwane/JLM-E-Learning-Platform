@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateModuleDto } from './dto/create-module.dto';
@@ -77,7 +78,7 @@ export class CoursesService {
     return course;
   }
 
-  async getPublicCourses(filter: FilterCoursesDto) {
+  async getPublicCourses(filter: FilterCoursesDto, pagination: PaginationDto) {
     const where: any = {};
 
     if (filter.keyword) {
@@ -90,8 +91,12 @@ export class CoursesService {
       where.level = filter.level;
     }
 
-    return this.prisma.course.findMany({
+    const total = await this.prisma.course.count({ where });
+
+    const courses = await this.prisma.course.findMany({
       where,
+      skip: pagination.skip,
+      take: pagination.limit,
       orderBy: { createdAt: 'desc' },
       include: {
         instructor: {
@@ -99,9 +104,16 @@ export class CoursesService {
         },
       },
     });
+
+    return { courses, total };
   }
 
-  async listCourses(filter: FilterCoursesDto, role: UserRole, userId: string) {
+  async listCourses(
+    filter: FilterCoursesDto,
+    role: UserRole,
+    userId: string,
+    pagination: PaginationDto,
+  ) {
     const where: any = {};
 
     if (filter.keyword) {
@@ -118,8 +130,12 @@ export class CoursesService {
       where.instructorId = userId;
     }
 
-    return this.prisma.course.findMany({
+    const total = await this.prisma.course.count({ where });
+
+    const courses = await this.prisma.course.findMany({
       where,
+      skip: pagination.skip,
+      take: pagination.limit,
       orderBy: { createdAt: 'desc' },
       include: {
         instructor: {
@@ -127,6 +143,8 @@ export class CoursesService {
         },
       },
     });
+
+    return { courses, total };
   }
 
   async createModule(userId: string, courseId: string, dto: CreateModuleDto) {

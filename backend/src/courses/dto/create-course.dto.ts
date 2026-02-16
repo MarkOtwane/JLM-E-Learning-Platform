@@ -3,8 +3,10 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
+  Max,
   Min,
 } from 'class-validator';
 
@@ -37,4 +39,14 @@ export class CreateCourseDto {
   @IsBoolean()
   @IsOptional()
   isPremium?: boolean = false;
+
+  @IsNumber()
+  @Min(0)
+  @Max(10000)
+  @IsOptional()
+  price?: number = 0;
+
+  @IsString()
+  @IsOptional()
+  currency?: string = 'USD';
 }

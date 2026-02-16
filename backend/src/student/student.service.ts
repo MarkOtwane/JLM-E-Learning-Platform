@@ -4,6 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { EnrollDto } from './dto/enroll.dto';
 import { StudentCourseView } from './types/student-course-view.type';
@@ -21,34 +23,65 @@ export class StudentsService {
     });
     if (!course) throw new NotFoundException('Course not found');
 
-    const existingEnrollment = await this.prisma.enrollment.findFirst({
-      where: {
-        userId: studentId,
-        courseId: dto.courseId,
-      },
-    });
+    // Use transaction for data consistency
+    try {
+      const enrollment = await this.prisma.$transaction(async (tx) => {
+        // Check for duplicate
+        const existing = await tx.enrollment.findFirst({
+          where: { userId: studentId, courseId: dto.courseId },
+        });
 
-    if (existingEnrollment)
-      throw new BadRequestException('Already enrolled in this course');
+        if (existing) {
+          throw new BadRequestException('Already enrolled in this course');
+        }
 
-    // if (course.isPremium) {
-    //   // In production you'd check payment validation
-    //   throw new ForbiddenException('Course requires payment');
-    // }
+        // For premium courses, payment should be verified before this call
+        if (course.isPremium) {
+          const payment = await tx.payment.findFirst({
+            where: {
+              userId: studentId,
+              courseId: dto.courseId,
+              status: 'completed',
+            },
+          });
 
-    await this.prisma.enrollment.create({
-      data: {
-        userId: studentId,
-        courseId: dto.courseId,
-      },
-    });
+          if (!payment) {
+            throw new ForbiddenException('Payment required for this course');
+          }
+        }
 
-    return { message: 'Enrolled successfully' };
+        // Create enrollment
+        return await tx.enrollment.create({
+          data: { userId: studentId, courseId: dto.courseId },
+        });
+      });
+
+      return { message: 'Enrolled successfully' };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        // Unique constraint violation
+        throw new BadRequestException('Already enrolled in this course');
+      }
+      throw error;
+    }
   }
 
-  async getEnrolledCourses(studentId: string): Promise<StudentCourseView[]> {
+  async getEnrolledCourses(
+    studentId: string,
+    pagination: PaginationDto,
+  ): Promise<{ courses: StudentCourseView[]; total: number }> {
+    const total = await this.prisma.enrollment.count({
+      where: { userId: studentId },
+    });
+
     const enrollments = await this.prisma.enrollment.findMany({
       where: { userId: studentId },
+      skip: pagination.skip,
+      take: pagination.limit,
+      orderBy: { enrolledAt: 'desc' },
       select: {
         course: {
           include: {
@@ -63,7 +96,7 @@ export class StudentsService {
       },
     });
 
-    return enrollments.map((e) => e.course);
+    return { courses: enrollments.map((e) => e.course), total };
   }
 
   async getCourseContent(studentId: string, courseId: string): Promise<any> {

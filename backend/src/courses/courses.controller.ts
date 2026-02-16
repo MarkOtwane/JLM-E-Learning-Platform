@@ -19,6 +19,8 @@ import { UserRole } from '@prisma/client';
 import { Public, Roles, User } from '../auth/decorators';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationService } from '../common/services/pagination.service';
 import { ContentService } from '../content/content.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CoursesService } from './courses.service';
@@ -34,6 +36,7 @@ export class CoursesController {
     private readonly coursesService: CoursesService,
     private readonly prisma: PrismaService,
     private readonly contentService: ContentService,
+    private readonly paginationService: PaginationService,
   ) {}
 
   @Post()
@@ -106,8 +109,15 @@ export class CoursesController {
 
   @Public()
   @Get('public')
-  async getPublicCourses(@Query() filters: FilterCoursesDto) {
-    return this.coursesService.getPublicCourses(filters);
+  async getPublicCourses(
+    @Query() filters: FilterCoursesDto,
+    @Query() pagination: PaginationDto,
+  ) {
+    const { courses, total } = await this.coursesService.getPublicCourses(
+      filters,
+      pagination,
+    );
+    return this.paginationService.paginate(courses, total, pagination);
   }
 
   @Public()
@@ -119,10 +129,17 @@ export class CoursesController {
   @Get()
   async listCourses(
     @Query() filters: FilterCoursesDto,
+    @Query() pagination: PaginationDto,
     @User('role') role: UserRole,
     @User('id') userId: string,
   ) {
-    return this.coursesService.listCourses(filters, role, userId);
+    const { courses, total } = await this.coursesService.listCourses(
+      filters,
+      role,
+      userId,
+      pagination,
+    );
+    return this.paginationService.paginate(courses, total, pagination);
   }
 
   @Post(':courseId/modules')
