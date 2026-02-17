@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
 /**
- * Angular Service Worker
+ * Custom Service Worker
  *
  * Enables offline support, caching strategies, and background sync.
  * Implements:
@@ -14,102 +14,63 @@
  * Activation: src/main.ts registers 'ngsw-worker.js'
  */
 
-import {
-  cleanupOutdatedCaches,
-  precacheAndRoute,
-} from '@angular/service-worker/sw';
+// Use 'any' type to avoid TypeScript service worker type issues in standard Angular setup
+/* eslint-disable @typescript-eslint/no-explicit-any */
+declare const swSelf: any;
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
-declare const self: ServiceWorkerGlobalScope;
+const global = typeof self !== 'undefined' ? self : swSelf;
 
-// Remove old caches from previous versions
-cleanupOutdatedCaches();
-
-// Pre-cache critical files defined in ngsw-config.json
-precacheAndRoute([
-  // Angular pre-populates this with build artifacts
-] as any[]);
-
-/**
- * Handle messages from the app
- * Used for features like: update notifications, skip waiting
- */
-self.addEventListener('message', (event) => {
-  // Handle message from main app to skip waiting
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  // Handle version update notification
-  if (event.data && event.data.type === 'VERSION_UPDATE') {
-    console.log('New version available:', event.data.payload);
-  }
+// Install Event - Activate service worker immediately
+global.addEventListener('install', (event: any) => {
+  event.waitUntil(
+    (global as any).skipWaiting()
+  );
 });
 
-/**
- * Fetch Event Handler
- * Implements caching strategies based on request type
- */
-self.addEventListener('fetch', (event: FetchEvent) => {
-  const url = event.request.url;
+global.addEventListener('activate', (event: any) => {
+  event.waitUntil(
+    (global as any).clients.claim()
+  );
+});
 
-  // Skip cross-origin requests (different domain)
-  if (!url.startsWith(self.location.origin)) {
+// Cache configuration
+const CACHE_NAMES = {
+  api: 'api-cache-v1',
+  assets: 'assets-cache-v1',
+  page: 'page-cache-v1',
+  cloudinary: 'cloudinary-cache-v1',
+  default: 'default-cache-v1',
+};
+
+// Fetch Event - Handle all network requests
+global.addEventListener('fetch', (event: any) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests
+  if (request.method !== 'GET') {
     return;
   }
 
-  // Strategy 1: Network-first for API calls (with cache fallback)
-  if (url.includes('/api/')) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // Cache successful responses
-          if (response.ok) {
-            const cloned = response.clone();
-            caches.open('api-cache-v1').then((cache) => {
-              cache.put(event.request, cloned);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Network failed: try cache
-          return caches.match(event.request).then((cached) => {
-            if (cached) {
-              return cached;
-            }
-            // No cache available: return offline error
-            return new Response(
-              JSON.stringify({
-                error: 'Offline: This data is not available offline',
-                timestamp: new Date().toISOString(),
-              }),
-              {
-                status: 503,
-                statusText: 'Service Unavailable',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-Offline': 'true',
-                },
-              },
-            );
-          });
-        }),
-    );
+  // Skip external requests
+  if (url.origin !== (global.location?.origin || self.location?.origin)) {
+    return;
   }
 
-  // Strategy 2: Cache-first for static assets (update in background)
-  else if (
-    url.includes('/assets/') ||
-    url.match(/\.(woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico)$/)
+  // Strategy 1: Cache-first for static assets
+  if (
+    url.pathname.includes('/assets/') ||
+    url.pathname.match(/\.(woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico)$/)
   ) {
     event.respondWith(
-      caches.match(event.request).then((cached) => {
-        // Return cached if available
+      (global as any).caches.match(request).then((cached: any) => {
         if (cached) {
           // Update cache in background
-          fetch(event.request).then((response) => {
+          fetch(request).then((response: any) => {
             if (response.ok) {
-              caches.open('assets-cache-v1').then((cache) => {
-                cache.put(event.request, response);
+              (global as any).caches.open(CACHE_NAMES.assets).then((cache: any) => {
+                cache.put(request, response);
               });
             }
           });
@@ -117,11 +78,11 @@ self.addEventListener('fetch', (event: FetchEvent) => {
         }
 
         // Not in cache: fetch and cache
-        return fetch(event.request).then((response) => {
+        return fetch(request).then((response: any) => {
           if (response.ok) {
             const cloned = response.clone();
-            caches.open('assets-cache-v1').then((cache) => {
-              cache.put(event.request, cloned);
+            (global as any).caches.open(CACHE_NAMES.assets).then((cache: any) => {
+              cache.put(request, cloned);
             });
           }
           return response;
@@ -130,49 +91,73 @@ self.addEventListener('fetch', (event: FetchEvent) => {
     );
   }
 
-  // Strategy 3: Network-first for HTML (pages)
-  else if (event.request.mode === 'navigate' || url.endsWith('.html')) {
+  // Strategy 2: Network-first for API calls
+  else if (url.pathname.startsWith('/api/')) {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // Cache successful page loads
+      fetch(request)
+        .then((response: any) => {
           if (response.ok) {
             const cloned = response.clone();
-            caches.open('page-cache-v1').then((cache) => {
-              cache.put(event.request, cloned);
+            (global as any).caches.open(CACHE_NAMES.api).then((cache: any) => {
+              cache.put(request, cloned);
             });
           }
           return response;
         })
         .catch(() => {
-          // Network failed: try cache, fall back to offline page
-          return caches.match(event.request).then((cached) => {
-            return (
-              cached ||
-              caches.match('/offline.html') ||
-              new Response('You are offline', {
-                status: 503,
-                statusText: 'Service Unavailable',
-              })
-            );
+          return (global as any).caches.match(request).then((cached: any) => {
+            return cached || new Response('API unavailable offline', { status: 503 });
           });
         }),
     );
   }
 
-  // Strategy 4: Cache Cloudinary images
-  else if (url.includes('res.cloudinary.com')) {
+  // Strategy 3: Network-first for HTML (pages)
+  else if (request.mode === 'navigate' || url.pathname.endsWith('.html')) {
     event.respondWith(
-      caches
-        .match(event.request)
-        .then((cached) => {
+      (async (): Promise<Response> => {
+        try {
+          const response = await fetch(request);
+          // Cache successful page loads
+          if (response.ok) {
+            const cloned = response.clone();
+            (global as any).caches.open(CACHE_NAMES.page).then((cache: any) => {
+              cache.put(request, cloned);
+            });
+          }
+          return response;
+        } catch {
+          // Network failed: try cache, fall back to offline page
+          const cached = await (global as any).caches.match(request);
+          if (cached) {
+            return cached;
+          }
+          const offlinePage = await (global as any).caches.match('/offline.html');
+          if (offlinePage) {
+            return offlinePage;
+          }
+          return new Response('You are offline', {
+            status: 503,
+            statusText: 'Service Unavailable',
+          });
+        }
+      })(),
+    );
+  }
+
+  // Strategy 4: Cache Cloudinary images
+  else if (url.href.includes('res.cloudinary.com')) {
+    event.respondWith(
+      (global as any).caches
+        .match(request)
+        .then((cached: any) => {
           return (
             cached ||
-            fetch(event.request).then((response) => {
+            fetch(request).then((response: any) => {
               if (response.ok) {
                 const cloned = response.clone();
-                caches.open('cloudinary-cache-v1').then((cache) => {
-                  cache.put(event.request, cloned);
+                (global as any).caches.open(CACHE_NAMES.cloudinary).then((cache: any) => {
+                  cache.put(request, cloned);
                 });
               }
               return response;
@@ -180,24 +165,16 @@ self.addEventListener('fetch', (event: FetchEvent) => {
           );
         })
         .catch(() => {
-          // Image not available: return placeholder
-          const canvas = new OffscreenCanvas(200, 200);
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.fillStyle = '#e0e0e0';
-            ctx.fillRect(0, 0, 200, 200);
-            ctx.fillStyle = '#999';
-            ctx.font = '14px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('Offline', 100, 100);
-          }
-          return canvas.convertToBlob().then((blob) => {
-            if (blob) {
-              return new Response(blob, {
-                headers: { 'Content-Type': 'image/png' },
-              });
+          // Network failed, try to return placeholder
+          return (global as any).caches.match('/assets/images/placeholder.png').then((placeholder: any) => {
+            if (placeholder) {
+              return placeholder;
             }
-            return new Response('Image unavailable', { status: 404 });
+            // Return a simple 1x1 transparent PNG if no placeholder
+            return new Response('', {
+              status: 200,
+              headers: { 'Content-Type': 'image/png' },
+            });
           });
         }),
     );
@@ -206,133 +183,90 @@ self.addEventListener('fetch', (event: FetchEvent) => {
   // Default: network-first with cache fallback
   else {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
+      (async (): Promise<Response> => {
+        try {
+          const response = await fetch(request);
           if (response.ok) {
             const cloned = response.clone();
-            caches.open('default-cache-v1').then((cache) => {
-              cache.put(event.request, cloned);
+            (global as any).caches.open(CACHE_NAMES.default).then((cache: any) => {
+              cache.put(request, cloned);
             });
           }
           return response;
-        })
-        .catch(() => {
-          return (
-            caches.match(event.request) ||
-            new Response('Resource not available offline', {
-              status: 503,
-            })
-          );
-        }),
+        } catch {
+          // Network failed: try cache, fall back to error response
+          const cached = await (global as any).caches.match(request);
+          if (cached) {
+            return cached;
+          }
+          return new Response('Resource not available offline', {
+            status: 503,
+          });
+        }
+      })(),
     );
   }
 });
 
-/**
- * Activate Event
- * Clean up old caches from previous versions
- */
-self.addEventListener('activate', (event: ExtendableEvent) => {
+// Activate Event - Clean up old caches
+global.addEventListener('activate', (event: any) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    (global as any).caches.keys().then((cacheNames: string[]) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          // Keep only current cache versions
+        cacheNames.map((cacheName: string) => {
           const currentCaches = [
-            'api-cache-v1',
-            'assets-cache-v1',
-            'page-cache-v1',
-            'cloudinary-cache-v1',
-            'default-cache-v1',
-            'ngsw:db:main:data',
+            CACHE_NAMES.api,
+            CACHE_NAMES.assets,
+            CACHE_NAMES.page,
+            CACHE_NAMES.cloudinary,
+            CACHE_NAMES.default,
           ];
 
           if (!currentCaches.includes(cacheName)) {
             console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
+            return (global as any).caches.delete(cacheName);
           }
+          return Promise.resolve();
         }),
       );
     }),
   );
-
-  // Claim clients to start controlling pages immediately
-  return self.clients.claim();
 });
 
-/**
- * Install Event
- * Cache critical files on first install
- */
-self.addEventListener('install', (event: ExtendableEvent) => {
-  console.log('Service Worker installing...');
-
-  event.waitUntil(
-    caches.open('critical-cache-v1').then((cache) => {
-      return cache.addAll(['/index.html', '/offline.html']);
-    }),
-  );
-
-  // Skip waiting: activate immediately without waiting for other tabs
-  self.skipWaiting();
-});
-
-/**
- * Background Sync Event
- * Used for queuing failed requests to retry when online
- */
-self.addEventListener('sync', (event: any) => {
-  if (event.tag === 'sync-courses') {
-    event.waitUntil(
-      // Implement background sync logic
-      fetch('/api/courses').then((response) => {
-        if (response.ok) {
-          caches.open('api-cache-v1').then((cache) => {
-            cache.put('/api/courses', response);
-          });
-        }
-      }),
-    );
-  }
-});
-
-/**
- * Push Event
- * Handle push notifications (if configured)
- */
-self.addEventListener('push', (event: PushEvent) => {
-  if (!event.data) return;
-
-  const data = event.data.json();
-  const options: NotificationOptions = {
-    body: data.body || 'New update available',
-    icon: '/assets/icon-192x192.png',
-    badge: '/assets/badge-72x72.png',
-    tag: data.tag || 'default',
-    requireInteraction: data.requireInteraction || false,
+// Push Notification Event
+global.addEventListener('push', (event: any) => {
+  const data = event.data?.json() || {};
+  const options = {
+    body: data.body || 'You have a new notification',
+    icon: '/assets/icons/icon-192x192.png',
+    badge: '/assets/icons/badge-72x72.png',
+    data: { url: data.url || '/' },
+    actions: [
+      { action: 'open', title: 'Open' },
+      { action: 'close', title: 'Close' },
+    ],
   };
 
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(
+    (global as any).registration.showNotification(data.title || 'JLM E-Learning', options)
+  );
 });
 
-/**
- * Notification Click Event
- * Handle user clicking on notifications
- */
-self.addEventListener('notificationclick', (event: NotificationEvent) => {
+// Notification Click Event
+global.addEventListener('notificationclick', (event: any) => {
   event.notification.close();
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((clients) => {
-      // Focus existing window if open
+    (global as any).clients.matchAll({ type: 'window' }).then((clients: any[]) => {
+      // Check if there's already a window open
       for (const client of clients) {
-        if ('focus' in client) {
-          return (client as WindowClient).focus();
+        if (client.url === event.notification.data.url && 'focus' in client) {
+          return client.focus();
         }
       }
-      // Otherwise open new window
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(event.notification.data?.url || '/');
+      // Open new window if none exists
+      if ((global as any).clients.openWindow) {
+        return (global as any).clients.openWindow(event.notification.data.url || '/');
       }
     }),
   );

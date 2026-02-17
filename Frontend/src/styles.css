@@ -1,13 +1,15 @@
 /* Global Styles - JLM E-Learning Platform */
 
-/* Import Tailwind CSS v4 */
-@import "tailwindcss";
-
 /* Import Responsive Utilities */
 @import "tailwind-utilities.css";
 
 /* Import Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap");
+
+/* Import Tailwind CSS v3 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ========================================
    TAILWIND BASE LAYER - Global Resets
@@ -119,7 +121,7 @@
     @apply px-6 py-3 bg-primary-600 text-white font-medium rounded-lg 
            hover:bg-primary-700 active:bg-primary-800 
            transition-colors duration-200 
-           focus:outline-hidden focus:ring-3 focus:ring-primary-300
+           focus:outline-none focus:ring-2 focus:ring-primary-300
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
@@ -127,7 +129,7 @@
     @apply px-6 py-3 bg-gray-200 text-gray-800 font-medium rounded-lg 
            hover:bg-gray-300 active:bg-gray-400 
            transition-colors duration-200 
-           focus:outline-hidden focus:ring-3 focus:ring-gray-300
+           focus:outline-none focus:ring-2 focus:ring-gray-300
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
@@ -135,7 +137,7 @@
     @apply px-6 py-3 border-2 border-primary-600 text-primary-600 font-medium rounded-lg 
            hover:bg-primary-50 active:bg-primary-100 
            transition-colors duration-200 
-           focus:outline-hidden focus:ring-3 focus:ring-primary-300
+           focus:outline-none focus:ring-2 focus:ring-primary-300
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
@@ -143,13 +145,13 @@
     @apply px-4 py-2 text-gray-700 font-medium rounded-lg 
            hover:bg-gray-100 active:bg-gray-200 
            transition-colors duration-200 
-           focus:outline-hidden focus:ring-3 focus:ring-gray-300;
+           focus:outline-none focus:ring-2 focus:ring-gray-300;
   }
 
   .btn-icon {
     @apply p-2 rounded-lg hover:bg-gray-100 active:bg-gray-200 
            transition-colors duration-200 
-           focus:outline-hidden focus:ring-3 focus:ring-gray-300;
+           focus:outline-none focus:ring-2 focus:ring-gray-300;
   }
 
   /* Card Styles */
@@ -165,7 +167,7 @@
   /* Input Styles */
   .input {
     @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg 
-           focus:outline-hidden focus:ring-3 focus:ring-primary-300 focus:border-primary-500 
+           focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-500 
            transition-all duration-200 
            placeholder:text-gray-400
            disabled:bg-gray-100 disabled:cursor-not-allowed;

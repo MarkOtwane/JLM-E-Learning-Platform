@@ -14,6 +14,12 @@
 import { Directive, HostListener, Injectable, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
+type PerformanceMemory = {
+  jsHeapSizeLimit: number;
+  totalJSHeapSize: number;
+  usedJSHeapSize: number;
+};
+
 /**
  * Lazy Load Prefetch Directive
  *
@@ -111,8 +117,8 @@ export class PerformanceTrackingService {
   /**
    * Get current memory usage (if available)
    */
-  getMemoryUsage(): Performance['memory'] | null {
-    return (performance as any).memory || null;
+  getMemoryUsage(): PerformanceMemory | null {
+    return (performance as { memory?: PerformanceMemory }).memory || null;
   }
 }
 
