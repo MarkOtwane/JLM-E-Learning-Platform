@@ -7,15 +7,15 @@ import * as express from 'express';
 import helmet from 'helmet';
 import { join } from 'path';
 import { AppModule } from './app.module';
-import { createWinstonLogger } from './config/logger.config';
+import { CustomLoggerService } from './common/logger/logger.service';
 
 async function bootstrap() {
-  // Create Winston logger
-  const logger = createWinstonLogger();
+  // Use custom Winston logger with daily rotation
+  const customLogger = new CustomLoggerService();
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false, // Disable default body parsing for Stripe webhooks
-    logger: new (require('nest-winston').WinstonModule)(logger),
+    logger: customLogger,
   });
 
   // Middleware to capture raw body for Stripe signature verification
@@ -84,7 +84,9 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port);
 
-  logger.info(`🚀 Application is running on: http://localhost:${port}/api`);
+  customLogger.log(`🚀 Application is running on: http://localhost:${port}/api`, 'Bootstrap');
+  customLogger.log(`📊 Health check available at: http://localhost:${port}/api/health`, 'Bootstrap');
+  customLogger.log(`📈 Metrics available at: http://localhost:${port}/api/health/metrics`, 'Bootstrap');
 }
 
 bootstrap();

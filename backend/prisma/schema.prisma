@@ -94,6 +94,9 @@ model Course {
   @@index([isPremium])
   @@index([price])
   @@index([createdAt])
+  @@index([category, level]) // Composite index for course filtering
+  @@index([isPremium, price]) // Composite index for premium course queries
+  @@index([category, isPremium]) // Composite index for course catalog filtering
 }
 
 model Module {
@@ -123,6 +126,7 @@ model Content {
 
   @@index([moduleId])
   @@index([type])
+  @@index([moduleId, type]) // Composite index for filtering content by module and type
 }
 
 model Enrollment {
@@ -137,6 +141,7 @@ model Enrollment {
   @@index([userId])
   @@index([courseId])
   @@index([enrolledAt])
+  @@index([userId, courseId]) // Composite index for enrollment checks
 }
 
 model Quiz {
@@ -185,6 +190,8 @@ model QuizAttempt {
   @@index([userId])
   @@index([quizId])
   @@index([attemptDate])
+  @@index([userId, quizId]) // Composite index for user quiz attempts
+  @@index([userId, attemptDate]) // Composite index for user attempt history
 }
 
 model Progress {
@@ -199,6 +206,8 @@ model Progress {
   @@index([userId])
   @@index([moduleId])
   @@index([completed])
+  @@index([userId, moduleId]) // Composite index for progress lookup
+  @@index([userId, completed]) // Composite index for completed progress queries
 }
 
 model Certificate {
@@ -213,6 +222,7 @@ model Certificate {
   @@index([userId])
   @@index([courseId])
   @@index([issuedAt])
+  @@index([userId, courseId]) // Composite index for certificate lookup
 }
 
 model Payment {
@@ -238,4 +248,7 @@ model Payment {
   @@index([currency])
   @@index([provider])
   @@index([createdAt])
+  @@index([userId, status]) // Composite index for user payment history filtering
+  @@index([userId, createdAt]) // Composite index for user payment history sorted by date
+  @@index([courseId, status]) // Composite index for course payment analytics
 }

@@ -16,6 +16,7 @@ export const validationSchema = Joi.object({
     'any.required': 'DATABASE_URL is required',
     'string.empty': 'DATABASE_URL cannot be empty',
   }),
+  DATABASE_URL_POOL: Joi.string().optional(),
 
   // JWT
   JWT_SECRET: Joi.string().required().min(32).messages({
@@ -112,4 +113,7 @@ export const validationSchema = Joi.object({
     then: Joi.string().required(),
     otherwise: Joi.string().optional(),
   }),
+
+  // Content URL signing
+  CONTENT_URL_TTL_SECONDS: Joi.number().min(60).max(3600).default(300),
 });

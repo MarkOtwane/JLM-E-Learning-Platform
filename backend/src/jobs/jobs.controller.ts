@@ -1,9 +1,7 @@
-import {
-    Controller,
-    Post,
-    Req,
-    UnauthorizedException,
-} from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Controller, Post, Req, UnauthorizedException } from '@nestjs/common';
 import { Receiver } from '@upstash/qstash';
 import { Request } from 'express';
 import { Public } from '../auth/decorators';

@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
@@ -9,10 +9,15 @@ import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { CertificatesModule } from './certificate/certificate.module';
+import { DynamicCacheControlInterceptor } from './common/interceptors/dynamic-cache-control.interceptor';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { PerformanceMiddleware } from './common/middleware/performance.middleware';
+import { MonitoringModule } from './common/monitoring.module';
 import { TokenCleanupModule } from './common/token-cleanup.module';
 import { validationSchema } from './config/validation.schema';
 import { ContentModule } from './content/content.module';
 import { CoursesModule } from './courses/courses.module';
+import { HealthModule } from './health/health.module';
 import { InstructorsModule } from './instructor/instructor.module';
 import { JobsModule } from './jobs/jobs.module';
 import { NotificationsModule } from './notification/notification.module';
@@ -40,6 +45,8 @@ import { UsersModule } from './user/user.module';
         limit: throttlerConfig.limit,
       },
     ]),
+    MonitoringModule,
+    HealthModule,
     TokenCleanupModule,
     PrismaModule,
     AuthModule,
@@ -72,6 +79,18 @@ import { UsersModule } from './user/user.module';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: DynamicCacheControlInterceptor,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(PerformanceMiddleware).forRoutes('*');
+  }
+}

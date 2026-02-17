@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { cloudinary } from './cloudinary.provider';
 import { UpdateContentDto } from './dto/update-content.dto';
 import { UploadContentDto } from './dto/upload-content.dto';
+import { ContentType } from './types/content-type.enum';
 
 @Injectable()
 export class ContentService {
@@ -63,6 +64,97 @@ export class ContentService {
       where: { moduleId },
       orderBy: { id: 'asc' },
     });
+  }
+
+  async getStreamableContent(
+    userId: string,
+    role: UserRole,
+    contentId: string,
+  ) {
+    const content = await this.prisma.content.findUnique({
+      where: { id: contentId },
+      include: { module: { include: { course: true } } },
+    });
+
+    if (!content) throw new NotFoundException('Content not found');
+
+    if (role === 'ADMIN') {
+      return content;
+    }
+
+    const courseId = content.module.courseId;
+
+    if (role === 'INSTRUCTOR') {
+      if (content.module.course.instructorId !== userId) {
+        throw new ForbiddenException('You do not own this content');
+      }
+      return content;
+    }
+
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: { userId, courseId },
+    });
+
+    if (!enrollment) {
+      throw new ForbiddenException('You are not enrolled in this course');
+    }
+
+    return content;
+  }
+
+  async getSignedContentUrl(
+    userId: string,
+    role: UserRole,
+    contentId: string,
+  ): Promise<{ url: string; type: string }> {
+    const content = await this.getStreamableContent(userId, role, contentId);
+    const signedUrl = this.buildSignedUrl(content.url, content.type);
+    return { url: signedUrl, type: content.type };
+  }
+
+  private buildSignedUrl(url: string, type: string): string {
+    const publicId = this.extractCloudinaryPublicId(url);
+    if (!publicId) {
+      return url;
+    }
+
+    const ttlSeconds = Number(process.env.CONTENT_URL_TTL_SECONDS || 300);
+    const expiresAt = Math.floor(Date.now() / 1000) + ttlSeconds;
+    const resourceType = this.getResourceType(type);
+
+    return cloudinary.url(publicId, {
+      resource_type: resourceType,
+      secure: true,
+      sign_url: true,
+      expires_at: expiresAt,
+    });
+  }
+
+  private getResourceType(type: string): 'image' | 'video' | 'raw' {
+    switch (type) {
+      case ContentType.IMAGE:
+        return 'image';
+      case ContentType.VIDEO:
+        return 'video';
+      default:
+        return 'raw';
+    }
+  }
+
+  private extractCloudinaryPublicId(url: string): string | null {
+    const uploadIndex = url.indexOf('/upload/');
+    if (uploadIndex === -1) return null;
+
+    const path = url.substring(uploadIndex + '/upload/'.length);
+    const parts = path.split('/');
+    if (parts.length === 0) return null;
+
+    if (parts[0].startsWith('v')) {
+      parts.shift();
+    }
+
+    const withoutExt = parts.join('/').replace(/\.[^/.]+$/, '');
+    return withoutExt || null;
   }
 
   async updateContent(

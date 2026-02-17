@@ -19,6 +19,7 @@ import { UserRole } from '@prisma/client';
 import { Public, Roles, User } from '../auth/decorators';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
+import { CacheControl } from '../common/decorators/cache-control.decorator';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationService } from '../common/services/pagination.service';
 import { ContentService } from '../content/content.service';
@@ -108,6 +109,7 @@ export class CoursesController {
   }
 
   @Public()
+  @CacheControl({ public: true, maxAge: 300, staleWhileRevalidate: 60 })
   @Get('public')
   async getPublicCourses(
     @Query() filters: FilterCoursesDto,
@@ -121,6 +123,7 @@ export class CoursesController {
   }
 
   @Public()
+  @CacheControl({ public: true, maxAge: 180, staleWhileRevalidate: 30 })
   @Get(':id')
   async getCourseById(@Param('id') courseId: string) {
     return this.coursesService.getCourseById(courseId);
