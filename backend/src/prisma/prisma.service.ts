@@ -6,96 +6,22 @@ export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  private queryLogs: Array<{
-    query: string;
-    duration: number;
-    timestamp: Date;
-    model: string;
-  }> = [];
-
   constructor() {
     super({
       datasources: {
         db: {
+          // Prefer connection pool URL if available (PgBouncer, etc.)
           url: process.env.DATABASE_URL_POOL || process.env.DATABASE_URL,
         },
       },
+      // Only log errors in production, more in development
       log:
-        process.env.QUERY_LOGGING_ENABLED === 'true'
-          ? ['query', 'info', 'warn', 'error']
-          : ['error'],
+        process.env.NODE_ENV === 'production' ? ['error'] : ['error', 'warn'],
     });
   }
 
   async onModuleInit() {
     await this.$connect();
-
-    // Enable query performance tracking if enabled
-    if (process.env.QUERY_LOGGING_ENABLED === 'true') {
-      this.enableQueryLogging();
-    }
-  }
-
-  private enableQueryLogging() {
-    this.$use(async (params, next) => {
-      const before = Date.now();
-      const result = await next(params);
-      const after = Date.now();
-      const duration = after - before;
-
-      // Log slow queries (>100ms)
-      if (duration > 100) {
-        this.queryLogs.push({
-          query: `${params.model}.${params.action}`,
-          duration,
-          timestamp: new Date(),
-          model: params.model || 'unknown',
-        });
-
-        console.warn(
-          `[Slow Query] ${params.model}.${params.action} - ${duration}ms`,
-        );
-      }
-
-      return result;
-    });
-  }
-
-  getQueryStats() {
-    const byModel = this.queryLogs.reduce(
-      (acc, log) => {
-        if (!acc[log.model]) {
-          acc[log.model] = { count: 0, totalDuration: 0, avgDuration: 0 };
-        }
-        acc[log.model].count++;
-        acc[log.model].totalDuration += log.duration;
-        acc[log.model].avgDuration =
-          acc[log.model].totalDuration / acc[log.model].count;
-        return acc;
-      },
-      {} as Record<
-        string,
-        { count: number; totalDuration: number; avgDuration: number }
-      >,
-    );
-
-    return {
-      totalSlowQueries: this.queryLogs.length,
-      slowestQuery:
-        this.queryLogs.length > 0
-          ? this.queryLogs.reduce((prev, curr) =>
-              curr.duration > prev.duration ? curr : prev,
-            )
-          : null,
-      byModel,
-      recentSlowQueries: this.queryLogs
-        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-        .slice(0, 10),
-    };
-  }
-
-  clearQueryLogs() {
-    this.queryLogs = [];
   }
 
   async onModuleDestroy() {

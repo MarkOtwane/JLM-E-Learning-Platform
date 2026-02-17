@@ -17,6 +17,7 @@ import { TokenCleanupModule } from './common/token-cleanup.module';
 import { validationSchema } from './config/validation.schema';
 import { ContentModule } from './content/content.module';
 import { CoursesModule } from './courses/courses.module';
+import { DiagnosticsModule } from './diagnostics/diagnostics.module';
 import { HealthModule } from './health/health.module';
 import { InstructorsModule } from './instructor/instructor.module';
 import { JobsModule } from './jobs/jobs.module';
@@ -47,6 +48,7 @@ import { UsersModule } from './user/user.module';
     ]),
     MonitoringModule,
     HealthModule,
+    DiagnosticsModule,
     TokenCleanupModule,
     PrismaModule,
     AuthModule,

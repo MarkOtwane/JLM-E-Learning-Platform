@@ -8,7 +8,6 @@ import { Prisma } from '@prisma/client';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { EnrollDto } from './dto/enroll.dto';
-import { StudentCourseView } from './types/student-course-view.type';
 
 @Injectable()
 export class StudentsService {
@@ -72,7 +71,7 @@ export class StudentsService {
   async getEnrolledCourses(
     studentId: string,
     pagination: PaginationDto,
-  ): Promise<{ courses: StudentCourseView[]; total: number }> {
+  ): Promise<{ courses: any[]; total: number }> {
     const total = await this.prisma.enrollment.count({
       where: { userId: studentId },
     });

@@ -25,21 +25,25 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "600kB",
-                  "maximumError": "700kB"
+                  "maximumWarning": "400kB",
+                  "maximumError": "500kB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "10kB",
-                  "maximumError": "15kB"
+                  "maximumWarning": "5kB",
+                  "maximumError": "10kB"
                 },
                 {
                   "type": "any",
                   "maximumWarning": "2MB",
-                  "maximumError": "5MB"
+                  "maximumError": "4MB"
                 }
               ],
               "outputHashing": "all",
+              "optimization": true,
+              "sourceMap": false,
+              "extractLicenses": true,
+              "aot": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",

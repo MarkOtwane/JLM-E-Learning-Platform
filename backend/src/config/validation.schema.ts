@@ -73,9 +73,6 @@ export const validationSchema = Joi.object({
   LOG_LEVEL: Joi.string()
     .valid('error', 'warn', 'info', 'debug', 'verbose')
     .default('info'),
-  
-  // Query performance logging
-  QUERY_LOGGING_ENABLED: Joi.string().valid('true', 'false').default('false'),
 
   // Default values
   DEFAULT_TAX_RATE: Joi.number().min(0).max(1).default(0),
@@ -119,4 +116,8 @@ export const validationSchema = Joi.object({
 
   // Content URL signing
   CONTENT_URL_TTL_SECONDS: Joi.number().min(60).max(3600).default(300),
+
+  // Query logging and optimization
+  QUERY_LOGGING_ENABLED: Joi.string().valid('true', 'false').default('false'),
+  QUERY_LOGGING_THRESHOLD_MS: Joi.number().min(10).max(5000).default(100),
 });

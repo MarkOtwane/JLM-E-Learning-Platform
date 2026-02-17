@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import {
-    DiskHealthIndicator,
-    HealthCheck,
-    HealthCheckService,
-    MemoryHealthIndicator,
+  DiskHealthIndicator,
+  HealthCheck,
+  HealthCheckService,
+  MemoryHealthIndicator,
 } from '@nestjs/terminus';
 import { MetricsService } from '../common/services/metrics.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -58,6 +58,9 @@ export class HealthController {
 
   @Get('queries')
   getQueryStats() {
-    return this.prisma.getQueryStats();
+    // Query statistics available via diagnostics endpoint
+    return {
+      message: 'Query statistics available at GET /api/diagnostics/query-stats',
+    };
   }
 }

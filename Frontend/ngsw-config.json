@@ -1,0 +1,86 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "appData": {
+    "version": "1.0.0",
+    "changelog": "Initial CDN and offline support"
+  },
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/favicon.ico", "/index.html", "/*.css", "/*.js"]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/*.(svg|cur|jpg|jpeg|png|apng|webp|gif|otf|ttf|woff|woff2)"
+        ]
+      }
+    },
+    {
+      "name": "fonts",
+      "installMode": "prefetch",
+      "resources": {
+        "urls": [
+          "https://fonts.googleapis.com/**",
+          "https://fonts.gstatic.com/**"
+        ]
+      }
+    },
+    {
+      "name": "icons",
+      "installMode": "prefetch",
+      "resources": {
+        "urls": ["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/**"]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-courses",
+      "urls": ["/api/courses/**", "/api/learning/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxAge": "1h",
+        "maxSize": 100
+      }
+    },
+    {
+      "name": "api-user",
+      "urls": ["/api/users/**", "/api/auth/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxAge": "30m",
+        "maxSize": 50
+      }
+    },
+    {
+      "name": "cloudinary-images",
+      "urls": ["https://res.cloudinary.com/**"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxAge": "30d",
+        "maxSize": 500
+      }
+    },
+    {
+      "name": "external-api",
+      "urls": ["https://api.example.com/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxAge": "24h",
+        "maxSize": 200
+      }
+    }
+  ],
+  "navigationUrlWhitelist": ["/**", "!/**/*.*", "!/**/*__*"],
+  "navigationRequestStrategy": "performance"
+}

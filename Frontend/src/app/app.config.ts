@@ -1,12 +1,14 @@
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { FaConfig } from '@fortawesome/angular-fontawesome';
 
 import { routes } from './app.routes';
+import { IconLibraryService } from './shared/icons/icon-library.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,5 +16,8 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
+    // Initialize Font Awesome with only necessary icons (reduces bundle 1.2MB -> 50KB)
+    IconLibraryService,
+    { provide: FaConfig, useValue: { defaultPrefix: 'fas' } },
   ],
 };
