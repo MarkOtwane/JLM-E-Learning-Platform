@@ -113,9 +113,23 @@ export class CoursesService {
       skip: pagination.skip,
       take: pagination.limit,
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        level: true,
+        category: true,
+        duration: true,
+        isPremium: true,
+        price: true,
+        currency: true,
+        createdAt: true,
+        updatedAt: true,
         instructor: {
           select: { id: true, name: true, profilePicture: true },
+        },
+        _count: {
+          select: { enrollments: true },
         },
       },
     });
@@ -154,9 +168,23 @@ export class CoursesService {
       skip: pagination.skip,
       take: pagination.limit,
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        level: true,
+        category: true,
+        duration: true,
+        isPremium: true,
+        price: true,
+        currency: true,
+        createdAt: true,
+        updatedAt: true,
         instructor: {
           select: { id: true, name: true, profilePicture: true },
+        },
+        _count: {
+          select: { enrollments: true, modules: true },
         },
       },
     });

@@ -1,11 +1,8 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+export class QueryAnalyzerService implements OnModuleInit {
   private queryLogs: Array<{
     query: string;
     duration: number;
@@ -13,31 +10,17 @@ export class PrismaService
     model: string;
   }> = [];
 
-  constructor() {
-    super({
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL_POOL || process.env.DATABASE_URL,
-        },
-      },
-      log:
-        process.env.QUERY_LOGGING_ENABLED === 'true'
-          ? ['query', 'info', 'warn', 'error']
-          : ['error'],
-    });
-  }
+  constructor(private readonly prisma: PrismaClient) {}
 
-  async onModuleInit() {
-    await this.$connect();
-
-    // Enable query performance tracking if enabled
+  onModuleInit() {
     if (process.env.QUERY_LOGGING_ENABLED === 'true') {
       this.enableQueryLogging();
     }
   }
 
   private enableQueryLogging() {
-    this.$use(async (params, next) => {
+    // Prisma middleware for query logging
+    this.prisma.$use(async (params, next) => {
       const before = Date.now();
       const result = await next(params);
       const after = Date.now();
@@ -52,13 +35,19 @@ export class PrismaService
           model: params.model || 'unknown',
         });
 
-        console.warn(
-          `[Slow Query] ${params.model}.${params.action} - ${duration}ms`,
-        );
+        console.warn(`[Slow Query] ${params.model}.${params.action} - ${duration}ms`, {
+          args: JSON.stringify(params.args).substring(0, 200),
+        });
       }
 
       return result;
     });
+  }
+
+  getSlowQueries(limit = 20) {
+    return this.queryLogs
+      .sort((a, b) => b.duration - a.duration)
+      .slice(0, limit);
   }
 
   getQueryStats() {
@@ -73,14 +62,11 @@ export class PrismaService
           acc[log.model].totalDuration / acc[log.model].count;
         return acc;
       },
-      {} as Record<
-        string,
-        { count: number; totalDuration: number; avgDuration: number }
-      >,
+      {} as Record<string, { count: number; totalDuration: number; avgDuration: number }>,
     );
 
     return {
-      totalSlowQueries: this.queryLogs.length,
+      totalQueries: this.queryLogs.length,
       slowestQuery:
         this.queryLogs.length > 0
           ? this.queryLogs.reduce((prev, curr) =>
@@ -88,17 +74,10 @@ export class PrismaService
             )
           : null,
       byModel,
-      recentSlowQueries: this.queryLogs
-        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-        .slice(0, 10),
     };
   }
 
-  clearQueryLogs() {
+  clearLogs() {
     this.queryLogs = [];
-  }
-
-  async onModuleDestroy() {
-    await this.$disconnect();
   }
 }

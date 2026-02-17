@@ -77,6 +77,7 @@ export class StudentsService {
       where: { userId: studentId },
     });
 
+    // Optimized query with select to reduce data transfer
     const enrollments = await this.prisma.enrollment.findMany({
       where: { userId: studentId },
       skip: pagination.skip,
@@ -84,11 +85,34 @@ export class StudentsService {
       orderBy: { enrolledAt: 'desc' },
       select: {
         course: {
-          include: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            level: true,
+            category: true,
+            duration: true,
+            isPremium: true,
+            price: true,
+            currency: true,
+            createdAt: true,
+            updatedAt: true,
+            instructorId: true,
             modules: {
               orderBy: { order: 'asc' },
-              include: {
-                contents: true,
+              select: {
+                id: true,
+                title: true,
+                order: true,
+                createdAt: true,
+                contents: {
+                  select: {
+                    id: true,
+                    type: true,
+                    url: true,
+                    title: true,
+                  },
+                },
               },
             },
           },

@@ -73,6 +73,9 @@ export const validationSchema = Joi.object({
   LOG_LEVEL: Joi.string()
     .valid('error', 'warn', 'info', 'debug', 'verbose')
     .default('info'),
+  
+  // Query performance logging
+  QUERY_LOGGING_ENABLED: Joi.string().valid('true', 'false').default('false'),
 
   // Default values
   DEFAULT_TAX_RATE: Joi.number().min(0).max(1).default(0),
