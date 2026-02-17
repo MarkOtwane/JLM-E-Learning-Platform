@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { addHours } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import { MailerService } from '../mailer/mailer.service';
+import { JobsService } from '../jobs/jobs.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class EmailVerificationService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mailerService: MailerService,
+    private readonly jobsService: JobsService,
   ) {}
 
   /**
@@ -57,7 +57,7 @@ export class EmailVerificationService {
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
 
     try {
-      await this.mailerService.sendMail({
+      await this.jobsService.enqueueEmail({
         to: email,
         subject: 'Verify Your Email - JLM E-Learning Platform',
         template: 'email-verification',

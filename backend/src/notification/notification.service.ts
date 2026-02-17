@@ -1,11 +1,11 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { MailerService } from 'src/mailer/mailer.service';
+import { JobsService } from '../jobs/jobs.service';
 import { SendNotificationDto } from './dto/send-notification.dto';
 import { NotificationEvent } from './types/notification-event.type';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(private readonly jobsService: JobsService) {}
 
   async sendNotification(
     dto: SendNotificationDto,
@@ -37,7 +37,7 @@ export class NotificationsService {
           );
       }
 
-      await this.mailerService.sendMail({
+      await this.jobsService.enqueueEmail({
         to: dto.recipient,
         subject,
         template,

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { CacheService } from '../common/services/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateModuleDto } from './dto/create-module.dto';
@@ -15,7 +16,10 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 
 @Injectable()
 export class CoursesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cacheService: CacheService,
+  ) {}
 
   async createCourse(userId: string, dto: CreateCourseDto) {
     return this.prisma.course.create({
@@ -66,6 +70,10 @@ export class CoursesService {
   }
 
   async getCourseById(courseId: string) {
+    const cacheKey = `course:byId:${courseId}`;
+    const cached = await this.cacheService.get<any>(cacheKey);
+    if (cached) return cached;
+
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
       include: {
@@ -75,10 +83,17 @@ export class CoursesService {
       },
     });
     if (!course) throw new NotFoundException('Course not found');
+    await this.cacheService.set(cacheKey, course, 300);
     return course;
   }
 
   async getPublicCourses(filter: FilterCoursesDto, pagination: PaginationDto) {
+    const cacheKey = `courses:public:${JSON.stringify({ filter, pagination })}`;
+    const cached = await this.cacheService.get<{ courses: any[]; total: number }>(
+      cacheKey,
+    );
+    if (cached) return cached;
+
     const where: any = {};
 
     if (filter.keyword) {
@@ -105,7 +120,9 @@ export class CoursesService {
       },
     });
 
-    return { courses, total };
+    const result = { courses, total };
+    await this.cacheService.set(cacheKey, result, 300);
+    return result;
   }
 
   async listCourses(

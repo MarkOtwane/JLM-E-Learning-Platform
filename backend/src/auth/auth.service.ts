@@ -9,7 +9,7 @@ import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { addDays } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import { MailerService } from '../mailer/mailer.service';
+import { JobsService } from '../jobs/jobs.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/regtister.dto';
@@ -21,7 +21,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly mailerService: MailerService,
+    private readonly jobsService: JobsService,
     private readonly emailVerificationService: EmailVerificationService,
   ) {}
 
@@ -131,7 +131,16 @@ export class AuthService {
       },
     });
 
-    await this.mailerService.sendPasswordResetEmail(user.email, token);
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    await this.jobsService.enqueueEmail({
+      to: user.email,
+      subject: 'Password Reset Request',
+      template: 'welcome-user',
+      context: {
+        name: 'User',
+        resetLink,
+      },
+    });
     return { message: 'Password reset link sent to your email.' };
   }
 

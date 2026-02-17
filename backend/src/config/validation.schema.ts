@@ -75,4 +75,41 @@ export const validationSchema = Joi.object({
 
   // Default values
   DEFAULT_TAX_RATE: Joi.number().min(0).max(1).default(0),
+
+  // Cache
+  CACHE_ENABLED: Joi.string().valid('true', 'false').default('false'),
+  CACHE_DEFAULT_TTL: Joi.number().min(30).max(86400).default(300),
+  UPSTASH_REDIS_REST_URL: Joi.when('CACHE_ENABLED', {
+    is: 'true',
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  UPSTASH_REDIS_REST_TOKEN: Joi.when('CACHE_ENABLED', {
+    is: 'true',
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+
+  // Job Queue (QStash)
+  JOB_QUEUE_ENABLED: Joi.string().valid('true', 'false').default('false'),
+  API_BASE_URL: Joi.when('JOB_QUEUE_ENABLED', {
+    is: 'true',
+    then: Joi.string().required().uri(),
+    otherwise: Joi.string().optional(),
+  }),
+  QSTASH_TOKEN: Joi.when('JOB_QUEUE_ENABLED', {
+    is: 'true',
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  QSTASH_CURRENT_SIGNING_KEY: Joi.when('JOB_QUEUE_ENABLED', {
+    is: 'true',
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
+  QSTASH_NEXT_SIGNING_KEY: Joi.when('JOB_QUEUE_ENABLED', {
+    is: 'true',
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional(),
+  }),
 });

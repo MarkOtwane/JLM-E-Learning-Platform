@@ -22,7 +22,10 @@ async function bootstrap() {
   app.use(
     express.json({
       verify: (req: any, res: any, buf: Buffer) => {
-        if (req.path === '/api/webhooks/stripe') {
+        if (
+          req.path === '/api/webhooks/stripe' ||
+          req.path === '/api/jobs/process'
+        ) {
           req.rawBody = buf;
         }
       },

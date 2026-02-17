@@ -216,21 +216,21 @@ model Certificate {
 }
 
 model Payment {
-  id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId  String
-  amount    Float
-  tax       Float    @default(0)
-  total     Float    @default(0)
-  currency  String   @default("USD")
-  status    String // pending, completed, failed
-  provider  String // Stripe, PayPal
-  transactionId String? @unique
-  metadata  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId      String
+  amount        Float
+  tax           Float    @default(0)
+  total         Float    @default(0)
+  currency      String   @default("USD")
+  status        String // pending, completed, failed
+  provider      String // Stripe, PayPal
+  transactionId String?  @unique
+  metadata      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([userId])
   @@index([courseId])

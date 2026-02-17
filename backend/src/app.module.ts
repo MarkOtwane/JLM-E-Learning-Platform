@@ -14,6 +14,7 @@ import { validationSchema } from './config/validation.schema';
 import { ContentModule } from './content/content.module';
 import { CoursesModule } from './courses/courses.module';
 import { InstructorsModule } from './instructor/instructor.module';
+import { JobsModule } from './jobs/jobs.module';
 import { NotificationsModule } from './notification/notification.module';
 import { PaymentModule } from './payment/payment.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -54,6 +55,7 @@ import { UsersModule } from './user/user.module';
     InstructorsModule,
     AdminModule,
     NotificationsModule,
+    JobsModule,
   ],
   controllers: [AppController],
   providers: [

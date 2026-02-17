@@ -2,7 +2,6 @@
 
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { MailerService } from '../mailer/mailer.service';
 import { AuthService } from './auth.service';
 import { Public } from './decorators';
 import { LoginDto } from './dto/login.dto';
@@ -18,7 +17,6 @@ import { EmailVerificationService } from './email-verification.service';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly mailerService: MailerService,
     private readonly emailVerificationService: EmailVerificationService,
   ) {}
 

@@ -142,67 +142,73 @@ export class ContentService {
       courseId: string;
       createdAt: Date;
     }> = [];
-    for (let m = 0; m < parsedModules.length; m++) {
-      const mod = parsedModules[m];
-      // Create module
-      const dbModule = await this.prisma.module.create({
-        data: {
-          title: mod.title,
-          courseId,
-          order: m + 1,
-        },
-      });
-      // Create topics/content
-      for (let t = 0; t < (mod.topics || []).length; t++) {
-        const topic = mod.topics[t] as {
+    await this.prisma.$transaction(async (tx) => {
+      for (let m = 0; m < parsedModules.length; m++) {
+        const mod = parsedModules[m];
+        // Create module
+        const dbModule = await tx.module.create({
+          data: {
+            title: mod.title,
+            courseId,
+            order: m + 1,
+          },
+        });
+
+        const contentData: Array<{
           title: string;
-          url?: string;
-          fileName?: string;
-          contentType?: string;
-        };
-        let url = topic.url || '';
-        let file: Express.Multer.File | undefined = undefined;
-        // Find file for this topic if any
-        if (topic.fileName) {
-          file = files.find((f) => f.originalname === topic.fileName);
-        }
-        if (topic.fileName && !file) {
-          continue; // skip this topic if file is missing
-        }
-        // Upload file if present
-        if (file && file.path) {
-          try {
+          type: string;
+          url: string;
+          moduleId: string;
+        }> = [];
+
+        // Prepare topics/content
+        for (let t = 0; t < (mod.topics || []).length; t++) {
+          const topic = mod.topics[t] as {
+            title: string;
+            url?: string;
+            fileName?: string;
+            contentType?: string;
+          };
+          let url = topic.url || '';
+          let file: Express.Multer.File | undefined = undefined;
+          // Find file for this topic if any
+          if (topic.fileName) {
+            file = files.find((f) => f.originalname === topic.fileName);
+          }
+          if (topic.fileName && !file) {
+            continue; // skip this topic if file is missing
+          }
+          // Upload file if present
+          if (file && file.path) {
             const upload = await cloudinary.uploader.upload(file.path, {
               resource_type: 'auto',
               folder: 'eLearning/Content',
               public_id: `${Date.now()}-${file.originalname}`,
             });
             url = upload.secure_url;
-          } catch (err) {
-            throw err;
+          } else if (file) {
+            // Defensive: file object exists but path is missing
+            continue; // skip this topic
           }
-        } else if (file) {
-          // Defensive: file object exists but path is missing
-          continue; // skip this topic
-        }
-        try {
-          await this.prisma.content.create({
-            data: {
-              title: topic.title,
-              type: topic.contentType
-                ? topic.contentType.toUpperCase()
-                : 'TEXT',
-              url,
-              moduleId: dbModule.id,
-            },
+
+          contentData.push({
+            title: topic.title,
+            type: topic.contentType
+              ? topic.contentType.toUpperCase()
+              : 'TEXT',
+            url,
+            moduleId: dbModule.id,
           });
-        } catch (err) {
-          throw err;
+          // TODO: Save quiz questions if needed
         }
-        // TODO: Save quiz questions if needed
+
+        if (contentData.length > 0) {
+          await tx.content.createMany({ data: contentData });
+        }
+
+        createdModules.push(dbModule);
       }
-      createdModules.push(dbModule);
-    }
+    });
     // TODO: Save final exam questions if needed
     return {
       message: 'Course content created',

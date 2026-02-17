@@ -9,6 +9,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   InitiatePaymentDto,
@@ -19,7 +20,6 @@ import { MpesaStrategy } from './strategies/mpesa.strategy';
 import { StripeStrategy } from './strategies/stripe.strategy';
 import { TaxService } from './tax/tax.service';
 import { PaymentStatus } from './types/payment-status.type';
-import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -263,7 +263,6 @@ export class PaymentsService {
   async getAllPayments(
     status?: string,
     pagination?: PaginationDto,
-  ): Promise<
   ): Promise<{
     payments: Array<{
       id: string;
