@@ -35,6 +35,9 @@ model User {
   PasswordReset     PasswordReset[]
   EmailVerification EmailVerification?
   RefreshToken      RefreshToken[]
+
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
 }
 
 model PasswordReset {
@@ -251,4 +254,25 @@ model Payment {
   @@index([userId, status]) // Composite index for user payment history filtering
   @@index([userId, createdAt]) // Composite index for user payment history sorted by date
   @@index([courseId, status]) // Composite index for course payment analytics
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId   String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId String
+  subject    String
+  body       String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([senderId, createdAt]) // Composite index for sent messages sorted by date
+  @@index([receiverId, isRead]) // Composite index for unread messages
+  @@index([receiverId, createdAt]) // Composite index for received messages sorted by date
 }

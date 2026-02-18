@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ApiService } from '../../../services/api.service';
 import { AppUser, AuthService } from '../../../services/auth.service';
+import { Message, MessagingService } from '../../../services/messaging.service';
 import {
   StudentProfile,
   UserProfileService,
@@ -12,7 +14,7 @@ import {
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './student-dashboard.component.html',
   styleUrls: ['./student-dashboard.component.css'],
 })
@@ -40,14 +42,24 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
   availableCourses: any[] = [];
   instructors: { name: string; image: string; subject?: string }[] = [];
 
+  // Message data
+  receivedMessages: Message[] = [];
+  selectedMessage: Message | null = null;
+  messageReplyText: string = '';
+  unreadCount: number = 0;
+  showMessageReply: boolean = false;
+
   // Loading state
   isLoading = false;
+  isLoadingMessages = false;
+  isReplyLoading = false;
 
   // Subscription to profile changes
   private profileSubscription?: Subscription;
+  private authSubscription?: Subscription;
+  private unreadSubscription?: Subscription;
 
   loggedInUser: AppUser | null = null;
-  private authSubscription?: Subscription;
 
   // ========================================
   // CONSTRUCTOR
@@ -56,8 +68,9 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     private userProfileService: UserProfileService,
     private authService: AuthService,
     private apiService: ApiService,
-    private router: Router
-  ) {}
+    private messagingService: MessagingService,
+    private router: Router,
+  ) { }
 
   // ========================================
   // LIFECYCLE HOOKS
@@ -65,8 +78,10 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscribeToProfile();
+    this.subscribeToUnreadCount();
     this.loadCourseData();
     this.loadAvailableCourses();
+    this.loadMessages();
     this.authSubscription = this.authService.user$.subscribe((user) => {
       this.loggedInUser = user;
     });
@@ -78,6 +93,9 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     }
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
+    }
+    if (this.unreadSubscription) {
+      this.unreadSubscription.unsubscribe();
     }
   }
 
@@ -92,7 +110,7 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     this.profileSubscription = this.userProfileService.profile$.subscribe(
       (profile: StudentProfile) => {
         this.userProfile = profile;
-      }
+      },
     );
   }
 
@@ -244,22 +262,154 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
   }
 
   // ========================================
-  // BACKEND INTEGRATION PLACEHOLDERS
+  // MESSAGING METHODS
   // ========================================
 
   /**
-   * API Integration Notes:
-   *
-   * Current API endpoints being used:
-   * - GET /students/courses - Get enrolled courses
-   * - GET /courses - Get all available courses
-   * - POST /students/enroll - Enroll in a course
-   *
-   * Additional endpoints that could be integrated:
-   * - GET /me - Get current user profile
-   * - GET /certificates - Get student certificates
-   * - GET /assignments - Get student assignments
-   * - GET /payments - Get payment history
-   * - GET /notifications - Get notifications
+   * Subscribe to unread message count
    */
+  private subscribeToUnreadCount(): void {
+    this.unreadSubscription = this.messagingService.unreadCount$.subscribe(
+      (count) => {
+        this.unreadCount = count;
+      }
+    );
+  }
+
+  /**
+   * Load received messages
+   */
+  private loadMessages(): void {
+    this.isLoadingMessages = true;
+    this.messagingService.getReceivedMessages(0, 10).subscribe({
+      next: (response) => {
+        this.receivedMessages = response.messages;
+        this.isLoadingMessages = false;
+      },
+      error: (error) => {
+        console.error('Failed to load messages:', error);
+        this.receivedMessages = [];
+        this.isLoadingMessages = false;
+      },
+    });
+  }
+
+  /**
+   * Select a message to view and mark as read
+   */
+  selectMessage(message: Message): void {
+    this.selectedMessage = message;
+    this.showMessageReply = false;
+    this.messageReplyText = '';
+
+    // Mark as read if not already read
+    if (!message.isRead) {
+      this.messagingService.markAsRead(message.id).subscribe({
+        next: (updatedMessage) => {
+          const index = this.receivedMessages.findIndex(m => m.id === message.id);
+          if (index !== -1) {
+            this.receivedMessages[index] = updatedMessage;
+            this.selectedMessage = updatedMessage;
+          }
+          this.messagingService.loadUnreadCount();
+        },
+        error: (error) => {
+          console.error('Failed to mark message as read:', error);
+        },
+      });
+    }
+  }
+
+  /**
+   * Open reply form for selected message
+   */
+  openReplyForm(): void {
+    this.showMessageReply = true;
+  }
+
+  /**
+   * Close reply form
+   */
+  closeReplyForm(): void {
+    this.showMessageReply = false;
+    this.messageReplyText = '';
+  }
+
+  /**
+   * Send reply to selected message
+   */
+  sendReply(): void {
+    if (!this.selectedMessage || !this.messageReplyText.trim()) {
+      return;
+    }
+
+    this.isReplyLoading = true;
+    const replySubject = `Re: ${this.selectedMessage.subject}`;
+    
+    this.messagingService.sendMessage(
+      this.selectedMessage.senderId,
+      replySubject,
+      this.messageReplyText
+    ).subscribe({
+      next: () => {
+        this.messageReplyText = '';
+        this.showMessageReply = false;
+        this.isReplyLoading = false;
+        // Show success message (could use a toast service)
+        alert('Reply sent successfully!');
+        this.loadMessages();
+      },
+      error: (error) => {
+        console.error('Failed to send reply:', error);
+        this.isReplyLoading = false;
+        alert('Failed to send reply. Please try again.');
+      },
+    });
+  }
+
+  /**
+   * Delete a message
+   */
+  deleteMessage(messageId: string): void {
+    if (confirm('Are you sure you want to delete this message?')) {
+      this.messagingService.deleteMessage(messageId).subscribe({
+        next: () => {
+          this.receivedMessages = this.receivedMessages.filter(m => m.id !== messageId);
+          if (this.selectedMessage?.id === messageId) {
+            this.selectedMessage = null;
+          }
+          this.loadMessages();
+        },
+        error: (error) => {
+          console.error('Failed to delete message:', error);
+          alert('Failed to delete message. Please try again.');
+        },
+      });
+    }
+  }
+
+  /**
+   * Format date for display
+   */
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+      });
+    }
+  }
 }

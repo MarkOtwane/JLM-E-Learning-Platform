@@ -11,7 +11,7 @@
       <div class="profile" (click)="onProfileClick()">
         <!-- Profile Picture with Fallback -->
         <img
-          *ngIf="hasProfilePicture(); else profilePlaceholder"
+          *ngIf="!isLoading && loggedInUser && hasProfilePicture(); else profilePlaceholder"
           [src]="getProfilePictureUrl()"
           alt="User Profile"
           class="profile-pic"
@@ -123,6 +123,124 @@
           <div class="instructor-card">
             <img src="{{ instructor.image }}" alt="{{ instructor.name }}" />
             <span>{{ instructor.name }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Messages Section -->
+      <section class="messages-section">
+        <div class="messages-header">
+          <h3>Messages</h3>
+          <span *ngIf="unreadCount > 0" class="unread-badge"
+            >{{ unreadCount }} Unread</span
+          >
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoadingMessages" class="loading-messages">
+          <div class="loading-spinner"></div>
+          <p>Loading messages...</p>
+        </div>
+
+        <!-- No Messages -->
+        <div
+          *ngIf="!isLoadingMessages && receivedMessages.length === 0"
+          class="no-messages"
+        >
+          <p>No messages yet.</p>
+        </div>
+
+        <!-- Messages List and Detail View -->
+        <div
+          *ngIf="!isLoadingMessages && receivedMessages.length > 0"
+          class="messages-container"
+        >
+          <!-- Messages List -->
+          <div class="messages-list">
+            <div
+              *ngFor="let message of receivedMessages"
+              class="message-item"
+              [class.unread]="!message.isRead"
+              [class.selected]="selectedMessage?.id === message.id"
+              (click)="selectMessage(message)"
+            >
+              <div class="message-sender">
+                <span class="sender-name">{{ message.sender.name }}</span>
+                <span class="sender-email">{{ message.sender.email }}</span>
+              </div>
+              <div class="message-preview">
+                <p class="subject">{{ message.subject }}</p>
+                <p class="body-preview">
+                  {{ message.body | slice: 0 : 50 }}...
+                </p>
+              </div>
+              <div class="message-meta">
+                <span class="date">{{ formatDate(message.createdAt) }}</span>
+                <span *ngIf="!message.isRead" class="unread-indicator">•</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message Detail View -->
+          <div *ngIf="selectedMessage" class="message-detail">
+            <div class="detail-header">
+              <button class="close-button" (click)="selectedMessage = null">
+                ×
+              </button>
+              <h4>{{ selectedMessage.subject }}</h4>
+              <p class="detail-sender">
+                From: {{ selectedMessage.sender.name }} &lt;{{
+                  selectedMessage.sender.email
+                }}&gt;
+              </p>
+            </div>
+
+            <div class="message-body">
+              {{ selectedMessage.body }}
+            </div>
+
+            <div class="message-actions">
+              <button
+                *ngIf="!showMessageReply"
+                class="reply-button"
+                (click)="openReplyForm()"
+              >
+                Reply
+              </button>
+              <button
+                class="delete-button"
+                (click)="deleteMessage(selectedMessage.id)"
+              >
+                Delete
+              </button>
+            </div>
+
+            <!-- Reply Form -->
+            <div *ngIf="showMessageReply" class="reply-form">
+              <h5>Reply to {{ selectedMessage.sender.name }}</h5>
+              <textarea
+                [(ngModel)]="messageReplyText"
+                placeholder="Type your reply..."
+                rows="5"
+                class="reply-textarea"
+              ></textarea>
+              <div class="reply-actions">
+                <button
+                  class="send-button"
+                  (click)="sendReply()"
+                  [disabled]="isReplyLoading || !messageReplyText.trim()"
+                >
+                  {{ isReplyLoading ? "Sending..." : "Send Reply" }}
+                </button>
+                <button
+                  class="cancel-button"
+                  (click)="closeReplyForm()"
+                  [disabled]="isReplyLoading"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

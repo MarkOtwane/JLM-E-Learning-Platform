@@ -21,6 +21,7 @@ import { DiagnosticsModule } from './diagnostics/diagnostics.module';
 import { HealthModule } from './health/health.module';
 import { InstructorsModule } from './instructor/instructor.module';
 import { JobsModule } from './jobs/jobs.module';
+import { MessagingModule } from './messaging/messaging.module';
 import { NotificationsModule } from './notification/notification.module';
 import { PaymentModule } from './payment/payment.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -63,6 +64,7 @@ import { UsersModule } from './user/user.module';
     PaymentModule,
     InstructorsModule,
     AdminModule,
+    MessagingModule,
     NotificationsModule,
     JobsModule,
   ],
