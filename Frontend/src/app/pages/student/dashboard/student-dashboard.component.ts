@@ -160,16 +160,41 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     this.apiService.getAuth<any[]>('/students/courses').subscribe({
       next: (courses) => {
         this.enrolledCourses = courses;
+        this.extractInstructors();
         this.isLoading = false;
         this.loadAvailableCourses();
       },
       error: (error) => {
         console.error('Failed to load enrolled courses:', error);
         this.enrolledCourses = [];
+        this.instructors = [];
         this.isLoading = false;
         this.loadAvailableCourses();
       },
     });
+  }
+
+  /**
+   * Extract unique instructors from enrolled courses
+   */
+  private extractInstructors(): void {
+    const instructorMap = new Map<
+      string,
+      { name: string; image: string; subject?: string }
+    >();
+
+    this.enrolledCourses.forEach((course) => {
+      if (course.instructor && !instructorMap.has(course.instructor.id)) {
+        instructorMap.set(course.instructor.id, {
+          name: course.instructor.name,
+          image:
+            course.instructor.profilePicture || '/assets/default-avatar.png',
+          subject: course.category,
+        });
+      }
+    });
+
+    this.instructors = Array.from(instructorMap.values());
   }
 
   /**
@@ -181,6 +206,7 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
         // Filter out already enrolled courses
         const enrolledIds = new Set(this.enrolledCourses.map((c) => c.id));
         this.availableCourses = courses.filter((c) => !enrolledIds.has(c.id));
+        this.extractInstructors();
       },
       error: (error) => {
         console.error('Failed to load available courses:', error);
