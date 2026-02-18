@@ -5,7 +5,7 @@
 .dashboard-container {
   margin-left: 240px; /* Account for sidebar */
   padding: 0;
-  background-color: var(--color-bg-main);
+  background-color: #ffffff;
   min-height: 100vh;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }

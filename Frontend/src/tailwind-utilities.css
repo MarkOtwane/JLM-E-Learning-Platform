@@ -135,7 +135,7 @@
 
 /* Black button */
 .btn-black {
-  @apply bg-black text-white hover:bg-gray-900 transition-colors;
+  @apply bg-gray-100 text-gray-900 hover:bg-gray-200 transition-colors;
 }
 
 /* White button with blue border */
@@ -190,7 +190,7 @@
 }
 
 .bg-primary-dark {
-  @apply bg-black;
+  @apply bg-white;
 }
 
 .bg-primary-light {
@@ -238,7 +238,7 @@
 
 /* Dark card style */
 .card-responsive-dark {
-  @apply p-4 md:p-6 lg:p-8 bg-black text-white rounded-lg shadow-md hover:shadow-lg transition-shadow;
+  @apply p-4 md:p-6 lg:p-8 bg-gray-100 text-gray-900 rounded-lg shadow-md hover:shadow-lg transition-shadow;
 }
 
 /* ============================================
@@ -257,7 +257,7 @@
 
 /* Dark form input */
 .input-dark {
-  @apply w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base bg-black text-white border border-gray-700 rounded-lg focus:outline-none focus:border-blue-600 transition-colors;
+  @apply w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 transition-colors;
 }
 
 /* ============================================

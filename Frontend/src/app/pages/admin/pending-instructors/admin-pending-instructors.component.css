@@ -1,8 +1,8 @@
 :root {
-  --color-bg-main: #E1F0F3;
-  --color-accent-light: #6FEBEB;
-  --color-accent: #38EBEB;
-  --color-muted: #D9D9D9;
+  --color-bg-main: #ffffff;
+  --color-accent-light: #6febeb;
+  --color-accent: #38ebeb;
+  --color-muted: #d9d9d9;
   --color-white: #ffffff;
   --color-black: #000000;
 }
@@ -10,7 +10,7 @@
 .pending-instructors-container {
   margin-left: 250px;
   padding: 24px;
-  background-color: var(--color-bg-main);
+  background-color: #ffffff;
 }
 
 .page-title {
@@ -20,7 +20,8 @@
   margin-bottom: 16px;
 }
 
-.loading, .no-data {
+.loading,
+.no-data {
   text-align: center;
   color: var(--color-black);
   font-size: 16px;
@@ -60,7 +61,9 @@
   justify-content: center;
 }
 
-.download-btn, .accept-btn, .reject-btn {
+.download-btn,
+.accept-btn,
+.reject-btn {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;

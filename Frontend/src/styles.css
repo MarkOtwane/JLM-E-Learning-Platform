@@ -421,15 +421,15 @@
     --z-tooltip: 1070;
   }
 
-  /* Dark Mode Variables (for future implementation) */
+  /* Light Mode Only - All Backgrounds White */
   @media (prefers-color-scheme: dark) {
     :root {
-      --color-bg-main: #111827;
-      --color-bg-card: #1f2937;
-      --color-bg-sidebar: #1f2937;
-      --color-text-primary: #f9fafb;
-      --color-text-secondary: #d1d5db;
-      --color-border: #374151;
+      --color-bg-main: #ffffff;
+      --color-bg-card: #ffffff;
+      --color-bg-sidebar: #ffffff;
+      --color-text-primary: #111827;
+      --color-text-secondary: #6b7280;
+      --color-border: #e5e7eb;
     }
   }
 }

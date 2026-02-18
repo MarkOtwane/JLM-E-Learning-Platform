@@ -1,5 +1,5 @@
 :root {
-  --color-bg-main: #e1f0f3;
+  --color-bg-main: #ffffff;
   --color-accent-light: #6febeb;
   --color-accent: #38ebeb;
   --color-muted: #d9d9d9;
@@ -9,7 +9,7 @@
 
 .dashboard-container {
   padding: 20px;
-  background-color: var(--color-white);
+  background-color: #ffffff;
   margin-left: 250px;
 }
 
