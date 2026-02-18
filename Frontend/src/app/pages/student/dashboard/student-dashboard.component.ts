@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,7 +14,7 @@ import {
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgIf, NgFor],
   templateUrl: './student-dashboard.component.html',
   styleUrls: ['./student-dashboard.component.css'],
 })
@@ -70,7 +70,7 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private messagingService: MessagingService,
     private router: Router,
-  ) { }
+  ) {}
 
   // ========================================
   // LIFECYCLE HOOKS
@@ -272,7 +272,7 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     this.unreadSubscription = this.messagingService.unreadCount$.subscribe(
       (count) => {
         this.unreadCount = count;
-      }
+      },
     );
   }
 
@@ -306,7 +306,9 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     if (!message.isRead) {
       this.messagingService.markAsRead(message.id).subscribe({
         next: (updatedMessage) => {
-          const index = this.receivedMessages.findIndex(m => m.id === message.id);
+          const index = this.receivedMessages.findIndex(
+            (m) => m.id === message.id,
+          );
           if (index !== -1) {
             this.receivedMessages[index] = updatedMessage;
             this.selectedMessage = updatedMessage;
@@ -345,26 +347,28 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
 
     this.isReplyLoading = true;
     const replySubject = `Re: ${this.selectedMessage.subject}`;
-    
-    this.messagingService.sendMessage(
-      this.selectedMessage.senderId,
-      replySubject,
-      this.messageReplyText
-    ).subscribe({
-      next: () => {
-        this.messageReplyText = '';
-        this.showMessageReply = false;
-        this.isReplyLoading = false;
-        // Show success message (could use a toast service)
-        alert('Reply sent successfully!');
-        this.loadMessages();
-      },
-      error: (error) => {
-        console.error('Failed to send reply:', error);
-        this.isReplyLoading = false;
-        alert('Failed to send reply. Please try again.');
-      },
-    });
+
+    this.messagingService
+      .sendMessage(
+        this.selectedMessage.senderId,
+        replySubject,
+        this.messageReplyText,
+      )
+      .subscribe({
+        next: () => {
+          this.messageReplyText = '';
+          this.showMessageReply = false;
+          this.isReplyLoading = false;
+          // Show success message (could use a toast service)
+          alert('Reply sent successfully!');
+          this.loadMessages();
+        },
+        error: (error) => {
+          console.error('Failed to send reply:', error);
+          this.isReplyLoading = false;
+          alert('Failed to send reply. Please try again.');
+        },
+      });
   }
 
   /**
@@ -374,7 +378,9 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
     if (confirm('Are you sure you want to delete this message?')) {
       this.messagingService.deleteMessage(messageId).subscribe({
         next: () => {
-          this.receivedMessages = this.receivedMessages.filter(m => m.id !== messageId);
+          this.receivedMessages = this.receivedMessages.filter(
+            (m) => m.id !== messageId,
+          );
           if (this.selectedMessage?.id === messageId) {
             this.selectedMessage = null;
           }
@@ -408,7 +414,8 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
       return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
-        year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+        year:
+          date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
       });
     }
   }
