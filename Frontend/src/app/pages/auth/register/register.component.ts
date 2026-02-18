@@ -25,7 +25,10 @@ export class RegisterComponent {
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+  ) {}
 
   togglePassword() {
     this.showPassword = !this.showPassword;
@@ -84,8 +87,18 @@ export class RegisterComponent {
         }, 1000);
       },
       error: (error) => {
-        this.message =
-          error.error?.message || 'Registration failed. Please try again.';
+        // Safely extract error message
+        let errorMessage = 'Registration failed. Please try again.';
+
+        if (error?.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        } else if (error?.statusText) {
+          errorMessage = `Error: ${error.statusText}`;
+        }
+
+        this.message = errorMessage;
         this.messageType = 'error';
         this.showMessage = true;
       },
