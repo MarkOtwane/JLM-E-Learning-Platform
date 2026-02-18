@@ -1,7 +1,7 @@
 {
   "buildCommand": "npm run build:prod",
   "outputDirectory": "dist/Frontend/browser",
-  "installCommand": "npm install --legacy-peer-deps",
+  "installCommand": "npm install --legacy-peer-deps --force",
   "env": {
     "NODE_OPTIONS": "--max-old-space-size=4096"
   },
@@ -76,7 +76,5 @@
       ]
     }
   ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
