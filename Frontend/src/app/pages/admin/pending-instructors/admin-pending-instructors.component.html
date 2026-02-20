@@ -1,18 +1,47 @@
-<div class="pending-instructors-container">
-  <h2 class="page-title">Pending Instructors</h2>
-  <div *ngIf="isLoading" class="loading">
-    <p>Loading pending instructors...</p>
+<div class="page-wrapper">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Pending Instructors</h1>
+    <p class="page-subtitle">Review and approve instructor applications</p>
   </div>
-  <div *ngIf="!isLoading && pendingInstructors.length === 0" class="no-data">
-    <p>No pending instructors found.</p>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading pending instructors...</p>
   </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && pendingInstructors.length === 0" class="empty-state">
+    <div class="empty-icon">✅</div>
+    <h3 class="empty-title">No pending instructors</h3>
+    <p class="empty-description">
+      All instructor applications have been processed. New applications will appear here.
+    </p>
+  </div>
+
+  <!-- Pending Instructors Grid -->
   <div *ngIf="!isLoading && pendingInstructors.length > 0" class="instructors-grid">
     <div *ngFor="let instructor of pendingInstructors" class="instructor-card">
-      <h3 class="card-title">{{ instructor.name }}</h3>
-      <p class="card-detail"><strong>Email:</strong> {{ instructor.email }}</p>
-      <div class="card-actions">
-        <button class="accept-btn" (click)="acceptInstructor(instructor.id)">Accept</button>
-        <button class="reject-btn" (click)="rejectInstructor(instructor.id)">Reject</button>
+      <div class="card-header">
+        <div class="user-avatar">{{ getInitials(instructor.name) }}</div>
+        <span class="status-badge">Pending Review</span>
+      </div>
+      
+      <div class="card-body">
+        <h3 class="instructor-name">{{ instructor.name }}</h3>
+        <p class="instructor-email">{{ instructor.email }}</p>
+      </div>
+      
+      <div class="card-footer">
+        <button class="action-btn approve" (click)="acceptInstructor(instructor.id)">
+          <span class="btn-icon">✓</span>
+          Approve
+        </button>
+        <button class="action-btn reject" (click)="rejectInstructor(instructor.id)">
+          <span class="btn-icon">✕</span>
+          Reject
+        </button>
       </div>
     </div>
   </div>

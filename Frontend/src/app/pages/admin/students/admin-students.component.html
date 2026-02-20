@@ -1,22 +1,42 @@
-<div class="students-container">
-  <h2 class="page-title">Students</h2>
+<div class="page-wrapper">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Students</h1>
+    <p class="page-subtitle">Manage enrolled students on the platform</p>
+  </div>
+
+  <!-- Search Bar -->
   <div class="search-container">
-    <input
-      type="text"
-      [(ngModel)]="searchQuery"
-      (input)="searchStudents()"
-      placeholder="Search by name..."
-      class="search-input"
-    />
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="searchStudents()"
+        placeholder="Search students by name..."
+        class="search-input"
+      />
+    </div>
   </div>
-  <div *ngIf="isLoading" class="loading">
-    <p>Loading students...</p>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading students...</p>
   </div>
-  <div *ngIf="!isLoading && filteredStudents.length === 0" class="no-data">
-    <p>No students found.</p>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredStudents.length === 0" class="empty-state">
+    <div class="empty-icon">👨‍🎓</div>
+    <h3 class="empty-title">No students found</h3>
+    <p class="empty-description">
+      {{ searchQuery ? 'Try adjusting your search query.' : 'Students will appear here once they enroll.' }}
+    </p>
   </div>
-  <div *ngIf="!isLoading && filteredStudents.length > 0" class="students-table">
-    <table>
+
+  <!-- Students Table -->
+  <div *ngIf="!isLoading && filteredStudents.length > 0" class="table-container">
+    <table class="admin-table">
       <thead>
         <tr>
           <th>Name</th>
@@ -27,11 +47,16 @@
       </thead>
       <tbody>
         <tr *ngFor="let student of filteredStudents">
-          <td>{{ student.name }}</td>
-          <td>{{ student.email }}</td>
-          <td>{{ student.enrollmentDate }}</td>
           <td>
-            <button (click)="deleteStudent(student.id)" class="delete-btn">
+            <div class="user-cell">
+              <div class="user-avatar">{{ getInitials(student.name) }}</div>
+              <span class="user-name">{{ student.name }}</span>
+            </div>
+          </td>
+          <td>{{ student.email }}</td>
+          <td>{{ student.enrollmentDate | date : 'dd MMM yyyy' }}</td>
+          <td>
+            <button (click)="deleteStudent(student.id)" class="action-btn delete">
               Delete
             </button>
           </td>

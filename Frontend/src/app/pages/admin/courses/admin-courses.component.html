@@ -1,54 +1,97 @@
-<div class="courses-container">
-  <h2 class="page-title">Courses</h2>
+<div class="page-wrapper">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Courses</h1>
+    <p class="page-subtitle">Manage courses on the platform</p>
+  </div>
+
+  <!-- Search Bar -->
   <div class="search-container">
-    <input
-      type="text"
-      [(ngModel)]="searchQuery"
-      (input)="searchCourses()"
-      placeholder="Search by title, instructor, category, or level..."
-      class="search-input"
-    />
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="searchCourses()"
+        placeholder="Search courses by title, instructor, or category..."
+        class="search-input"
+      />
+    </div>
   </div>
-  <div *ngIf="isLoading" class="loading">
-    <p>Loading courses...</p>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading courses...</p>
   </div>
-  <div *ngIf="!isLoading && filteredCourses.length === 0" class="no-data">
-    <p>No courses found.</p>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredCourses.length === 0" class="empty-state">
+    <div class="empty-icon">📚</div>
+    <h3 class="empty-title">No courses found</h3>
+    <p class="empty-description">
+      {{
+        searchQuery
+          ? "Try adjusting your search query."
+          : "Courses will appear here once they are created."
+      }}
+    </p>
   </div>
+
+  <!-- Courses Grid -->
   <div *ngIf="!isLoading && filteredCourses.length > 0" class="courses-grid">
     <div class="course-card" *ngFor="let course of filteredCourses">
-      <div class="card-content">
-        <div class="course-header">
-          <h3>{{ course.title }}</h3>
-          <span class="category">{{ course.category }}</span>
-        </div>
-        <div class="level-badge" [ngClass]="{
-          'level-Beginner': course.level === 'Beginner',
-          'level-Intermediate': course.level === 'Intermediate',
-          'level-Advanced': course.level === 'Advanced'
-        }">
+      <div class="card-header">
+        <span class="category-badge">{{ course.category }}</span>
+        <span
+          class="level-badge"
+          [ngClass]="{
+            'level-beginner': course.level === 'Beginner',
+            'level-intermediate': course.level === 'Intermediate',
+            'level-advanced': course.level === 'Advanced',
+          }"
+        >
           {{ course.level }}
-        </div>
-        <p class="instructor">By {{ course.instructorName }}</p>
+        </span>
+      </div>
+
+      <div class="card-body">
+        <h3 class="course-title">{{ course.title }}</h3>
+        <p class="instructor-name">By {{ course.instructorName }}</p>
+
         <div class="course-stats">
-          <div class="stat">
+          <div class="stat-item">
+            <span class="stat-icon">⏱️</span>
             <span>{{ course.duration }}</span>
           </div>
-          <div class="stat">
+          <div class="stat-item">
+            <span class="stat-icon">👥</span>
             <span>{{ course.learners }} learners</span>
           </div>
         </div>
+
         <div class="course-rating">
           <div class="stars">
-            <span *ngFor="let star of getStarArray(course.rating)">★</span>
-            <span *ngFor="let star of getEmptyStarArray(course.rating)">☆</span>
+            <span
+              *ngFor="let star of getStarArray(course.rating)"
+              class="star filled"
+              >★</span
+            >
+            <span
+              *ngFor="let star of getEmptyStarArray(course.rating)"
+              class="star"
+              >☆</span
+            >
           </div>
-          <span class="rating-text">{{ course.rating }} / 5.0</span>
+          <span class="rating-value">{{ course.rating.toFixed(1) }}</span>
         </div>
-        <div class="card-footer">
-          <span class="price">${{ course.price | number:'1.2-2' }}</span>
-          <button class="delete-btn" (click)="deleteCourse(course.id)">Delete Course</button>
-        </div>
+      </div>
+
+      <div class="card-footer">
+        <span class="course-price">${{ course.price | number: "1.2-2" }}</span>
+        <button class="action-btn delete" (click)="deleteCourse(course.id)">
+          Delete
+        </button>
       </div>
     </div>
   </div>

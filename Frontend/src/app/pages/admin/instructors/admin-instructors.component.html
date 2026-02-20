@@ -1,53 +1,70 @@
-<div class="instructors-container">
-  <h2 class="page-title">Instructors</h2>
+<div class="page-wrapper">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Instructors</h1>
+    <p class="page-subtitle">Manage instructors on the platform</p>
+  </div>
+
+  <!-- Search Bar -->
   <div class="search-container">
-    <input
-      type="text"
-      [(ngModel)]="searchQuery"
-      (input)="searchInstructors()"
-      placeholder="Search by name, email, or number of courses..."
-      class="search-input"
-    />
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="searchInstructors()"
+        placeholder="Search instructors by name or email..."
+        class="search-input"
+      />
+    </div>
   </div>
-  <div *ngIf="isLoading" class="loading">
-    <p>Loading instructors...</p>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading instructors...</p>
   </div>
-  <div *ngIf="!isLoading && filteredInstructors.length === 0" class="no-data">
-    <p>No instructors found.</p>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredInstructors.length === 0" class="empty-state">
+    <div class="empty-icon">👨‍🏫</div>
+    <h3 class="empty-title">No instructors found</h3>
+    <p class="empty-description">
+      {{ searchQuery ? 'Try adjusting your search query.' : 'Instructors will appear here once they join.' }}
+    </p>
   </div>
-  <div
-    *ngIf="!isLoading && filteredInstructors.length > 0"
-    class="instructors-table"
-  >
-    <table>
+
+  <!-- Instructors Table -->
+  <div *ngIf="!isLoading && filteredInstructors.length > 0" class="table-container">
+    <table class="admin-table">
       <thead>
         <tr>
           <th>Name</th>
           <th>Email</th>
-          <th>Number of Courses</th>
-          <th>Total Students Enrolled</th>
-          <th>Action</th>
+          <th>Courses</th>
+          <th>Students Enrolled</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let instructor of filteredInstructors">
-          <td>{{ instructor.name }}</td>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">{{ getInitials(instructor.name) }}</div>
+              <span class="user-name">{{ instructor.name }}</span>
+            </div>
+          </td>
           <td>{{ instructor.email }}</td>
-          <td>{{ instructor.courseCount }}</td>
+          <td>
+            <span class="badge badge-primary">{{ instructor.courseCount }}</span>
+          </td>
           <td>{{ instructor.totalStudentsEnrolled }}</td>
           <td>
-            <button
-              (click)="approveInstructor(instructor.id)"
-              class="approve-btn"
-            >
-              Approve
-            </button>
-            <button
-              (click)="deleteInstructor(instructor.id)"
-              class="delete-btn"
-            >
-              Delete
-            </button>
+            <div class="action-buttons">
+              <button (click)="deleteInstructor(instructor.id)" class="action-btn delete">
+                Delete
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AdminSidebarComponent } from '../sidebar/admin-sidebar.component';
 
 @Component({
@@ -10,6 +10,13 @@ import { AdminSidebarComponent } from '../sidebar/admin-sidebar.component';
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.css'],
 })
-export class AdminLayoutComponent {}
+export class AdminLayoutComponent {
+  constructor(private router: Router) {}
+
+  logout(): void {
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
+}
 
 export default AdminLayoutComponent;

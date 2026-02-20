@@ -1,13 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../services/api.service';
 
 interface Student {
   id: string;
   name: string;
   email: string;
   enrollmentDate: string;
+  createdAt?: string;
 }
 
 @Component({
@@ -23,27 +25,38 @@ export class AdminStudentsComponent implements OnInit {
   searchQuery: string = '';
   isLoading: boolean = true;
 
-  constructor(private http: HttpClient) {}
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void {
     this.loadStudents();
   }
 
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  }
+
   loadStudents(): void {
     this.isLoading = true;
-    this.http
-      .get<Student[]>('http://localhost:3000/api/admin/users?role=STUDENT')
-      .subscribe({
-        next: (data) => {
-          this.students = data;
-          this.filteredStudents = data;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading students:', error);
-          this.isLoading = false;
-        },
-      });
+    this.api.getAuth<any[]>('/admin/users?role=STUDENT').subscribe({
+      next: (data) => {
+        this.students = data.map((student) => ({
+          ...student,
+          enrollmentDate: student.createdAt || '-',
+        }));
+        this.filteredStudents = this.students;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading students:', error);
+        this.isLoading = false;
+      },
+    });
   }
 
   searchStudents(): void {
@@ -59,23 +72,21 @@ export class AdminStudentsComponent implements OnInit {
         'Are you sure you want to delete this student? This action cannot be undone.'
       )
     ) {
-      this.http
-        .delete(`http://localhost:3000/api/admin/users/${id}`)
-        .subscribe({
-          next: () => {
-            this.students = this.students.filter(
-              (student) => student.id !== id
-            );
-            this.filteredStudents = this.filteredStudents.filter(
-              (student) => student.id !== id
-            );
-            alert('Student deleted successfully.');
-          },
-          error: (error) => {
-            console.error('Error deleting student:', error);
-            alert('Failed to delete student.');
-          },
-        });
+      this.api.deleteAuth(`/admin/users/${id}`).subscribe({
+        next: () => {
+          this.students = this.students.filter(
+            (student) => student.id !== id
+          );
+          this.filteredStudents = this.filteredStudents.filter(
+            (student) => student.id !== id
+          );
+          alert('Student deleted successfully.');
+        },
+        error: (error) => {
+          console.error('Error deleting student:', error);
+          alert('Failed to delete student.');
+        },
+      });
     }
   }
 }

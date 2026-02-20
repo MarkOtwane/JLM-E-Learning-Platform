@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../../../services/api.service';
 
 interface PendingInstructor {
   id: string;
@@ -19,95 +20,64 @@ export class AdminPendingInstructorsComponent implements OnInit {
   pendingInstructors: PendingInstructor[] = [];
   isLoading: boolean = true;
 
-  constructor(private http: HttpClient) {}
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void {
-    this.http
-      .get<PendingInstructor[]>(
-        'http://localhost:3000/api/admin/pending-instructors'
-      )
-      .subscribe({
-        next: (data) => {
-          this.pendingInstructors = data;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading pending instructors:', error);
-          this.isLoading = false;
-        },
-      });
+    this.loadPendingInstructors();
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   }
 
   loadPendingInstructors(): void {
     this.isLoading = true;
-    this.http
-      .get<PendingInstructor[]>(
-        'http://localhost:3000/api/admin/pending-instructors'
-      )
-      .subscribe({
-        next: (data) => {
-          this.pendingInstructors = data;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading pending instructors:', error);
-          // Mock data for development
-          this.pendingInstructors = [
-            {
-              id: '1',
-              name: 'John Doe',
-              email: 'john.doe@example.com',
-            },
-            {
-              id: '2',
-              name: 'Jane Smith',
-              email: 'jane.smith@example.com',
-            },
-          ];
-          this.isLoading = false;
-        },
-      });
+    this.api.getAuth<PendingInstructor[]>('/admin/pending-instructors').subscribe({
+      next: (data) => {
+        this.pendingInstructors = data;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading pending instructors:', error);
+        this.isLoading = false;
+      },
+    });
   }
 
   acceptInstructor(id: string): void {
-    this.http
-      .patch(
-        `http://localhost:3000/api/admin/pending-instructors/${id}/accept`,
-        {}
-      )
-      .subscribe({
-        next: () => {
-          this.pendingInstructors = this.pendingInstructors.filter(
-            (instructor) => instructor.id !== id
-          );
-          alert('Instructor approved successfully.');
-        },
-        error: (error) => {
-          console.error('Error approving instructor:', error);
-          alert('Failed to approve instructor.');
-        },
-      });
+    this.api.patchAuth(`/admin/pending-instructors/${id}/accept`, {}).subscribe({
+      next: () => {
+        this.pendingInstructors = this.pendingInstructors.filter(
+          (instructor) => instructor.id !== id
+        );
+        alert('Instructor approved successfully.');
+      },
+      error: (error) => {
+        console.error('Error approving instructor:', error);
+        alert('Failed to approve instructor.');
+      },
+    });
   }
 
   rejectInstructor(id: string): void {
-    this.http
-      .delete(`http://localhost:3000/api/admin/pending-instructors/${id}`)
-      .subscribe({
-        next: () => {
-          this.pendingInstructors = this.pendingInstructors.filter(
-            (instructor) => instructor.id !== id
-          );
-          alert('Instructor rejected successfully.');
-        },
-        error: (error) => {
-          console.error('Error rejecting instructor:', error);
-          alert('Failed to reject instructor.');
-        },
-      });
-  }
-
-  downloadCv(url: string): void {
-    window.open(url, '_blank');
+    this.api.deleteAuth(`/admin/pending-instructors/${id}`).subscribe({
+      next: () => {
+        this.pendingInstructors = this.pendingInstructors.filter(
+          (instructor) => instructor.id !== id
+        );
+        alert('Instructor rejected successfully.');
+      },
+      error: (error) => {
+        console.error('Error rejecting instructor:', error);
+        alert('Failed to reject instructor.');
+      },
+    });
   }
 }
 

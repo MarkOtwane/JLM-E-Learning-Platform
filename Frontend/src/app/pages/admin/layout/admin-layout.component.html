@@ -1,9 +1,25 @@
-<div class="flex h-screen">
-  <!-- Sidebar -->
-  <app-admin-sidebar></app-admin-sidebar>
+<div class="admin-wrapper">
+  <!-- Top Navbar -->
+  <header class="top-navbar">
+    <div class="navbar-brand">
+      <span class="brand-icon">📚</span>
+      <span class="brand-text">JLM Learning Platform</span>
+    </div>
+    <div class="navbar-actions">
+      <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        Logout
+      </button>
+    </div>
+  </header>
 
-  <!-- Content Area -->
-  <div class="flex-1 p-6 main-content overflow-y-auto">
-    <router-outlet></router-outlet>
+  <div class="admin-content-wrapper">
+    <!-- Sidebar -->
+    <app-admin-sidebar></app-admin-sidebar>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
   </div>
 </div>

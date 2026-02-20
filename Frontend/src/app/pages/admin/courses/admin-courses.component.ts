@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../services/api.service';
 
 interface Course {
   id: string;
   title: string;
-  instructorName: string;
+  instructor: { id: string; name: string; email: string };
+  instructorName?: string;
   category: string;
   level: string;
   duration: string;
@@ -28,7 +30,7 @@ export class AdminCoursesComponent implements OnInit {
   searchQuery: string = '';
   isLoading: boolean = true;
 
-  constructor(private http: HttpClient) {}
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void {
     this.loadCourses();
@@ -36,51 +38,17 @@ export class AdminCoursesComponent implements OnInit {
 
   loadCourses(): void {
     this.isLoading = true;
-    this.http.get<Course[]>('http://localhost:3000/api/admin/courses').subscribe({
+    this.api.getAuth<Course[]>('/admin/courses').subscribe({
       next: (data) => {
-        this.courses = data;
-        this.filteredCourses = data;
+        this.courses = data.map((course) => ({
+          ...course,
+          instructorName: course.instructor?.name || '-',
+        }));
+        this.filteredCourses = this.courses;
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading courses:', error);
-        // Mock data for development
-        this.courses = [
-          {
-            id: '1',
-            title: 'Introduction to Python',
-            instructorName: 'Alice Johnson',
-            category: 'Programming',
-            level: 'Beginner',
-            duration: '4 weeks',
-            price: 99.99,
-            learners: 50,
-            rating: 4.5,
-          },
-          {
-            id: '2',
-            title: 'Advanced Calculus',
-            instructorName: 'Carol White',
-            category: 'Mathematics',
-            level: 'Advanced',
-            duration: '6 weeks',
-            price: 149.99,
-            learners: 30,
-            rating: 4.8,
-          },
-          {
-            id: '3',
-            title: 'Web Development Basics',
-            instructorName: 'Alice Johnson',
-            category: 'Web Development',
-            level: 'Intermediate',
-            duration: '5 weeks',
-            price: 79.99,
-            learners: 70,
-            rating: 4.2,
-          },
-        ];
-        this.filteredCourses = this.courses;
         this.isLoading = false;
       },
     });
@@ -88,20 +56,27 @@ export class AdminCoursesComponent implements OnInit {
 
   searchCourses(): void {
     const query = this.searchQuery.toLowerCase().trim();
-    this.filteredCourses = this.courses.filter((course) =>
-      course.title.toLowerCase().includes(query) ||
-      course.instructorName.toLowerCase().includes(query) ||
-      course.category.toLowerCase().includes(query) ||
-      course.level.toLowerCase().includes(query)
+    this.filteredCourses = this.courses.filter(
+      (course) =>
+        course.title.toLowerCase().includes(query) ||
+        (course.instructorName && course.instructorName.toLowerCase().includes(query)) ||
+        course.category.toLowerCase().includes(query) ||
+        course.level.toLowerCase().includes(query)
     );
   }
 
   deleteCourse(id: string): void {
-    if (confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
-      this.http.delete(`http://localhost:3000/api/admin/courses/${id}`).subscribe({
+    if (
+      confirm(
+        'Are you sure you want to delete this course? This action cannot be undone.'
+      )
+    ) {
+      this.api.deleteAuth(`/admin/courses/${id}`).subscribe({
         next: () => {
           this.courses = this.courses.filter((course) => course.id !== id);
-          this.filteredCourses = this.filteredCourses.filter((course) => course.id !== id);
+          this.filteredCourses = this.filteredCourses.filter(
+            (course) => course.id !== id
+          );
           alert('Course deleted successfully.');
         },
         error: (error) => {

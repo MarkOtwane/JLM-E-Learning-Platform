@@ -1,132 +1,91 @@
-<app-admin-sidebar (tabChange)="onTabChange($event)"></app-admin-sidebar>
-<div class="dashboard-container">
-  <div *ngIf="isLoading" class="loading">
-    <p>Loading dashboard...</p>
+<div class="dashboard-wrapper">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading dashboard...</p>
   </div>
-  <div *ngIf="!isLoading && tab === null" class="cards-grid">
-    <div class="card">
-      <h3 class="card-title">Total Students Enrolled</h3>
-      <p class="card-value">{{ stats.totalStudents }}</p>
+
+  <!-- Dashboard Content -->
+  <ng-container *ngIf="!isLoading">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">Dashboard Overview</h1>
+      <p class="page-subtitle">
+        Welcome back! Here's what's happening with your platform.
+      </p>
     </div>
-    <div class="card">
-      <h3 class="card-title">Total Instructors</h3>
-      <p class="card-value">{{ stats.totalInstructors }}</p>
+
+    <!-- Stats Cards Grid -->
+    <div class="stats-grid">
+      <!-- Total Students Card -->
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon students">
+            <span>👨‍🎓</span>
+          </div>
+          <div class="stat-trend positive" *ngIf="stats.totalStudents > 0">
+            <span>↑</span>
+            <span>Active</span>
+          </div>
+        </div>
+        <div class="stat-card-body">
+          <h3 class="stat-value">{{ stats.totalStudents | number }}</h3>
+          <p class="stat-label">Total Students Enrolled</p>
+        </div>
+      </div>
+
+      <!-- Total Instructors Card -->
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon instructors">
+            <span>👨‍🏫</span>
+          </div>
+          <div class="stat-trend positive" *ngIf="stats.totalInstructors > 0">
+            <span>↑</span>
+            <span>Active</span>
+          </div>
+        </div>
+        <div class="stat-card-body">
+          <h3 class="stat-value">{{ stats.totalInstructors | number }}</h3>
+          <p class="stat-label">Total Instructors</p>
+        </div>
+      </div>
+
+      <!-- Pending Instructors Card -->
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon pending">
+            <span>⏳</span>
+          </div>
+          <div class="stat-trend warning" *ngIf="stats.pendingInstructors > 0">
+            <span>!</span>
+            <span>Needs Review</span>
+          </div>
+        </div>
+        <div class="stat-card-body">
+          <h3 class="stat-value">{{ stats.pendingInstructors | number }}</h3>
+          <p class="stat-label">Pending Instructors</p>
+        </div>
+      </div>
+
+      <!-- Total Earnings Card -->
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon earnings">
+            <span>💰</span>
+          </div>
+          <div class="stat-trend positive" *ngIf="stats.totalEarnings > 0">
+            <span>↑</span>
+            <span>Revenue</span>
+          </div>
+        </div>
+        <div class="stat-card-body">
+          <h3 class="stat-value">
+            ${{ stats.totalEarnings | number: "1.2-2" }}
+          </h3>
+          <p class="stat-label">Total Earnings</p>
+        </div>
+      </div>
     </div>
-    <div class="card">
-      <h3 class="card-title">Pending Instructors</h3>
-      <p class="card-value">{{ stats.pendingInstructors }}</p>
-    </div>
-    <div class="card">
-      <h3 class="card-title">Total Earnings</h3>
-      <p class="card-value">${{ stats.totalEarnings | number : "1.2-2" }}</p>
-    </div>
-  </div>
-  <div *ngIf="!isLoading && tab === 'students'">
-    <h3>All Students</h3>
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Enrollment Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let student of students">
-          <td>{{ student.name }}</td>
-          <td>{{ student.email }}</td>
-          <td>{{ student.enrollmentDate | date : "dd MMM yyyy" }}</td>
-          <td>
-            <button (click)="deleteStudent(student.id)" class="delete-btn">
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div *ngIf="!isLoading && tab === 'instructors'">
-    <h3>All Instructors</h3>
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Courses</th>
-          <th>Enrolled Students</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let instructor of instructors">
-          <td>{{ instructor.name }}</td>
-          <td>{{ instructor.email }}</td>
-          <td>{{ instructor.courseCount }}</td>
-          <td>{{ instructor.totalStudentsEnrolled }}</td>
-          <td>
-            <button
-              (click)="deleteInstructor(instructor.id)"
-              class="delete-btn"
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div *ngIf="!isLoading && tab === 'pendingInstructors'">
-    <h3>Pending Instructors</h3>
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let instructor of pendingInstructors">
-          <td>{{ instructor.name }}</td>
-          <td>{{ instructor.email }}</td>
-          <td>
-            <button class="approve-btn" (click)="approvePendingInstructor(instructor.id)">Approve</button>
-            <button class="reject-btn" (click)="rejectPendingInstructor(instructor.id)">Reject</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-<div *ngIf="!isLoading && tab === 'courses'">
-  <h3>All Courses</h3>
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Instructor</th>
-        <th>Category</th>
-        <th>Level</th>
-        <th>Duration</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let course of courses">
-        <td>
-          <strong>{{ course.title }}</strong>
-        </td>
-        <td>{{ course.instructorName }}</td>
-        <td>{{ course.category }}</td>
-        <td>{{ course.level }}</td>
-        <td>{{ course.duration }}</td>
-        <td>
-          <button (click)="deleteCourse(course.id)" class="delete-btn">
-            Delete
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  </ng-container>
 </div>

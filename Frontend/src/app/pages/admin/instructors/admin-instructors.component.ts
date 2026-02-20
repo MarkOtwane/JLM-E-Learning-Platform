@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../services/api.service';
 
 interface Instructor {
   id: string;
@@ -24,15 +25,25 @@ export class AdminInstructorsComponent implements OnInit {
   searchQuery: string = '';
   isLoading: boolean = true;
 
-  constructor(private http: HttpClient) {}
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void {
     this.loadInstructors();
   }
 
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  }
+
   loadInstructors(): void {
     this.isLoading = true;
-    this.http.get<Instructor[]>('http://localhost:3000/api/admin/users?role=INSTRUCTOR').subscribe({
+    this.api.getAuth<Instructor[]>('/admin/users?role=INSTRUCTOR').subscribe({
       next: (data) => {
         this.instructors = data;
         this.filteredInstructors = data;
@@ -47,19 +58,28 @@ export class AdminInstructorsComponent implements OnInit {
 
   searchInstructors(): void {
     const query = this.searchQuery.toLowerCase().trim();
-    this.filteredInstructors = this.instructors.filter((instructor) =>
-      instructor.name.toLowerCase().includes(query) ||
-      instructor.email.toLowerCase().includes(query) ||
-      instructor.courseCount.toString().includes(query)
+    this.filteredInstructors = this.instructors.filter(
+      (instructor) =>
+        instructor.name.toLowerCase().includes(query) ||
+        instructor.email.toLowerCase().includes(query) ||
+        instructor.courseCount.toString().includes(query)
     );
   }
 
   deleteInstructor(id: string): void {
-    if (confirm('Are you sure you want to delete this instructor? This action cannot be undone.')) {
-      this.http.delete(`http://localhost:3000/api/admin/users/${id}`).subscribe({
+    if (
+      confirm(
+        'Are you sure you want to delete this instructor? This action cannot be undone.'
+      )
+    ) {
+      this.api.deleteAuth(`/admin/users/${id}`).subscribe({
         next: () => {
-          this.instructors = this.instructors.filter((instructor) => instructor.id !== id);
-          this.filteredInstructors = this.filteredInstructors.filter((instructor) => instructor.id !== id);
+          this.instructors = this.instructors.filter(
+            (instructor) => instructor.id !== id
+          );
+          this.filteredInstructors = this.filteredInstructors.filter(
+            (instructor) => instructor.id !== id
+          );
           alert('Instructor deleted successfully.');
         },
         error: (error) => {
@@ -68,19 +88,6 @@ export class AdminInstructorsComponent implements OnInit {
         },
       });
     }
-  }
-
-  approveInstructor(id: string): void {
-    this.http.post('http://localhost:3000/api/admin/users/update-role', { userId: id, role: 'INSTRUCTOR' }).subscribe({
-      next: () => {
-        alert('Instructor approved successfully.');
-        this.loadInstructors();
-      },
-      error: (error) => {
-        console.error('Error approving instructor:', error);
-        alert('Failed to approve instructor.');
-      },
-    });
   }
 }
 
