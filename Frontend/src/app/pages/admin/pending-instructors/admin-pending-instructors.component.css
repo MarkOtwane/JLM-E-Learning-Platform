@@ -4,7 +4,7 @@
   width: 100%;
 }
 
-/* Page Header */
+
 .page-header {
   margin-bottom: 24px;
 }
@@ -23,7 +23,7 @@
   margin: 0;
 }
 
-/* Loading State */
+
 .loading-container {
   display: flex;
   flex-direction: column;
