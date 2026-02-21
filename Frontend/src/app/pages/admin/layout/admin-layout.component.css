@@ -8,7 +8,8 @@
   --navbar-height: 64px;
   --sidebar-width: 260px;
   --sidebar-collapsed-width: 72px;
-  --content-padding: 24px;
+  --content-padding: 16px;
+  --content-max-width: 1400px;
   --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -120,7 +121,9 @@
   overflow-y: auto;
   overflow-x: hidden;
   background-color: #f5f7fa;
-  transition: margin-left var(--transition-smooth);
+  transition:
+    margin-left var(--transition-smooth),
+    padding var(--transition-smooth);
 }
 
 /* Smooth scrollbar */
@@ -145,34 +148,27 @@
    Responsive Design
    ============================================ */
 
-/* Large Desktop */
-@media (min-width: 1400px) {
-  :host {
-    --content-padding: 32px;
-  }
-}
-
 /* Desktop */
 @media (max-width: 1200px) {
   :host {
-    --content-padding: 20px;
+    --content-padding: 16px;
   }
 }
 
 /* Tablet */
 @media (max-width: 1024px) {
   :host {
-    --content-padding: 20px;
+    --content-padding: 16px;
   }
-  
-  .main-content {
-    margin-left: 0;
+
+  .admin-content-wrapper {
+    position: relative;
   }
-  
+
   .top-navbar {
     padding: 0 16px;
   }
-  
+
   .brand-text {
     font-size: 18px;
   }
@@ -184,20 +180,20 @@
     --content-padding: 16px;
     --navbar-height: 60px;
   }
-  
+
   .main-content {
     padding: 16px;
   }
-  
+
   .brand-text {
     font-size: 16px;
   }
-  
+
   .logout-btn {
     padding: 8px 14px;
     font-size: 13px;
   }
-  
+
   .logout-icon {
     display: none;
   }
@@ -208,23 +204,23 @@
   :host {
     --content-padding: 12px;
   }
-  
+
   .main-content {
     padding: 12px;
   }
-  
+
   .navbar-brand {
     gap: 8px;
   }
-  
+
   .brand-icon {
     font-size: 22px;
   }
-  
+
   .brand-text {
     font-size: 15px;
   }
-  
+
   .logout-btn {
     padding: 8px 12px;
     font-size: 12px;
@@ -246,7 +242,7 @@
   .top-navbar {
     border-bottom-width: 2px;
   }
-  
+
   .logout-btn {
     border-width: 2px;
     border-color: #dc2626;

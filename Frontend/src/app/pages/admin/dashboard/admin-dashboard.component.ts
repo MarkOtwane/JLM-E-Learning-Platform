@@ -63,7 +63,7 @@ export class AdminDashboardComponent implements OnInit {
     earningsGrowth: 0,
     coursesGrowth: 0,
   };
-  
+
   isLoading: boolean = true;
   metricCards: MetricCard[] = [];
   recentActivities: RecentActivity[] = [];
@@ -83,9 +83,12 @@ export class AdminDashboardComponent implements OnInit {
           ...this.stats,
           ...data,
           // Simulate growth percentages (in real app, these would come from backend)
-          studentsGrowth: data.studentsGrowth ?? this.generateGrowthPercentage(),
-          instructorsGrowth: data.instructorsGrowth ?? this.generateGrowthPercentage(),
-          earningsGrowth: data.earningsGrowth ?? this.generateGrowthPercentage(),
+          studentsGrowth:
+            data.studentsGrowth ?? this.generateGrowthPercentage(),
+          instructorsGrowth:
+            data.instructorsGrowth ?? this.generateGrowthPercentage(),
+          earningsGrowth:
+            data.earningsGrowth ?? this.generateGrowthPercentage(),
           coursesGrowth: data.coursesGrowth ?? this.generateGrowthPercentage(),
         };
         this.buildMetricCards();
@@ -103,7 +106,8 @@ export class AdminDashboardComponent implements OnInit {
     // For now, we'll generate sample activities based on stats
     this.api.getAuth<any>('/admin/recent-activities').subscribe({
       next: (data) => {
-        this.recentActivities = data.activities || this.generateSampleActivities();
+        this.recentActivities =
+          data.activities || this.generateSampleActivities();
       },
       error: () => {
         // If endpoint doesn't exist, use sample data
@@ -119,7 +123,7 @@ export class AdminDashboardComponent implements OnInit {
 
   private generateSampleActivities(): RecentActivity[] {
     const activities: RecentActivity[] = [];
-    
+
     if (this.stats.pendingInstructors > 0) {
       activities.push({
         id: '1',
@@ -127,11 +131,11 @@ export class AdminDashboardComponent implements OnInit {
         title: 'Pending Instructor Applications',
         description: `${this.stats.pendingInstructors} instructor${this.stats.pendingInstructors > 1 ? 's' : ''} awaiting approval`,
         timestamp: new Date(),
-        icon: '⏳',
+        icon: 'fa-hourglass-half',
         status: 'warning',
       });
     }
-    
+
     if (this.stats.totalStudents > 0) {
       activities.push({
         id: '2',
@@ -139,11 +143,11 @@ export class AdminDashboardComponent implements OnInit {
         title: 'New Student Enrollments',
         description: 'Students have enrolled in courses this week',
         timestamp: new Date(Date.now() - 3600000),
-        icon: '👨‍🎓',
+        icon: 'fa-user-graduate',
         status: 'success',
       });
     }
-    
+
     if (this.stats.totalEarnings > 0) {
       activities.push({
         id: '3',
@@ -151,7 +155,7 @@ export class AdminDashboardComponent implements OnInit {
         title: 'Revenue Update',
         description: 'New payments processed successfully',
         timestamp: new Date(Date.now() - 7200000),
-        icon: '💰',
+        icon: 'fa-dollar-sign',
         status: 'success',
       });
     }
@@ -162,7 +166,7 @@ export class AdminDashboardComponent implements OnInit {
       title: 'Course Activity',
       description: 'Courses are actively being created and updated',
       timestamp: new Date(Date.now() - 86400000),
-      icon: '📚',
+      icon: 'fa-book',
       status: 'info',
     });
 
@@ -172,31 +176,43 @@ export class AdminDashboardComponent implements OnInit {
   private buildMetricCards(): void {
     this.metricCards = [
       {
-        icon: '👨‍🎓',
+        icon: 'fa-user-graduate',
         iconBgClass: 'students',
         value: this.stats.totalStudents,
         label: 'Total Students Enrolled',
         format: 'number',
-        trend: this.buildTrendData(this.stats.studentsGrowth ?? 0, 'vs last week'),
+        trend: this.buildTrendData(
+          this.stats.studentsGrowth ?? 0,
+          'vs last week',
+        ),
       },
       {
-        icon: '👨‍🏫',
+        icon: 'fa-chalkboard-teacher',
         iconBgClass: 'instructors',
         value: this.stats.totalInstructors,
         label: 'Total Instructors',
         format: 'number',
-        trend: this.buildTrendData(this.stats.instructorsGrowth ?? 0, 'vs last month'),
+        trend: this.buildTrendData(
+          this.stats.instructorsGrowth ?? 0,
+          'vs last month',
+        ),
       },
       {
-        icon: '⏳',
+        icon: 'fa-hourglass-half',
         iconBgClass: 'pending',
         value: this.stats.pendingInstructors,
         label: 'Pending Instructors',
         format: 'number',
         isWarning: this.stats.pendingInstructors > 0,
-        trend: this.stats.pendingInstructors > 0 
-          ? { value: this.stats.pendingInstructors, trend: 'up', percentage: 0, label: 'Needs Review' }
-          : { value: 0, trend: 'neutral', percentage: 0, label: 'All Clear' },
+        trend:
+          this.stats.pendingInstructors > 0
+            ? {
+                value: this.stats.pendingInstructors,
+                trend: 'up',
+                percentage: 0,
+                label: 'Needs Review',
+              }
+            : { value: 0, trend: 'neutral', percentage: 0, label: 'All Clear' },
       },
       {
         icon: '💰',
@@ -204,7 +220,10 @@ export class AdminDashboardComponent implements OnInit {
         value: this.stats.totalEarnings,
         label: 'Total Revenue',
         format: 'currency',
-        trend: this.buildTrendData(this.stats.earningsGrowth ?? 0, 'vs last month'),
+        trend: this.buildTrendData(
+          this.stats.earningsGrowth ?? 0,
+          'vs last month',
+        ),
       },
     ];
   }
@@ -228,7 +247,7 @@ export class AdminDashboardComponent implements OnInit {
 
   formatValue(value: number | string, format?: 'number' | 'currency'): string {
     if (typeof value === 'string') return value;
-    
+
     if (format === 'currency') {
       return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
@@ -237,9 +256,12 @@ export class AdminDashboardComponent implements OnInit {
 
   getTrendIcon(trend: 'up' | 'down' | 'neutral'): string {
     switch (trend) {
-      case 'up': return '↑';
-      case 'down': return '↓';
-      default: return '→';
+      case 'up':
+        return '↑';
+      case 'down':
+        return '↓';
+      default:
+        return '→';
     }
   }
 

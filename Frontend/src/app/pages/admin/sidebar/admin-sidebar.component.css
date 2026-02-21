@@ -454,6 +454,32 @@
   }
 }
 
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .sidebar {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    transform: translateX(-100%);
+    z-index: 100;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  :host {
+    --sidebar-width: 280px;
+  }
+}
+
 /* High Contrast Mode */
 @media (prefers-contrast: high) {
   .nav-link.active {

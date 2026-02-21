@@ -8,7 +8,7 @@
   <!-- Search Bar -->
   <div class="search-container">
     <div class="search-input-wrapper">
-      <span class="search-icon">🔍</span>
+      <i class="fas fa-search search-icon" aria-hidden="true"></i>
       <input
         type="text"
         [(ngModel)]="searchQuery"
@@ -27,7 +27,7 @@
 
   <!-- Empty State -->
   <div *ngIf="!isLoading && filteredCourses.length === 0" class="empty-state">
-    <div class="empty-icon">📚</div>
+    <i class="fas fa-book empty-icon" aria-hidden="true"></i>
     <h3 class="empty-title">No courses found</h3>
     <p class="empty-description">
       {{
@@ -61,11 +61,11 @@
 
         <div class="course-stats">
           <div class="stat-item">
-            <span class="stat-icon">⏱️</span>
+            <i class="fas fa-clock stat-icon" aria-hidden="true"></i>
             <span>{{ course.duration }}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-icon">👥</span>
+            <i class="fas fa-users stat-icon" aria-hidden="true"></i>
             <span>{{ course.learners }} learners</span>
           </div>
         </div>

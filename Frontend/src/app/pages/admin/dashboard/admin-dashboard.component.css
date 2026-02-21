@@ -6,11 +6,11 @@
 /* CSS Custom Properties for Consistency */
 :host {
   --gap-sm: 12px;
-  --gap-md: 20px;
-  --gap-lg: 24px;
-  --gap-xl: 32px;
+  --gap-md: 16px;
+  --gap-lg: 20px;
+  --gap-xl: 24px;
 
-  --card-padding: 24px;
+  --card-padding: 20px;
   --card-radius: 16px;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
   --card-shadow-hover:
@@ -29,8 +29,8 @@
 .dashboard-wrapper {
   min-height: 100%;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
 }
 
 /* ============================================

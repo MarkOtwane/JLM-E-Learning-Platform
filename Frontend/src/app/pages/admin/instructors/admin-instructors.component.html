@@ -8,7 +8,7 @@
   <!-- Search Bar -->
   <div class="search-container">
     <div class="search-input-wrapper">
-      <span class="search-icon">🔍</span>
+      <i class="fas fa-search search-icon" aria-hidden="true"></i>
       <input
         type="text"
         [(ngModel)]="searchQuery"
@@ -26,16 +26,26 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!isLoading && filteredInstructors.length === 0" class="empty-state">
-    <div class="empty-icon">👨‍🏫</div>
+  <div
+    *ngIf="!isLoading && filteredInstructors.length === 0"
+    class="empty-state"
+  >
+    <i class="fas fa-chalkboard-teacher empty-icon" aria-hidden="true"></i>
     <h3 class="empty-title">No instructors found</h3>
     <p class="empty-description">
-      {{ searchQuery ? 'Try adjusting your search query.' : 'Instructors will appear here once they join.' }}
+      {{
+        searchQuery
+          ? "Try adjusting your search query."
+          : "Instructors will appear here once they join."
+      }}
     </p>
   </div>
 
   <!-- Instructors Table -->
-  <div *ngIf="!isLoading && filteredInstructors.length > 0" class="table-container">
+  <div
+    *ngIf="!isLoading && filteredInstructors.length > 0"
+    class="table-container"
+  >
     <table class="admin-table">
       <thead>
         <tr>
@@ -56,12 +66,17 @@
           </td>
           <td>{{ instructor.email }}</td>
           <td>
-            <span class="badge badge-primary">{{ instructor.courseCount }}</span>
+            <span class="badge badge-primary">{{
+              instructor.courseCount
+            }}</span>
           </td>
           <td>{{ instructor.totalStudentsEnrolled }}</td>
           <td>
             <div class="action-buttons">
-              <button (click)="deleteInstructor(instructor.id)" class="action-btn delete">
+              <button
+                (click)="deleteInstructor(instructor.id)"
+                class="action-btn delete"
+              >
                 Delete
               </button>
             </div>

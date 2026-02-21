@@ -8,7 +8,7 @@
   <!-- Search Bar -->
   <div class="search-container">
     <div class="search-input-wrapper">
-      <span class="search-icon">🔍</span>
+      <i class="fas fa-search search-icon" aria-hidden="true"></i>
       <input
         type="text"
         [(ngModel)]="searchQuery"
@@ -27,15 +27,22 @@
 
   <!-- Empty State -->
   <div *ngIf="!isLoading && filteredStudents.length === 0" class="empty-state">
-    <div class="empty-icon">👨‍🎓</div>
+    <i class="fas fa-user-graduate empty-icon" aria-hidden="true"></i>
     <h3 class="empty-title">No students found</h3>
     <p class="empty-description">
-      {{ searchQuery ? 'Try adjusting your search query.' : 'Students will appear here once they enroll.' }}
+      {{
+        searchQuery
+          ? "Try adjusting your search query."
+          : "Students will appear here once they enroll."
+      }}
     </p>
   </div>
 
   <!-- Students Table -->
-  <div *ngIf="!isLoading && filteredStudents.length > 0" class="table-container">
+  <div
+    *ngIf="!isLoading && filteredStudents.length > 0"
+    class="table-container"
+  >
     <table class="admin-table">
       <thead>
         <tr>
@@ -54,9 +61,12 @@
             </div>
           </td>
           <td>{{ student.email }}</td>
-          <td>{{ student.enrollmentDate | date : 'dd MMM yyyy' }}</td>
+          <td>{{ student.enrollmentDate | date: "dd MMM yyyy" }}</td>
           <td>
-            <button (click)="deleteStudent(student.id)" class="action-btn delete">
+            <button
+              (click)="deleteStudent(student.id)"
+              class="action-btn delete"
+            >
               Delete
             </button>
           </td>
