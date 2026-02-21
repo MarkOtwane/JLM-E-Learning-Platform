@@ -17,8 +17,24 @@ import { AuthService } from '../services/auth.service';
         <button (click)="testApiConnection()" [disabled]="testing">
           {{ testing ? 'Testing...' : 'Test API Connection' }}
         </button>
-        <div *ngIf="apiResult" class="result">
-          <strong>Result:</strong> {{ apiResult }}
+        <div *ngIf="apiResult" class="result" [ngClass]="apiStatus">
+          <i
+            class="fas fa-check-circle result-icon"
+            *ngIf="apiStatus === 'success'"
+            aria-hidden="true"
+          ></i>
+          <i
+            class="fas fa-times-circle result-icon"
+            *ngIf="apiStatus === 'error'"
+            aria-hidden="true"
+          ></i>
+          <i
+            class="fas fa-spinner result-icon fa-spin"
+            *ngIf="apiStatus === 'pending'"
+            aria-hidden="true"
+          ></i>
+          <span class="result-label"><strong>Result:</strong></span>
+          {{ apiResult }}
         </div>
       </div>
 
@@ -35,8 +51,24 @@ import { AuthService } from '../services/auth.service';
             {{ testingAuth ? 'Logging in...' : 'Test Login' }}
           </button>
         </div>
-        <div *ngIf="authResult" class="result">
-          <strong>Result:</strong> {{ authResult }}
+        <div *ngIf="authResult" class="result" [ngClass]="authStatus">
+          <i
+            class="fas fa-check-circle result-icon"
+            *ngIf="authStatus === 'success'"
+            aria-hidden="true"
+          ></i>
+          <i
+            class="fas fa-times-circle result-icon"
+            *ngIf="authStatus === 'error'"
+            aria-hidden="true"
+          ></i>
+          <i
+            class="fas fa-spinner result-icon fa-spin"
+            *ngIf="authStatus === 'pending'"
+            aria-hidden="true"
+          ></i>
+          <span class="result-label"><strong>Result:</strong></span>
+          {{ authResult }}
         </div>
       </div>
 
@@ -91,10 +123,37 @@ import { AuthService } from '../services/auth.service';
         cursor: not-allowed;
       }
       .result {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         margin-top: 10px;
         padding: 10px;
         background-color: #f8f9fa;
         border-radius: 4px;
+      }
+      .result.success {
+        border-left: 3px solid #16a34a;
+      }
+      .result.error {
+        border-left: 3px solid #dc2626;
+      }
+      .result.pending {
+        border-left: 3px solid #2563eb;
+      }
+      .result-icon {
+        font-size: 1rem;
+      }
+      .result.success .result-icon {
+        color: #16a34a;
+      }
+      .result.error .result-icon {
+        color: #dc2626;
+      }
+      .result.pending .result-icon {
+        color: #2563eb;
+      }
+      .result-label {
+        margin-right: 4px;
       }
     `,
   ],
@@ -104,13 +163,15 @@ export class TestConnectionComponent implements OnInit {
   testingAuth = false;
   apiResult = '';
   authResult = '';
+  apiStatus: 'idle' | 'pending' | 'success' | 'error' = 'idle';
+  authStatus: 'idle' | 'pending' | 'success' | 'error' = 'idle';
   currentUser: any = null;
   testEmail = 'test@example.com';
   testPassword = 'password123';
 
   constructor(
     private apiService: ApiService,
-    private authService: AuthService
+    private authService: AuthService,
   ) {}
 
   ngOnInit() {
@@ -121,16 +182,19 @@ export class TestConnectionComponent implements OnInit {
 
   testApiConnection() {
     this.testing = true;
+    this.apiStatus = 'pending';
     this.apiResult = 'Testing connection...';
 
     // Test a simple GET request to the backend
     this.apiService.get('/auth/login').subscribe({
       next: (response) => {
-        this.apiResult = '✅ API connection successful! Backend is reachable.';
+        this.apiStatus = 'success';
+        this.apiResult = 'API connection successful. Backend is reachable.';
         this.testing = false;
       },
       error: (error) => {
-        this.apiResult = `❌ API connection failed: ${
+        this.apiStatus = 'error';
+        this.apiResult = `API connection failed: ${
           error.message || 'Unknown error'
         }`;
         this.testing = false;
@@ -140,15 +204,18 @@ export class TestConnectionComponent implements OnInit {
 
   testLogin() {
     this.testingAuth = true;
+    this.authStatus = 'pending';
     this.authResult = 'Attempting login...';
 
     this.authService.login(this.testEmail, this.testPassword).subscribe({
       next: (response) => {
-        this.authResult = '✅ Login successful! User authenticated.';
+        this.authStatus = 'success';
+        this.authResult = 'Login successful. User authenticated.';
         this.testingAuth = false;
       },
       error: (error) => {
-        this.authResult = `❌ Login failed: ${
+        this.authStatus = 'error';
+        this.authResult = `Login failed: ${
           error.error?.message || error.message || 'Unknown error'
         }`;
         this.testingAuth = false;

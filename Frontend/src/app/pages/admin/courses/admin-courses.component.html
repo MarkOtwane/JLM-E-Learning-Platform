@@ -72,16 +72,16 @@
 
         <div class="course-rating">
           <div class="stars">
-            <span
+            <i
               *ngFor="let star of getStarArray(course.rating)"
-              class="star filled"
-              >★</span
-            >
-            <span
+              class="fas fa-star star filled"
+              aria-hidden="true"
+            ></i>
+            <i
               *ngFor="let star of getEmptyStarArray(course.rating)"
-              class="star"
-              >☆</span
-            >
+              class="far fa-star star"
+              aria-hidden="true"
+            ></i>
           </div>
           <span class="rating-value">{{ course.rating.toFixed(1) }}</span>
         </div>

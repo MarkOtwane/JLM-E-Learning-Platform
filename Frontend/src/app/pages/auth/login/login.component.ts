@@ -18,12 +18,15 @@ export class LoginComponent {
   showPassword = false;
   isLoading = false;
 
-  // 👇 Notification state
+  // Notification state
   showMessage = false;
   message = '';
   messageType: 'success' | 'error' | 'info' = 'info';
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+  ) {}
 
   togglePassword() {
     this.showPassword = !this.showPassword;
@@ -77,7 +80,7 @@ export class LoginComponent {
 
   private showNotification(
     message: string,
-    type: 'success' | 'error' | 'info'
+    type: 'success' | 'error' | 'info',
   ) {
     this.message = message;
     this.messageType = type;

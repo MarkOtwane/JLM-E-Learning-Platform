@@ -1,0 +1,351 @@
+<div class="analytics-container">
+  <!-- Header -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="header-content">
+      <h2>Course Analytics</h2>
+      <p class="subtitle" *ngIf="courseTitle">{{ courseTitle }}</p>
+    </div>
+    <button class="export-btn" (click)="exportToCSV()">
+      <i class="fas fa-download"></i>
+      Export CSV
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading analytics...</p>
+  </div>
+
+  <!-- Analytics Content -->
+  <div class="analytics-content" *ngIf="!isLoading && analytics">
+    <!-- Overview Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon enrollments">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ analytics.totalEnrollments }}</span>
+          <span class="stat-label">Total Enrollments</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon completions">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ analytics.totalCompletions }}</span>
+          <span class="stat-label">Completions</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon rate">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ analytics.completionRate }}%</span>
+          <span class="stat-label">Completion Rate</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'overview'"
+        (click)="setActiveTab('overview')"
+      >
+        Overview
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'enrollments'"
+        (click)="setActiveTab('enrollments')"
+      >
+        Enrollment Trends
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'quizzes'"
+        (click)="setActiveTab('quizzes')"
+      >
+        Quiz Performance
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'lessons'"
+        (click)="setActiveTab('lessons')"
+      >
+        Lesson Drop-off
+      </button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'overview'">
+      <div class="overview-grid">
+        <!-- Enrollment Trends Mini Chart -->
+        <div class="chart-card">
+          <h4>Enrollment Trends (Last 6 Months)</h4>
+          <div class="bar-chart">
+            <div
+              class="bar-container"
+              *ngFor="let trend of analytics.enrollmentTrends"
+            >
+              <div class="bar-wrapper">
+                <div
+                  class="bar"
+                  [style.height.%]="
+                    (trend.count /
+                      (analytics.enrollmentTrends | max: 'count')) *
+                    100
+                  "
+                ></div>
+              </div>
+              <span class="bar-label">{{ trend.month | slice: 5 : 7 }}</span>
+              <span class="bar-value">{{ trend.count }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quiz Distribution Mini Chart -->
+        <div class="chart-card">
+          <h4>Quiz Score Distribution</h4>
+          <div class="distribution-chart">
+            <div
+              class="distribution-item"
+              *ngFor="let dist of analytics.quizPerformanceDistribution"
+            >
+              <div class="distribution-label">{{ dist.range }}%</div>
+              <div class="distribution-bar-container">
+                <div
+                  class="distribution-bar"
+                  [style.width.%]="
+                    (dist.count /
+                      (analytics.quizPerformanceDistribution | max: 'count')) *
+                    100
+                  "
+                  [style.background-color]="getProgressColor(getRangeStart(dist.range))"
+                ></div>
+              </div>
+              <span class="distribution-value">{{ dist.count }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completion Progress -->
+        <div class="chart-card">
+          <h4>Course Completion</h4>
+          <div class="completion-circle">
+            <svg viewBox="0 0 36 36" class="circular-chart">
+              <path
+                class="circle-bg"
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path
+                class="circle"
+                [style.stroke-dasharray]="analytics.completionRate + ', 100'"
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            <div class="percentage">{{ analytics.completionRate }}%</div>
+          </div>
+          <div class="completion-stats">
+            <div class="completion-stat">
+              <span class="value">{{ analytics.totalEnrollments }}</span>
+              <span class="label">Enrolled</span>
+            </div>
+            <div class="completion-stat">
+              <span class="value">{{ analytics.totalCompletions }}</span>
+              <span class="label">Completed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enrollment Trends Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'enrollments'">
+      <div class="chart-card full-width">
+        <h4>Enrollment Trends Over Time</h4>
+        <div class="line-chart">
+          <div class="chart-area">
+            <div class="y-axis">
+              <span *ngFor="let val of [0, 25, 50, 75, 100]">{{ val }}</span>
+            </div>
+            <div class="chart-bars">
+              <div
+                class="chart-column"
+                *ngFor="let trend of analytics.enrollmentTrends"
+              >
+                <div
+                  class="chart-bar"
+                  [style.height.%]="
+                    (trend.count /
+                      (analytics.enrollmentTrends | max: 'count')) *
+                    100
+                  "
+                >
+                  <span class="tooltip">{{ trend.count }} students</span>
+                </div>
+                <span class="x-label">{{ trend.month }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-summary">
+          <div class="summary-item">
+            <span class="summary-label">Total Enrollments</span>
+            <span class="summary-value">{{ analytics.totalEnrollments }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Peak Month</span>
+            <span class="summary-value">{{
+              (analytics.enrollmentTrends | maxItem: 'count')?.month || "-"
+            }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Performance Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'quizzes'">
+      <div class="chart-card full-width">
+        <h4>Quiz Score Distribution</h4>
+        <div class="quiz-distribution">
+          <div
+            class="distribution-row"
+            *ngFor="
+              let dist of analytics.quizPerformanceDistribution;
+              let i = index
+            "
+          >
+            <div class="range-label" [class]="'range-' + i">
+              {{ dist.range }}%
+            </div>
+            <div class="bar-container">
+              <div
+                class="bar"
+                [style.width.%]="
+                  (dist.count /
+                    (analytics.quizPerformanceDistribution | max: 'count')) *
+                  100
+                "
+                [class]="'bar-' + i"
+              ></div>
+            </div>
+            <div class="count">{{ dist.count }} students</div>
+            <div class="percentage">
+              {{
+                (dist.count / analytics.totalEnrollments) * 100
+                  | number: "1.0-0"
+              }}%
+            </div>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item">
+            <span class="legend-color range-0"></span>
+            <span>0-20% (Needs Improvement)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color range-1"></span>
+            <span>21-40% (Below Average)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color range-2"></span>
+            <span>41-60% (Average)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color range-3"></span>
+            <span>61-80% (Good)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color range-4"></span>
+            <span>81-100% (Excellent)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson Drop-off Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'lessons'">
+      <div class="chart-card full-width">
+        <h4>Lesson Drop-off Analysis</h4>
+        <p class="chart-description">
+          This analysis shows where students are dropping off in your course.
+          High drop-off rates may indicate content that needs improvement.
+        </p>
+        <div class="dropoff-table-container">
+          <table class="dropoff-table">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Lesson Title</th>
+                <th>Views</th>
+                <th>Completions</th>
+                <th>Drop-off Rate</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let lesson of analytics.lessonDropOff">
+                <td class="order-cell">{{ lesson.order }}</td>
+                <td class="title-cell">{{ lesson.title }}</td>
+                <td>{{ lesson.totalViews }}</td>
+                <td>{{ lesson.completions }}</td>
+                <td>
+                  <div class="dropoff-cell">
+                    <div class="dropoff-bar-container">
+                      <div
+                        class="dropoff-bar"
+                        [style.width.%]="lesson.dropOffRate"
+                        [style.background-color]="
+                          getDropOffColor(lesson.dropOffRate)
+                        "
+                      ></div>
+                    </div>
+                    <span>{{ lesson.dropOffRate }}%</span>
+                  </div>
+                </td>
+                <td>
+                  <span
+                    class="status-badge"
+                    [class.good]="lesson.dropOffRate <= 20"
+                    [class.warning]="
+                      lesson.dropOffRate > 20 && lesson.dropOffRate <= 50
+                    "
+                    [class.critical]="lesson.dropOffRate > 50"
+                  >
+                    {{
+                      lesson.dropOffRate <= 20
+                        ? "Good"
+                        : lesson.dropOffRate <= 50
+                          ? "Warning"
+                          : "Critical"
+                    }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && !analytics">
+    <i class="fas fa-chart-bar"></i>
+    <h4>No analytics data available</h4>
+    <p>Analytics will appear once students enroll in your course.</p>
+  </div>
+</div>

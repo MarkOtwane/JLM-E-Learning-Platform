@@ -1,5 +1,5 @@
+import { CommonModule } from '@angular/common'; // Import this
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // 👈 Import this
 
 interface Payment {
   course: string;
@@ -11,10 +11,10 @@ interface Payment {
 
 @Component({
   selector: 'app-student-payment',
-  standalone: true, // 👈 if you're using standalone components
-  imports: [CommonModule], // ✅ Fix: Add CommonModule here
+  standalone: true, // if you're using standalone components
+  imports: [CommonModule], // Fix: Add CommonModule here
   templateUrl: './student-payment.component.html',
-  styleUrls: ['./student-payment.component.css']
+  styleUrls: ['./student-payment.component.css'],
 })
 export class StudentPaymentComponent implements OnInit {
   totalPaid = 0;
@@ -30,26 +30,24 @@ export class StudentPaymentComponent implements OnInit {
         amount: 30,
         date: '2025-07-01',
         method: 'M-Pesa',
-        status: 'Paid'
+        status: 'Paid',
       },
       {
         course: 'NestJS Advanced',
         amount: 45,
         date: '2025-06-25',
         method: 'Card',
-        status: 'Paid'
-      }
+        status: 'Paid',
+      },
     ];
 
     this.calculateSummary();
   }
 
   calculateSummary() {
-    const paidPayments = this.payments.filter(p => p.status === 'Paid');
+    const paidPayments = this.payments.filter((p) => p.status === 'Paid');
     this.totalCourses = paidPayments.length;
     this.totalPaid = paidPayments.reduce((sum, p) => sum + p.amount, 0);
-    this.lastPaymentDate = paidPayments.length
-      ? paidPayments[0].date
-      : 'N/A';
+    this.lastPaymentDate = paidPayments.length ? paidPayments[0].date : 'N/A';
   }
 }

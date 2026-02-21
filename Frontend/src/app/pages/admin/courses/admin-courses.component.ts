@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
 
@@ -20,7 +20,7 @@ interface Course {
 @Component({
   selector: 'app-admin-courses',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule],
+  imports: [CommonModule, NgIf, NgFor, NgClass, HttpClientModule, FormsModule],
   templateUrl: './admin-courses.component.html',
   styleUrls: ['./admin-courses.component.css'],
 })
@@ -59,23 +59,24 @@ export class AdminCoursesComponent implements OnInit {
     this.filteredCourses = this.courses.filter(
       (course) =>
         course.title.toLowerCase().includes(query) ||
-        (course.instructorName && course.instructorName.toLowerCase().includes(query)) ||
+        (course.instructorName &&
+          course.instructorName.toLowerCase().includes(query)) ||
         course.category.toLowerCase().includes(query) ||
-        course.level.toLowerCase().includes(query)
+        course.level.toLowerCase().includes(query),
     );
   }
 
   deleteCourse(id: string): void {
     if (
       confirm(
-        'Are you sure you want to delete this course? This action cannot be undone.'
+        'Are you sure you want to delete this course? This action cannot be undone.',
       )
     ) {
       this.api.deleteAuth(`/admin/courses/${id}`).subscribe({
         next: () => {
           this.courses = this.courses.filter((course) => course.id !== id);
           this.filteredCourses = this.filteredCourses.filter(
-            (course) => course.id !== id
+            (course) => course.id !== id,
           );
           alert('Course deleted successfully.');
         },

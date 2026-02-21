@@ -1,0 +1,175 @@
+<div class="students-container">
+  <!-- Header -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="header-content">
+      <h2>Course Students</h2>
+      <p class="subtitle" *ngIf="courseTitle">{{ courseTitle }}</p>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-value">{{ totalStudents }}</span>
+      <span class="stat-label">Total Students</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value active">{{ activeStudents }}</span>
+      <span class="stat-label">Active</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value inactive">{{ inactiveStudents }}</span>
+      <span class="stat-label">Inactive (7+ days)</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ averageProgress }}%</span>
+      <span class="stat-label">Avg. Progress</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search students..."
+        class="search-input"
+      />
+    </div>
+
+    <div class="filter-group">
+      <select
+        [(ngModel)]="filterStatus"
+        (ngModelChange)="onFilterChange()"
+        class="filter-select"
+      >
+        <option value="all">All Students</option>
+        <option value="active">Active Only</option>
+        <option value="inactive">Inactive Only</option>
+      </select>
+
+      <select
+        [(ngModel)]="sortBy"
+        (ngModelChange)="onSortChange()"
+        class="filter-select"
+      >
+        <option value="name">Sort by Name</option>
+        <option value="progress">Sort by Progress</option>
+        <option value="lastActivity">Sort by Last Activity</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading students...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && filteredStudents.length === 0">
+    <i class="fas fa-users"></i>
+    <h4>No students found</h4>
+    <p *ngIf="searchTerm">Try adjusting your search or filters.</p>
+    <p *ngIf="!searchTerm">No students are enrolled in this course yet.</p>
+  </div>
+
+  <!-- Students Table -->
+  <div
+    class="table-container"
+    *ngIf="!isLoading && filteredStudents.length > 0"
+  >
+    <table class="students-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Progress</th>
+          <th>Lessons</th>
+          <th>Last Activity</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let student of filteredStudents"
+          [class.inactive-row]="student.isInactive"
+        >
+          <td class="student-cell">
+            <div class="student-info">
+              <div class="avatar" *ngIf="!student.profilePicture">
+                {{ student.name.charAt(0).toUpperCase() }}
+              </div>
+              <img
+                *ngIf="student.profilePicture"
+                [src]="student.profilePicture"
+                [alt]="student.name"
+                class="avatar-img"
+              />
+              <div class="student-details">
+                <span class="student-name">{{ student.name }}</span>
+                <span class="student-email">{{ student.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="progress-cell">
+              <div class="progress-bar">
+                <div
+                  class="progress-fill"
+                  [style.width.%]="student.progressPercentage"
+                  [style.background-color]="
+                    getProgressColor(student.progressPercentage)
+                  "
+                ></div>
+              </div>
+              <span class="progress-text"
+                >{{ student.progressPercentage }}%</span
+              >
+            </div>
+          </td>
+          <td>
+            <span class="lessons-count">
+              {{ student.completedLessons }} / {{ student.totalLessons }}
+            </span>
+          </td>
+          <td>
+            <span class="activity-date">{{
+              formatDate(student.lastActivity)
+            }}</span>
+            <span class="days-ago" *ngIf="student.daysSinceLastActivity > 0">
+              ({{ student.daysSinceLastActivity }} days ago)
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [class.inactive]="student.isInactive">
+              {{ student.isInactive ? "Inactive" : "Active" }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button
+              class="action-btn"
+              (click)="viewStudentProfile(student.id)"
+              title="View Profile"
+            >
+              <i class="fas fa-user"></i>
+            </button>
+            <button
+              class="action-btn"
+              (click)="messageStudent(student.id)"
+              title="Send Message"
+            >
+              <i class="fas fa-envelope"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -38,6 +38,13 @@ model User {
 
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
+
+  // New relations for instructor dashboard
+  lessonProgress        LessonProgress[]
+  lessonQuestions       LessonQuestion[]
+  authoredAnnouncements Announcement[]         @relation("AuthoredAnnouncements")
+  assignmentSubmissions AssignmentSubmission[]
+  gradebookEntries      GradebookEntry[]
 }
 
 model PasswordReset {
@@ -91,6 +98,11 @@ model Course {
 
   Certificate Certificate[]
 
+  // New relations for instructor dashboard
+  announcements    Announcement[]
+  assignments      Assignment[]
+  gradebookEntries GradebookEntry[]
+
   @@index([instructorId])
   @@index([category])
   @@index([level])
@@ -114,6 +126,7 @@ model Module {
   contents Content[]
 
   Progress Progress[]
+  lessons  Lesson[]
 
   @@index([courseId])
   @@index([createdAt])
@@ -275,4 +288,174 @@ model Message {
   @@index([senderId, createdAt]) // Composite index for sent messages sorted by date
   @@index([receiverId, isRead]) // Composite index for unread messages
   @@index([receiverId, createdAt]) // Composite index for received messages sorted by date
+}
+
+// Lesson model for better content organization
+model Lesson {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  content     String? // Rich text content for the lesson
+  videoUrl    String? // External video link
+  videoFile   String? // Uploaded video file URL
+  duration    Int       @default(0) // Duration in minutes
+  order       Int // Order within module
+  isLocked    Boolean   @default(false) // Lock until previous lesson completed
+  releaseDate DateTime? // For drip content - scheduled release
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  moduleId String
+
+  attachments LessonAttachment[]
+  progress    LessonProgress[]
+  questions   LessonQuestion[]
+
+  @@index([moduleId])
+  @@index([order])
+  @@index([isLocked])
+  @@index([releaseDate])
+  @@index([moduleId, order])
+}
+
+// Lesson attachments (PDF, DOC, ZIP, etc.)
+model LessonAttachment {
+  id        String   @id @default(cuid())
+  title     String
+  fileUrl   String
+  fileType  String // PDF, DOC, ZIP, etc.
+  fileSize  Int // File size in bytes
+  createdAt DateTime @default(now())
+
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId String
+
+  @@index([lessonId])
+  @@index([fileType])
+}
+
+// Track lesson progress per student
+model LessonProgress {
+  id          String    @id @default(cuid())
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  timeSpent   Int       @default(0) // Time spent in seconds
+
+  user     User   @relation(fields: [userId], references: [id])
+  userId   String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId String
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@index([completed])
+  @@index([userId, completed])
+}
+
+// Q&A per lesson
+model LessonQuestion {
+  id         String   @id @default(cuid())
+  question   String
+  answer     String?
+  isAnswered Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId String
+  user     User   @relation(fields: [userId], references: [id])
+  userId   String
+
+  @@index([lessonId])
+  @@index([userId])
+  @@index([isAnswered])
+  @@index([createdAt])
+}
+
+// Course announcements
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+  author   User   @relation("AuthoredAnnouncements", fields: [authorId], references: [id])
+  authorId String
+
+  @@index([courseId])
+  @@index([isPinned])
+  @@index([createdAt])
+}
+
+// Assignments
+model Assignment {
+  id                  String    @id @default(cuid())
+  title               String
+  description         String
+  instructions        String?
+  maxScore            Int       @default(100)
+  dueDate             DateTime?
+  allowLateSubmission Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+
+  submissions AssignmentSubmission[]
+
+  @@index([courseId])
+  @@index([dueDate])
+  @@index([createdAt])
+}
+
+// Assignment submissions
+model AssignmentSubmission {
+  id          String    @id @default(cuid())
+  content     String? // Text submission
+  fileUrl     String? // File submission URL
+  fileName    String?
+  fileType    String?
+  submittedAt DateTime  @default(now())
+  score       Float?
+  feedback    String?
+  gradedAt    DateTime?
+  status      String    @default("submitted") // submitted, graded, returned
+
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId String
+  student      User       @relation(fields: [studentId], references: [id])
+  studentId    String
+
+  @@unique([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([studentId])
+  @@index([status])
+  @@index([submittedAt])
+}
+
+// Gradebook entry for overall course grades
+model GradebookEntry {
+  id          String   @id @default(cuid())
+  grade       Float
+  letterGrade String?
+  feedback    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId  String
+  student   User   @relation(fields: [studentId], references: [id])
+  studentId String
+
+  @@unique([courseId, studentId])
+  @@index([courseId])
+  @@index([studentId])
+  @@index([grade])
 }

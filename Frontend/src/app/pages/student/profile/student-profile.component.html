@@ -1,21 +1,25 @@
 <div class="profile-container">
-  
   <!-- ========================================
        PROFILE HEADER SECTION
        ======================================== -->
   <div class="profile-header">
     <!-- Profile Picture Section -->
     <div class="profile-picture">
-      <img *ngIf="profile.profilePictureUrl; else placeholder" 
-           [src]="profile.profilePictureUrl" 
-           alt="Profile Picture" />
+      <img
+        *ngIf="profile.profilePictureUrl; else placeholder"
+        [src]="profile.profilePictureUrl"
+        alt="Profile Picture"
+      />
       <ng-template #placeholder>
         <div class="placeholder-avatar">{{ profile.name.charAt(0) }}</div>
       </ng-template>
-      <input type="file" 
-             (change)="updateProfilePicture($event)" 
-             accept="image/*"
-             class="file-input" />
+      <input
+        type="file"
+        (change)="updateProfilePicture($event)"
+        accept="image/*"
+        class="file-input"
+      />
+      <i class="fas fa-camera profile-picture-icon" aria-hidden="true"></i>
     </div>
 
     <!-- Profile Information Display -->
@@ -57,28 +61,34 @@
       <form (ngSubmit)="onSaveProfile()">
         <div class="form-group">
           <label>Name *</label>
-          <input type="text" 
-                 [(ngModel)]="updatedProfile.name" 
-                 name="name" 
-                 required 
-                 placeholder="Enter your full name" />
+          <input
+            type="text"
+            [(ngModel)]="updatedProfile.name"
+            name="name"
+            required
+            placeholder="Enter your full name"
+          />
         </div>
 
         <div class="form-group">
           <label>Email *</label>
-          <input type="email" 
-                 [(ngModel)]="updatedProfile.email" 
-                 name="email" 
-                 required 
-                 placeholder="Enter your email address" />
+          <input
+            type="email"
+            [(ngModel)]="updatedProfile.email"
+            name="email"
+            required
+            placeholder="Enter your email address"
+          />
         </div>
 
         <div class="form-group">
           <label>Phone</label>
-          <input type="tel" 
-                 [(ngModel)]="updatedProfile.phone" 
-                 name="phone" 
-                 placeholder="Enter your phone number" />
+          <input
+            type="tel"
+            [(ngModel)]="updatedProfile.phone"
+            name="phone"
+            placeholder="Enter your phone number"
+          />
         </div>
 
         <div class="form-group">
@@ -94,17 +104,19 @@
 
         <div class="form-group">
           <label>Bio</label>
-          <textarea [(ngModel)]="updatedProfile.bio" 
-                    name="bio" 
-                    rows="3"
-                    placeholder="Tell us about yourself..."></textarea>
+          <textarea
+            [(ngModel)]="updatedProfile.bio"
+            name="bio"
+            rows="3"
+            placeholder="Tell us about yourself..."
+          ></textarea>
         </div>
 
         <div class="modal-actions">
           <button type="submit" class="save-btn">Save Changes</button>
-          <button type="button" 
-                  class="cancel-btn" 
-                  (click)="closeEditModal()">Cancel</button>
+          <button type="button" class="cancel-btn" (click)="closeEditModal()">
+            Cancel
+          </button>
         </div>
       </form>
     </div>
@@ -119,13 +131,16 @@
       <form (ngSubmit)="onChangePassword()">
         <div class="form-group">
           <label>Email Verification Code *</label>
-          <input type="text" 
-                 [(ngModel)]="emailCode" 
-                 name="emailCode" 
-                 required 
-                 placeholder="Enter verification code" />
+          <input
+            type="text"
+            [(ngModel)]="emailCode"
+            name="emailCode"
+            required
+            placeholder="Enter verification code"
+          />
           <small *ngIf="codeSent" class="success-text">
-            ✓ Verification code sent to {{ profile.email }}
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            Verification code sent to {{ profile.email }}
           </small>
           <small *ngIf="!codeSent" class="info-text">
             Please wait while we send the verification code...
@@ -134,20 +149,24 @@
 
         <div class="form-group">
           <label>Current Password *</label>
-          <input type="password" 
-                 [(ngModel)]="oldPassword" 
-                 name="oldPassword" 
-                 required 
-                 placeholder="Enter your current password" />
+          <input
+            type="password"
+            [(ngModel)]="oldPassword"
+            name="oldPassword"
+            required
+            placeholder="Enter your current password"
+          />
         </div>
 
         <div class="form-group">
           <label>New Password *</label>
-          <input type="password" 
-                 [(ngModel)]="newPassword" 
-                 name="newPassword" 
-                 required 
-                 placeholder="Enter your new password" />
+          <input
+            type="password"
+            [(ngModel)]="newPassword"
+            name="newPassword"
+            required
+            placeholder="Enter your new password"
+          />
           <small class="info-text">
             Password must be at least 8 characters long
           </small>
@@ -155,12 +174,15 @@
 
         <div class="modal-actions">
           <button type="submit" class="save-btn">Change Password</button>
-          <button type="button" 
-                  class="cancel-btn" 
-                  (click)="closePasswordModal()">Cancel</button>
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closePasswordModal()"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>
   </div>
-
 </div>

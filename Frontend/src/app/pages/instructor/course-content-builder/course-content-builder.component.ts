@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -39,7 +39,7 @@ interface Course {
   standalone: true,
   templateUrl: './course-content-builder.component.html',
   styleUrls: ['./course-content-builder.component.css'],
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, NgIf, NgFor, FormsModule, HttpClientModule],
 })
 export class CourseContentBuilderComponent implements OnInit {
   // Course selection
@@ -58,7 +58,7 @@ export class CourseContentBuilderComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
-    public router: Router
+    public router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -202,18 +202,18 @@ export class CourseContentBuilderComponent implements OnInit {
   removeQuestion(
     moduleIndex: number,
     topicIndex: number,
-    questionIndex: number
+    questionIndex: number,
   ): void {
     this.modules[moduleIndex].topics[topicIndex].questions.splice(
       questionIndex,
-      1
+      1,
     );
   }
 
   addOption(
     moduleIndex: number,
     topicIndex: number,
-    questionIndex: number
+    questionIndex: number,
   ): void {
     this.modules[moduleIndex].topics[topicIndex].questions[
       questionIndex
@@ -224,7 +224,7 @@ export class CourseContentBuilderComponent implements OnInit {
     moduleIndex: number,
     topicIndex: number,
     questionIndex: number,
-    optionIndex: number
+    optionIndex: number,
   ): void {
     const question =
       this.modules[moduleIndex].topics[topicIndex].questions[questionIndex];
@@ -297,7 +297,7 @@ export class CourseContentBuilderComponent implements OnInit {
     formData.append('hasFinalExam', this.hasFinalExam.toString());
     formData.append(
       'finalExamQuestions',
-      JSON.stringify(this.finalExamQuestions)
+      JSON.stringify(this.finalExamQuestions),
     );
 
     // Add files
@@ -306,7 +306,7 @@ export class CourseContentBuilderComponent implements OnInit {
         if (topic.file) {
           formData.append(
             `moduleFile_${moduleIndex}_${topicIndex}`,
-            topic.file
+            topic.file,
           );
         }
       });

@@ -2,10 +2,10 @@
    CSS VARIABLES (using your color scheme)
    ======================================== */
 :root {
-  --color-bg-main: #E1F0F3;
-  --color-accent-light: #6FEBEB;
-  --color-accent: #38EBEB;
-  --color-muted: #D9D9D9;
+  --color-bg-main: #e1f0f3;
+  --color-accent-light: #6febeb;
+  --color-accent: #38ebeb;
+  --color-muted: #d9d9d9;
   --color-white: #ffffff;
   --color-black: #000000;
 }
@@ -51,7 +51,11 @@
 }
 
 .placeholder-avatar {
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
+  background: linear-gradient(
+    135deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
   color: var(--color-white);
   display: flex;
   align-items: center;
@@ -104,7 +108,8 @@
   gap: 15px;
 }
 
-.edit-btn, .password-btn {
+.edit-btn,
+.password-btn {
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
@@ -166,26 +171,39 @@
 
 .completion-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
   border-radius: 6px;
   transition: width 0.6s ease;
   position: relative;
 }
 
 .completion-fill::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ========================================
@@ -304,7 +322,8 @@
   margin-top: 30px;
 }
 
-.save-btn, .cancel-btn {
+.save-btn,
+.cancel-btn {
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
@@ -344,35 +363,37 @@
   .profile-container {
     padding: 15px;
   }
-  
+
   .profile-header {
     flex-direction: column;
     text-align: center;
     gap: 20px;
     padding: 25px;
   }
-  
+
   .profile-actions {
     flex-direction: row;
     justify-content: center;
     width: 100%;
   }
-  
-  .edit-btn, .password-btn {
+
+  .edit-btn,
+  .password-btn {
     flex: 1;
     min-width: auto;
   }
-  
+
   .modal-content {
     padding: 25px;
     margin: 20px;
   }
-  
+
   .modal-actions {
     flex-direction: column;
   }
-  
-  .save-btn, .cancel-btn {
+
+  .save-btn,
+  .cancel-btn {
     width: 100%;
   }
 }
@@ -381,21 +402,21 @@
   .profile-header {
     padding: 20px;
   }
-  
+
   .profile-picture img,
   .placeholder-avatar {
     width: 100px;
     height: 100px;
   }
-  
+
   .placeholder-avatar {
     font-size: 36px;
   }
-  
+
   .profile-info h2 {
     font-size: 22px;
   }
-  
+
   .modal-content {
     padding: 20px;
   }
@@ -417,8 +438,7 @@
 }
 
 /* File input styling enhancement */
-.profile-picture::after {
-  content: '📷';
+.profile-picture-icon {
   position: absolute;
   bottom: 5px;
   right: 5px;
@@ -430,11 +450,12 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
+  color: var(--color-white);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.profile-picture:hover::after {
+.profile-picture:hover .profile-picture-icon {
   opacity: 1;
 }

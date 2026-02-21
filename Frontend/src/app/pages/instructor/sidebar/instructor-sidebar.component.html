@@ -1,8 +1,66 @@
-<nav class="sidebar">
-  <h2 class="logo">Instructor</h2>
-  <ul class="nav-links">
-    <li><a routerLink="/instructor/dashboard">Dashboard</a></li>
-    <li><a routerLink="/instructor/create-course">Create Course</a></li>
-    <li><a routerLink="/instructor/build-course">Build Course</a></li>
-  </ul>
-</nav>
+<aside class="instructor-sidebar">
+  <!-- Logo/Brand -->
+  <div class="sidebar-header">
+    <div class="brand">
+      <i class="fas fa-graduation-cap"></i>
+      <span class="brand-text">Instructor Portal</span>
+    </div>
+  </div>
+
+  <!-- User Profile -->
+  <div class="user-profile">
+    <div class="avatar" *ngIf="!profilePicture">
+      {{ instructorName.charAt(0).toUpperCase() }}
+    </div>
+    <img
+      *ngIf="profilePicture"
+      [src]="profilePicture"
+      [alt]="instructorName"
+      class="avatar-img"
+    />
+    <div class="user-info">
+      <span class="user-name">{{ instructorName }}</span>
+      <span class="user-email">{{ instructorEmail }}</span>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      <li
+        class="nav-item"
+        *ngFor="let item of menuItems"
+        [class.active]="item.active"
+      >
+        <a [routerLink]="item.route" class="nav-link" routerLinkActive="active">
+          <i [class]="item.icon"></i>
+          <span class="nav-label">{{ item.label }}</span>
+          <span class="nav-badge" *ngIf="item.badge && item.badge > 0">{{
+            item.badge
+          }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h4>Quick Actions</h4>
+    <a routerLink="/instructor/create-course" class="quick-action-btn">
+      <i class="fas fa-plus"></i>
+      Create New Course
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <a routerLink="/help" class="footer-link">
+      <i class="fas fa-question-circle"></i>
+      Help & Support
+    </a>
+    <button class="logout-btn" (click)="logout()">
+      <i class="fas fa-sign-out-alt"></i>
+      Logout
+    </button>
+  </div>
+</aside>

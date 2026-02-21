@@ -215,7 +215,7 @@ export class AdminDashboardComponent implements OnInit {
             : { value: 0, trend: 'neutral', percentage: 0, label: 'All Clear' },
       },
       {
-        icon: '💰',
+        icon: 'fa-dollar-sign',
         iconBgClass: 'earnings',
         value: this.stats.totalEarnings,
         label: 'Total Revenue',

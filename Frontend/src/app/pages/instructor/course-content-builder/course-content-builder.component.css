@@ -325,9 +325,9 @@
   gap: 0.5rem;
 }
 
-.topics-section h4::before {
-  content: "📚";
+.section-icon {
   font-size: 1.2rem;
+  color: var(--color-accent);
 }
 
 .topic-item {
@@ -531,11 +531,6 @@
   gap: 0.5rem;
 }
 
-.quiz-header h5::before {
-  content: "🎯";
-  font-size: 1.1rem;
-}
-
 .quiz-content {
   animation: fadeInUp 0.3s ease-out;
 }
@@ -653,11 +648,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.exam-header h3::before {
-  content: "🎓";
-  font-size: 1.6rem;
 }
 
 .exam-content {

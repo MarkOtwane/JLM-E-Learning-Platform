@@ -1,0 +1,206 @@
+<div class="lesson-editor-container">
+  <!-- Header -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="header-content">
+      <h2>{{ isEditing ? "Edit Lesson" : "Create New Lesson" }}</h2>
+    </div>
+    <div class="header-actions">
+      <button class="preview-btn" (click)="previewLesson()" *ngIf="isEditing">
+        <i class="fas fa-eye"></i>
+        Preview
+      </button>
+      <button class="save-btn" (click)="saveLesson()" [disabled]="isSaving">
+        <i class="fas fa-spinner fa-spin" *ngIf="isSaving"></i>
+        <i class="fas fa-save" *ngIf="!isSaving"></i>
+        {{ isSaving ? "Saving..." : "Save Lesson" }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading lesson...</p>
+  </div>
+
+  <!-- Editor Form -->
+  <div class="editor-content" *ngIf="!isLoading">
+    <div class="form-grid">
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Title -->
+        <div class="form-group">
+          <label for="title">Lesson Title *</label>
+          <input
+            type="text"
+            id="title"
+            [(ngModel)]="lessonForm.title"
+            placeholder="Enter lesson title"
+            class="form-input"
+          />
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            [(ngModel)]="lessonForm.description"
+            placeholder="Brief description of the lesson"
+            class="form-textarea"
+            rows="2"
+          ></textarea>
+        </div>
+
+        <!-- Video Section -->
+        <div class="form-section">
+          <h4>Video Content</h4>
+          <div class="video-options">
+            <div class="option-tabs">
+              <button
+                class="option-tab"
+                [class.active]="!selectedFile"
+                (click)="selectedFile = null"
+              >
+                <i class="fas fa-link"></i>
+                External Link
+              </button>
+              <button
+                class="option-tab"
+                [class.active]="selectedFile"
+                (click)="fileInput.click()"
+              >
+                <i class="fas fa-upload"></i>
+                Upload Video
+              </button>
+            </div>
+
+            <!-- External Video URL -->
+            <div class="video-input" *ngIf="!selectedFile">
+              <input
+                type="url"
+                [(ngModel)]="lessonForm.videoUrl"
+                placeholder="YouTube, Vimeo, or direct video URL"
+                class="form-input"
+              />
+              <p class="input-hint">
+                <i class="fas fa-info-circle"></i>
+                Paste a YouTube, Vimeo, or direct video file URL
+              </p>
+            </div>
+
+            <!-- Video Upload -->
+            <div class="video-upload" *ngIf="selectedFile">
+              <div class="file-info">
+                <i class="fas fa-video"></i>
+                <span class="file-name">{{ selectedFile.name }}</span>
+                <span class="file-size"
+                  >{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</span
+                >
+                <button class="remove-file-btn" (click)="removeFile()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+            <input
+              type="file"
+              #fileInput
+              hidden
+              accept="video/*"
+              (change)="onFileSelected($event)"
+            />
+          </div>
+        </div>
+
+        <!-- Rich Text Content -->
+        <div class="form-section">
+          <h4>Lesson Content</h4>
+          <div class="rich-editor">
+            <textarea
+              [(ngModel)]="lessonForm.content"
+              placeholder="Enter lesson content, instructions, or additional materials..."
+              class="content-textarea"
+              rows="15"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Attachments -->
+        <div class="form-section">
+          <h4>Attachments</h4>
+          <div class="attachments-area">
+            <div class="upload-zone">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Drag & drop files here or click to browse</p>
+              <span class="supported-formats"
+                >Supported: PDF, DOC, DOCX, ZIP (Max 50MB)</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Settings -->
+      <div class="sidebar-settings">
+        <div class="settings-card">
+          <h4>Lesson Settings</h4>
+
+          <!-- Duration -->
+          <div class="form-group">
+            <label for="duration">Duration (minutes)</label>
+            <input
+              type="number"
+              id="duration"
+              [(ngModel)]="lessonForm.duration"
+              class="form-input"
+              min="0"
+            />
+          </div>
+
+          <!-- Lock Lesson -->
+          <div class="form-group checkbox-group">
+            <input
+              type="checkbox"
+              id="isLocked"
+              [(ngModel)]="lessonForm.isLocked"
+            />
+            <label for="isLocked">
+              <i class="fas fa-lock"></i>
+              Lock until previous lesson completed
+            </label>
+          </div>
+
+          <!-- Drip Content -->
+          <div class="form-group">
+            <label for="releaseDate">
+              <i class="fas fa-calendar"></i>
+              Release Date (Drip Content)
+            </label>
+            <input
+              type="datetime-local"
+              id="releaseDate"
+              [(ngModel)]="lessonForm.releaseDate"
+              class="form-input"
+            />
+            <p class="input-hint">Leave empty for immediate access</p>
+          </div>
+        </div>
+
+        <!-- Quick Tips -->
+        <div class="tips-card">
+          <h4><i class="fas fa-lightbulb"></i> Quick Tips</h4>
+          <ul class="tips-list">
+            <li>Keep videos under 10 minutes for better engagement</li>
+            <li>Add quizzes to reinforce learning</li>
+            <li>Include downloadable resources when possible</li>
+            <li>Use drip content to pace student progress</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

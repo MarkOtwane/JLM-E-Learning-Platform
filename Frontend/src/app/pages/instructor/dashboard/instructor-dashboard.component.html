@@ -1,55 +1,271 @@
 <div class="dashboard-container">
   <!-- Welcome Banner -->
   <div class="welcome-banner">
-    <h2>Welcome, {{ instructorEmail }} 👋</h2>
-    <p>Hope you're ready to inspire more learners today.</p>
+    <div class="welcome-content">
+      <h2>
+        Welcome, {{ instructorName }}
+        <i class="fas fa-hand-paper greeting-icon" aria-hidden="true"></i>
+      </h2>
+      <p>Hope you're ready to inspire more learners today.</p>
+    </div>
     <button class="create-course-btn" routerLink="/instructor/create-course">
+      <i class="fas fa-plus"></i>
       Create Course
     </button>
   </div>
 
-  <!-- Top Cards -->
-  <div class="dashboard-grid">
-    <!-- My Courses -->
-    <div class="dashboard-card">
-      <h3>My Courses</h3>
-      <p class="card-number">{{ courseCount }}</p>
+  <!-- Stats Overview -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon courses">
+        <i class="fas fa-book"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalCourses }}</span>
+        <span class="stat-label">My Courses</span>
+      </div>
     </div>
 
-    <!-- Total Students -->
-    <div class="dashboard-card">
-      <h3>Total Enrollments</h3>
-      <p class="card-number">{{ totalStudents }}</p>
+    <div class="stat-card">
+      <div class="stat-icon students">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ totalStudents }}</span>
+        <span class="stat-label">Total Enrollments</span>
+      </div>
     </div>
 
-    <!-- Earnings -->
-    <div class="dashboard-card">
-      <h3>Total Earnings</h3>
-      <p class="card-number">${{ totalEarnings }}</p>
+    <div class="stat-card">
+      <div class="stat-icon completion">
+        <i class="fas fa-chart-pie"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ averageCompletionRate }}%</span>
+        <span class="stat-label">Avg. Completion</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon pending">
+        <i class="fas fa-clipboard-list"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ pendingAssignments }}</span>
+        <span class="stat-label">Pending Reviews</span>
+      </div>
     </div>
   </div>
 
-  <!-- List of Instructor's Courses -->
-  <div class="dashboard-card" *ngIf="courses.length">
+  <!-- Courses Section -->
+  <div class="section-header">
     <h3>My Courses</h3>
-    <table style="width: 100%; margin-top: 10px">
+    <div class="view-toggle">
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode === 'cards'"
+        (click)="viewMode = 'cards'"
+        title="Card View"
+      >
+        <i class="fas fa-th-large"></i>
+      </button>
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode === 'table'"
+        (click)="viewMode = 'table'"
+        title="Table View"
+      >
+        <i class="fas fa-list"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading courses...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && courses.length === 0">
+    <i class="fas fa-book-open"></i>
+    <h4>No courses yet</h4>
+    <p>
+      Start creating your first course to share your knowledge with students.
+    </p>
+    <button class="create-course-btn" routerLink="/instructor/create-course">
+      <i class="fas fa-plus"></i>
+      Create Your First Course
+    </button>
+  </div>
+
+  <!-- Card View -->
+  <div
+    class="courses-grid"
+    *ngIf="!isLoading && courses.length > 0 && viewMode === 'cards'"
+  >
+    <div class="course-card" *ngFor="let course of courses">
+      <div class="course-header">
+        <h4 class="course-title">{{ course.courseTitle }}</h4>
+        <span class="course-badge" [class.premium]="course.isPremium">
+          {{ course.isPremium ? "Premium" : "Free" }}
+        </span>
+      </div>
+
+      <div class="course-stats">
+        <div class="course-stat">
+          <i class="fas fa-users"></i>
+          <span>{{ course.totalStudents }} Students</span>
+        </div>
+        <div class="course-stat">
+          <i class="fas fa-chart-line"></i>
+          <span>{{ course.avgProgress }}% Progress</span>
+        </div>
+        <div class="course-stat">
+          <i class="fas fa-trophy"></i>
+          <span>{{ course.completionRate }}% Completion</span>
+        </div>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            [style.width.%]="course.avgProgress"
+            [style.background-color]="getProgressColor(course.avgProgress)"
+          ></div>
+        </div>
+        <span class="progress-text"
+          >{{ course.avgProgress }}% avg. progress</span
+        >
+      </div>
+
+      <div class="course-meta">
+        <span class="meta-item" *ngIf="course.pendingAssignments > 0">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ course.pendingAssignments }} pending reviews
+        </span>
+        <span class="meta-item">
+          <i class="fas fa-clock"></i>
+          Last activity: {{ formatDate(course.lastActivity) }}
+        </span>
+      </div>
+
+      <div class="course-actions">
+        <button
+          class="action-btn primary"
+          (click)="editCourse(course.courseId)"
+        >
+          <i class="fas fa-edit"></i>
+          Edit Course
+        </button>
+        <button
+          class="action-btn secondary"
+          (click)="viewStudents(course.courseId)"
+        >
+          <i class="fas fa-users"></i>
+          Students
+        </button>
+        <button
+          class="action-btn secondary"
+          (click)="createLesson(course.courseId)"
+        >
+          <i class="fas fa-plus"></i>
+          Lesson
+        </button>
+        <button
+          class="action-btn secondary"
+          (click)="viewAnalytics(course.courseId)"
+        >
+          <i class="fas fa-chart-bar"></i>
+          Analytics
+        </button>
+        <button
+          class="action-btn danger"
+          (click)="deleteCourse(course.courseId)"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table View -->
+  <div
+    class="table-container"
+    *ngIf="!isLoading && courses.length > 0 && viewMode === 'table'"
+  >
+    <table class="courses-table">
       <thead>
         <tr>
-          <th style="text-align: left">Course Title</th>
-          <th style="text-align: right">Enrolled Students</th>
-          <th style="text-align: right">Actions</th>
+          <th>Course Title</th>
+          <th>Students</th>
+          <th>Progress</th>
+          <th>Completion</th>
+          <th>Pending</th>
+          <th>Last Activity</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let course of courses">
-          <td>{{ course.courseTitle }}</td>
-          <td style="text-align: right">{{ course.totalStudents }}</td>
-          <td style="text-align: right">
-            <button (click)="editCourse(course.courseId)" class="edit-btn">
-              Edit
+          <td class="course-title-cell">
+            <span class="title">{{ course.courseTitle }}</span>
+            <span class="badge" [class.premium]="course.isPremium">
+              {{ course.isPremium ? "Premium" : "Free" }}
+            </span>
+          </td>
+          <td>{{ course.totalStudents }}</td>
+          <td>
+            <div class="table-progress">
+              <div class="progress-bar mini">
+                <div
+                  class="progress-fill"
+                  [style.width.%]="course.avgProgress"
+                  [style.background-color]="
+                    getProgressColor(course.avgProgress)
+                  "
+                ></div>
+              </div>
+              <span>{{ course.avgProgress }}%</span>
+            </div>
+          </td>
+          <td>{{ course.completionRate }}%</td>
+          <td>
+            <span class="pending-badge" *ngIf="course.pendingAssignments > 0">
+              {{ course.pendingAssignments }}
+            </span>
+            <span *ngIf="course.pendingAssignments === 0">-</span>
+          </td>
+          <td>{{ formatDate(course.lastActivity) }}</td>
+          <td class="actions-cell">
+            <button
+              class="table-action-btn"
+              (click)="editCourse(course.courseId)"
+              title="Edit"
+            >
+              <i class="fas fa-edit"></i>
             </button>
-            <button (click)="deleteCourse(course.courseId)" class="delete-btn">
-              Delete
+            <button
+              class="table-action-btn"
+              (click)="viewStudents(course.courseId)"
+              title="Students"
+            >
+              <i class="fas fa-users"></i>
+            </button>
+            <button
+              class="table-action-btn"
+              (click)="viewAnalytics(course.courseId)"
+              title="Analytics"
+            >
+              <i class="fas fa-chart-bar"></i>
+            </button>
+            <button
+              class="table-action-btn danger"
+              (click)="deleteCourse(course.courseId)"
+              title="Delete"
+            >
+              <i class="fas fa-trash"></i>
             </button>
           </td>
         </tr>
@@ -60,63 +276,97 @@
   <!-- Bottom Section -->
   <div class="bottom-section">
     <!-- Calendar -->
-    <div class="dashboard-card calendar-card">
-      <h3>Calendar</h3>
-      <div class="calendar-interactive">
-        <input type="date" [(ngModel)]="selectedDate" />
-        <input
-          type="text"
-          [(ngModel)]="activityText"
-          placeholder="Add activity..."
-        />
-        <button (click)="addActivity()">Add</button>
+    <div class="panel calendar-panel">
+      <div class="panel-header">
+        <h3><i class="fas fa-calendar-alt"></i> Calendar</h3>
       </div>
-      <div
-        class="calendar-activities"
-        *ngIf="calendarActivities[selectedDate]?.length"
-      >
-        <h4>Activities for {{ selectedDate }}</h4>
-        <ul class="calendar-activity-list">
-          <li
-            *ngFor="let act of calendarActivities[selectedDate]; let i = index"
-          >
-            <ng-container *ngIf="editIndex !== i; else editBlock">
-              <span>{{ act }}</span>
-              <button
-                class="edit-activity-btn"
-                (click)="startEditActivity(i, act)"
-              >
-                Edit
-              </button>
-              <button class="delete-activity-btn" (click)="deleteActivity(i)">
-                Delete
-              </button>
-            </ng-container>
-            <ng-template #editBlock>
-              <input [(ngModel)]="editText" class="edit-activity-input" />
-              <button class="save-activity-btn" (click)="saveEditActivity(i)">
-                Save
-              </button>
-              <button
-                class="cancel-activity-btn"
-                (click)="cancelEditActivity()"
-              >
-                Cancel
-              </button>
-            </ng-template>
-          </li>
-        </ul>
+      <div class="panel-body">
+        <div class="calendar-input">
+          <input type="date" [(ngModel)]="selectedDate" class="date-input" />
+          <input
+            type="text"
+            [(ngModel)]="activityText"
+            placeholder="Add activity..."
+            class="activity-input"
+          />
+          <button class="add-btn" (click)="addActivity()">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div
+          class="calendar-activities"
+          *ngIf="calendarActivities[selectedDate]?.length"
+        >
+          <h4>Activities for {{ selectedDate }}</h4>
+          <ul class="activity-list">
+            <li
+              *ngFor="
+                let act of calendarActivities[selectedDate];
+                let i = index
+              "
+            >
+              <ng-container *ngIf="editIndex !== i; else editBlock">
+                <span class="activity-text">{{ act }}</span>
+                <div class="activity-actions">
+                  <button
+                    class="activity-btn edit"
+                    (click)="startEditActivity(i, act)"
+                  >
+                    <i class="fas fa-pen"></i>
+                  </button>
+                  <button
+                    class="activity-btn delete"
+                    (click)="deleteActivity(i)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </ng-container>
+              <ng-template #editBlock>
+                <input [(ngModel)]="editText" class="edit-input" />
+                <div class="activity-actions">
+                  <button
+                    class="activity-btn save"
+                    (click)="saveEditActivity(i)"
+                  >
+                    <i class="fas fa-check"></i>
+                  </button>
+                  <button
+                    class="activity-btn cancel"
+                    (click)="cancelEditActivity()"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </ng-template>
+            </li>
+          </ul>
+        </div>
+        <div
+          class="no-activities"
+          *ngIf="selectedDate && !calendarActivities[selectedDate]?.length"
+        >
+          <p>No activities scheduled for this date.</p>
+        </div>
       </div>
     </div>
 
     <!-- Recent Activity -->
-    <div class="dashboard-card recent-activity-card">
-      <h3>Recent Activity</h3>
-      <ul class="activity-list">
-        <li *ngFor="let activity of recentActivity">
-          {{ activity }}
-        </li>
-      </ul>
+    <div class="panel activity-panel">
+      <div class="panel-header">
+        <h3><i class="fas fa-history"></i> Recent Activity</h3>
+      </div>
+      <div class="panel-body">
+        <ul class="recent-activity-list">
+          <li *ngFor="let activity of recentActivity">
+            <i class="fas fa-circle"></i>
+            <span>{{ activity }}</span>
+          </li>
+        </ul>
+        <div class="no-activity" *ngIf="recentActivity.length === 0">
+          <p>No recent activity to display.</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -1,0 +1,312 @@
+<div class="assignments-container">
+  <!-- Header -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="header-content">
+      <h2>Assignments & Grading</h2>
+    </div>
+    <button class="create-btn" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      New Assignment
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading assignments...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && assignments.length === 0">
+    <i class="fas fa-tasks"></i>
+    <h4>No assignments yet</h4>
+    <p>Create your first assignment to start collecting student submissions.</p>
+    <button class="create-btn" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      Create Assignment
+    </button>
+  </div>
+
+  <!-- Assignments List View -->
+  <div class="assignments-list" *ngIf="!isLoading && assignments.length > 0 && !selectedAssignment">
+    <div class="assignment-card" *ngFor="let assignment of assignments" (click)="selectAssignment(assignment)">
+      <div class="assignment-header">
+        <h3 class="assignment-title">{{ assignment.title }}</h3>
+        <span class="submission-count">
+          {{ assignment._count?.submissions || 0 }} submissions
+        </span>
+      </div>
+      <p class="assignment-description">{{ assignment.description }}</p>
+      <div class="assignment-meta">
+        <span class="meta-item" *ngIf="assignment.dueDate">
+          <i class="fas fa-calendar"></i>
+          Due: {{ formatDate(assignment.dueDate) }}
+        </span>
+        <span class="meta-item">
+          <i class="fas fa-star"></i>
+          Max Score: {{ assignment.maxScore }}
+        </span>
+        <span class="meta-item" *ngIf="assignment.allowLateSubmission">
+          <i class="fas fa-clock"></i>
+          Late submissions allowed
+        </span>
+      </div>
+      <div class="assignment-actions">
+        <button class="action-btn" (click)="openEditModal(assignment); $event.stopPropagation()">
+          <i class="fas fa-edit"></i>
+          Edit
+        </button>
+        <button class="action-btn primary">
+          <i class="fas fa-eye"></i>
+          View Submissions
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submissions View -->
+  <div class="submissions-view" *ngIf="selectedAssignment">
+    <div class="submissions-header">
+      <button class="back-btn" (click)="goBackToAssignments()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="header-info">
+        <h3>{{ selectedAssignment.title }}</h3>
+        <p>{{ selectedAssignment.description }}</p>
+      </div>
+    </div>
+
+    <div class="submissions-stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ submissions.length }}</span>
+        <span class="stat-label">Total Submissions</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ submissions.filter(s => s.status === 'graded').length }}</span>
+        <span class="stat-label">Graded</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ submissions.filter(s => s.status === 'submitted').length }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoadingSubmissions">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading submissions...</p>
+    </div>
+
+    <div class="submissions-table-container" *ngIf="!isLoadingSubmissions && submissions.length > 0">
+      <table class="submissions-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Submitted</th>
+            <th>File</th>
+            <th>Score</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let submission of submissions">
+            <td class="student-cell">
+              <div class="student-info">
+                <div class="avatar">
+                  {{ submission.student.name.charAt(0).toUpperCase() }}
+                </div>
+                <div class="student-details">
+                  <span class="student-name">{{ submission.student.name }}</span>
+                  <span class="student-email">{{ submission.student.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td>{{ formatDate(submission.submittedAt) }}</td>
+            <td>
+              <a *ngIf="submission.fileUrl" [href]="submission.fileUrl" target="_blank" class="file-link">
+                <i class="fas fa-file"></i>
+                {{ submission.fileName || 'Download' }}
+              </a>
+              <span *ngIf="!submission.fileUrl && submission.content" class="text-submission">
+                <i class="fas fa-align-left"></i>
+                Text submission
+              </span>
+              <span *ngIf="!submission.fileUrl && !submission.content">-</span>
+            </td>
+            <td>
+              <span *ngIf="submission.score !== null && submission.score !== undefined">
+                {{ submission.score }} / {{ selectedAssignment.maxScore }}
+              </span>
+              <span *ngIf="submission.score === null || submission.score === undefined">-</span>
+            </td>
+            <td>
+              <span class="status-badge" [style.background-color]="getStatusColor(submission.status)">
+                {{ submission.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button 
+                class="grade-btn" 
+                (click)="openGradingModal(submission)"
+                [class.graded]="submission.status === 'graded'">
+                <i class="fas fa-check-circle"></i>
+                {{ submission.status === 'graded' ? 'Update' : 'Grade' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoadingSubmissions && submissions.length === 0">
+      <i class="fas fa-inbox"></i>
+      <h4>No submissions yet</h4>
+      <p>Students haven't submitted any work for this assignment.</p>
+    </div>
+  </div>
+
+  <!-- Create/Edit Assignment Modal -->
+  <div class="modal-overlay" *ngIf="showAssignmentModal" (click)="closeAssignmentModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingAssignment ? 'Edit Assignment' : 'Create Assignment' }}</h3>
+        <button class="close-btn" (click)="closeAssignmentModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="title">Title *</label>
+          <input 
+            type="text" 
+            id="title" 
+            [(ngModel)]="assignmentForm.title"
+            placeholder="Assignment title"
+            class="form-input"
+          />
+        </div>
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="assignmentForm.description"
+            placeholder="Describe the assignment..."
+            class="form-textarea"
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="instructions">Instructions</label>
+          <textarea 
+            id="instructions" 
+            [(ngModel)]="assignmentForm.instructions"
+            placeholder="Detailed instructions for students..."
+            class="form-textarea"
+            rows="4"
+          ></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="maxScore">Max Score</label>
+            <input 
+              type="number" 
+              id="maxScore" 
+              [(ngModel)]="assignmentForm.maxScore"
+              class="form-input"
+              min="1"
+              max="1000"
+            />
+          </div>
+          <div class="form-group half">
+            <label for="dueDate">Due Date</label>
+            <input 
+              type="datetime-local" 
+              id="dueDate" 
+              [(ngModel)]="assignmentForm.dueDate"
+              class="form-input"
+            />
+          </div>
+        </div>
+        <div class="form-group checkbox">
+          <input 
+            type="checkbox" 
+            id="allowLate" 
+            [(ngModel)]="assignmentForm.allowLateSubmission"
+          />
+          <label for="allowLate">Allow late submissions</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary" (click)="closeAssignmentModal()">Cancel</button>
+        <button class="btn primary" (click)="saveAssignment()">
+          {{ editingAssignment ? 'Update' : 'Create' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grading Modal -->
+  <div class="modal-overlay" *ngIf="showGradingModal" (click)="closeGradingModal()">
+    <div class="modal-content grading-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Grade Submission</h3>
+        <button class="close-btn" (click)="closeGradingModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" *ngIf="selectedSubmission">
+        <div class="student-info-header">
+          <div class="avatar large">
+            {{ selectedSubmission.student.name.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <h4>{{ selectedSubmission.student.name }}</h4>
+            <p>{{ selectedSubmission.student.email }}</p>
+          </div>
+        </div>
+
+        <div class="submission-content" *ngIf="selectedSubmission.content">
+          <h5>Submission Content:</h5>
+          <div class="content-box">{{ selectedSubmission.content }}</div>
+        </div>
+
+        <div class="submission-file" *ngIf="selectedSubmission.fileUrl">
+          <h5>Submitted File:</h5>
+          <a [href]="selectedSubmission.fileUrl" target="_blank" class="file-download">
+            <i class="fas fa-download"></i>
+            {{ selectedSubmission.fileName || 'Download File' }}
+          </a>
+        </div>
+
+        <div class="form-group">
+          <label for="score">Score (out of {{ selectedAssignment?.maxScore }})</label>
+          <input 
+            type="number" 
+            id="score" 
+            [(ngModel)]="gradeForm.score"
+            class="form-input"
+            min="0"
+            [max]="selectedAssignment?.maxScore || 100"
+          />
+        </div>
+        <div class="form-group">
+          <label for="feedback">Feedback</label>
+          <textarea 
+            id="feedback" 
+            [(ngModel)]="gradeForm.feedback"
+            placeholder="Provide feedback for the student..."
+            class="form-textarea"
+            rows="4"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary" (click)="closeGradingModal()">Cancel</button>
+        <button class="btn primary" (click)="submitGrade()">Submit Grade</button>
+      </div>
+    </div>
+  </div>
+</div>

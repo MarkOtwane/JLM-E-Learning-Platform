@@ -12,34 +12,53 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!isLoading && pendingInstructors.length === 0" class="empty-state">
-    <div class="empty-icon">✅</div>
+  <div
+    *ngIf="!isLoading && pendingInstructors.length === 0"
+    class="empty-state"
+  >
+    <div class="empty-icon">
+      <i class="fas fa-check-circle" aria-hidden="true"></i>
+    </div>
     <h3 class="empty-title">No pending instructors</h3>
     <p class="empty-description">
-      All instructor applications have been processed. New applications will appear here.
+      All instructor applications have been processed. New applications will
+      appear here.
     </p>
   </div>
 
   <!-- Pending Instructors Grid -->
-  <div *ngIf="!isLoading && pendingInstructors.length > 0" class="instructors-grid">
+  <div
+    *ngIf="!isLoading && pendingInstructors.length > 0"
+    class="instructors-grid"
+  >
     <div *ngFor="let instructor of pendingInstructors" class="instructor-card">
       <div class="card-header">
         <div class="user-avatar">{{ getInitials(instructor.name) }}</div>
         <span class="status-badge">Pending Review</span>
       </div>
-      
+
       <div class="card-body">
         <h3 class="instructor-name">{{ instructor.name }}</h3>
         <p class="instructor-email">{{ instructor.email }}</p>
       </div>
-      
+
       <div class="card-footer">
-        <button class="action-btn approve" (click)="acceptInstructor(instructor.id)">
-          <span class="btn-icon">✓</span>
+        <button
+          class="action-btn approve"
+          (click)="acceptInstructor(instructor.id)"
+        >
+          <span class="btn-icon">
+            <i class="fas fa-check" aria-hidden="true"></i>
+          </span>
           Approve
         </button>
-        <button class="action-btn reject" (click)="rejectInstructor(instructor.id)">
-          <span class="btn-icon">✕</span>
+        <button
+          class="action-btn reject"
+          (click)="rejectInstructor(instructor.id)"
+        >
+          <span class="btn-icon">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </span>
           Reject
         </button>
       </div>
