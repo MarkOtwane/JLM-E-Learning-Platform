@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service'; // Fixed import path
+import { CourseRefreshService } from '../../../services/course-refresh.service';
 
 interface CourseData {
   title: string;
@@ -39,7 +40,8 @@ export class CreateCourseComponent implements OnInit {
   constructor(
     private router: Router,
     private apiService: ApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private courseRefreshService: CourseRefreshService
   ) {}
 
   ngOnInit(): void {
@@ -93,6 +95,8 @@ export class CreateCourseComponent implements OnInit {
     console.log('Sending payload:', payload);
     this.apiService.postAuth('/courses', payload).subscribe({
       next: (response: any) => {
+        // Notify that a course was created
+        this.courseRefreshService.notifyCourseCreated();
         this.router.navigate(['/instructor/dashboard']);
       },
       error: (error) => {

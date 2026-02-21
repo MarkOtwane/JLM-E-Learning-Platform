@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { InstructorService } from '../../../services/instructor.service';
+import { CourseRefreshService } from '../../../services/course-refresh.service';
 
 @Component({
   selector: 'app-my-courses',
@@ -248,9 +249,17 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
   constructor(
     private instructorService: InstructorService,
     private router: Router,
+    private courseRefreshService: CourseRefreshService
   ) {}
 
   ngOnInit(): void {
+
+    // Listen for course creation events and refresh courses
+    this.courseRefreshService.courseCreated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadCourses();
+      });
     this.loadCourses();
   }
 

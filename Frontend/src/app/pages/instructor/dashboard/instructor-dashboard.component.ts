@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { InstructorService } from '../../../services/instructor.service';
 import { AuthService } from '../../../services/auth.service';
+import { CourseRefreshService } from '../../../services/course-refresh.service';
 
 interface CourseMetrics {
   courseId: string;
@@ -65,7 +66,8 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private instructorService: InstructorService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private courseRefreshService: CourseRefreshService
   ) {}
 
   ngOnInit(): void {
@@ -78,6 +80,13 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         }
       });
+    // Listen for course creation events and refresh dashboard
+    this.courseRefreshService.courseCreated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadDashboardData();
+      });
+    
     
     this.loadDashboardData();
   }
