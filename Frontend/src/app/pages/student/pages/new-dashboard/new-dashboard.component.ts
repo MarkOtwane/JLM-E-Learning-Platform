@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../../../services/api.service';
 import { AuthService } from '../../../../services/auth.service';
 import {
@@ -385,6 +385,7 @@ export class NewDashboardComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private authService: AuthService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -394,97 +395,67 @@ export class NewDashboardComponent implements OnInit {
   loadDashboardData(): void {
     this.isLoading = true;
 
-    // TODO: Replace with actual API calls
-    setTimeout(() => {
-      this.stats = {
-        enrolledCourses: 8,
-        completedCourses: 3,
-        certificates: 2,
-        learningHours: 42,
-      };
+    // Fetch enrolled courses from the backend
+    this.apiService.getAuth<any[]>('/students/courses').subscribe({
+      next: (courses) => {
+        // Map backend data to CourseCardData format
+        this.activeCourses = courses
+          .filter((c) => c.progress < 100) // Only show in-progress courses
+          .slice(0, 3) // Show top 3
+          .map((course) => ({
+            id: course.id,
+            title: course.title,
+            description: course.description || '',
+            instructor: course.instructor?.name || 'Unknown',
+            thumbnail:
+              course.thumbnail ||
+              course.imageUrl ||
+              'https://picsum.photos/400/300',
+            progress: course.progress || 0,
+            level: course.level || 'Beginner',
+            category: course.category || 'General',
+            rating: 4.5, // Default rating
+            duration: course.duration
+              ? `${Math.floor(course.duration / 60)} weeks`
+              : 'N/A',
+            completedLessons: 0, // Calculate if data available
+            totalLessons: course.totalLessons || 0,
+            isEnrolled: true,
+          }));
 
-      this.activeCourses = [
-        {
-          id: '1',
-          title: 'Introduction to Web Development',
-          description: 'Learn the fundamentals of HTML, CSS, and JavaScript',
-          instructor: 'John Doe',
-          thumbnail: 'https://picsum.photos/400/300?random=1',
-          progress: 65,
-          level: 'Beginner',
-          category: 'Development',
-          rating: 4.8,
-          duration: '6 weeks',
-          completedLessons: 13,
-          totalLessons: 20,
-          isEnrolled: true,
-        },
-        {
-          id: '2',
-          title: 'Advanced React Patterns',
-          description: 'Master advanced React concepts and patterns',
-          instructor: 'Jane Smith',
-          thumbnail: 'https://picsum.photos/400/300?random=2',
-          progress: 30,
-          level: 'Advanced',
-          category: 'Development',
-          rating: 4.9,
-          duration: '8 weeks',
-          completedLessons: 6,
-          totalLessons: 20,
-          isEnrolled: true,
-        },
-        {
-          id: '3',
-          title: 'UI/UX Design Fundamentals',
-          description: 'Learn the principles of modern UI/UX design',
-          instructor: 'Mike Johnson',
-          thumbnail: 'https://picsum.photos/400/300?random=3',
-          progress: 80,
-          level: 'Intermediate',
-          category: 'Design',
-          rating: 4.7,
-          duration: '5 weeks',
-          completedLessons: 16,
-          totalLessons: 20,
-          isEnrolled: true,
-        },
-      ];
+        // Update stats
+        const completedCourses = courses.filter(
+          (c) => c.progress === 100,
+        ).length;
+        this.stats = {
+          enrolledCourses: courses.length,
+          completedCourses: completedCourses,
+          certificates: completedCourses, // Certificates match completed courses
+          learningHours:
+            courses.reduce((sum, c) => sum + (c.duration || 0), 0) / 60,
+        };
 
-      this.upcomingAssignments = [
-        {
-          title: 'Final Project Submission',
-          courseName: 'Web Development',
-          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-          status: 'Pending',
-        },
-        {
-          title: 'Quiz: React Hooks',
-          courseName: 'Advanced React',
-          dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-          status: 'Pending',
-        },
-      ];
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load dashboard data:', err);
+        this.isLoading = false;
 
-      this.upcomingLiveClasses = [
-        {
-          title: 'Live Q&A Session',
-          instructor: 'John Doe',
-          scheduledTime: new Date(Date.now() + 3 * 60 * 60 * 1000),
-        },
-      ];
+        // Fallback to empty state
+        this.stats = {
+          enrolledCourses: 0,
+          completedCourses: 0,
+          certificates: 0,
+          learningHours: 0,
+        };
+        this.activeCourses = [];
+      },
+    });
 
-      this.announcements = [
-        {
-          title: 'New Course Available!',
-          message:
-            'Check out our new Machine Learning course now available in the catalog.',
-          date: new Date(),
-        },
-      ];
-
-      this.isLoading = false;
-    }, 1500);
+    // TODO: Fetch real assignments, live classes, and announcements when endpoints are available
+    this.upcomingAssignments = [];
+    this.upcomingLiveClasses = [];
+    this.announcements = [];
   }
 
   getGreeting(): string {
@@ -520,17 +491,17 @@ export class NewDashboardComponent implements OnInit {
   }
 
   onCourseClick(course: CourseCardData): void {
-    // Navigate to course detail
-    console.log('Navigate to course:', course.id);
+    // Navigate to course learning page
+    this.router.navigate(['/learning/course', course.id]);
   }
 
   continueCourse(course: CourseCardData): void {
     // Navigate to learning page
-    console.log('Continue course:', course.id);
+    this.router.navigate(['/learning/course', course.id]);
   }
 
   navigateToCatalog(): void {
     // Navigate to catalog
-    console.log('Navigate to catalog');
+    this.router.navigate(['/student/catalog']);
   }
 }
