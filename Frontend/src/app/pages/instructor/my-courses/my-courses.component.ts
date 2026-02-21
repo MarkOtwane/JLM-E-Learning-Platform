@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { InstructorService } from '../../../services/instructor.service';
 import { CourseRefreshService } from '../../../services/course-refresh.service';
+import { InstructorService } from '../../../services/instructor.service';
 
 @Component({
   selector: 'app-my-courses',
@@ -19,66 +19,74 @@ import { CourseRefreshService } from '../../../services/course-refresh.service';
         </button>
       </div>
 
-      <div class="loading" *ngIf="isLoading">
-        <i class="fas fa-spinner fa-spin"></i>
-        <p>Loading courses...</p>
-      </div>
-
-      <div class="courses-grid" *ngIf="!isLoading && courses.length > 0">
-        <div class="course-card" *ngFor="let course of courses">
-          <div class="course-header">
-            <h3>{{ course.title }}</h3>
-            <span class="course-status">Published</span>
-          </div>
-          <p class="course-description">{{ course.description }}</p>
-          <div class="course-stats">
-            <span
-              ><i class="fas fa-users"></i>
-              {{ course.totalStudents || 0 }} students</span
-            >
-            <span
-              ><i class="fas fa-book"></i>
-              {{ course.totalModules || 0 }} modules</span
-            >
-          </div>
-          <div class="course-actions">
-            <button
-              class="btn-secondary"
-              [routerLink]="['/instructor/edit-course', course.id]"
-            >
-              <i class="fas fa-edit"></i> Edit
-            </button>
-            <button
-              class="btn-secondary"
-              [routerLink]="['/instructor/courses', course.id, 'students']"
-            >
-              <i class="fas fa-users"></i> Students
-            </button>
-            <button
-              class="btn-secondary"
-              [routerLink]="['/instructor/courses', course.id, 'assignments']"
-            >
-              <i class="fas fa-tasks"></i> Assignments
-            </button>
-            <button
-              class="btn-secondary"
-              [routerLink]="['/instructor/courses', course.id, 'analytics']"
-            >
-              <i class="fas fa-chart-bar"></i> Analytics
-            </button>
-          </div>
+      @if (isLoading) {
+        <div class="loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Loading courses...</p>
         </div>
-      </div>
+      }
 
-      <div class="empty-state" *ngIf="!isLoading && courses.length === 0">
-        <i class="fas fa-book"></i>
-        <h2>No Courses Yet</h2>
-        <p>Start by creating your first course</p>
-        <button class="btn-primary" routerLink="/instructor/create-course">
-          <i class="fas fa-plus"></i>
-          Create Course
-        </button>
-      </div>
+      @if (!isLoading && courses.length > 0) {
+        <div class="courses-grid">
+          @for (course of courses; track course.id) {
+            <div class="course-card">
+              <div class="course-header">
+                <h3>{{ course.title }}</h3>
+                <span class="course-status">Published</span>
+              </div>
+              <p class="course-description">{{ course.description }}</p>
+              <div class="course-stats">
+                <span
+                  ><i class="fas fa-users"></i>
+                  {{ course.totalStudents || 0 }} students</span
+                >
+                <span
+                  ><i class="fas fa-book"></i>
+                  {{ course.totalModules || 0 }} modules</span
+                >
+              </div>
+              <div class="course-actions">
+                <button
+                  class="btn-secondary"
+                  [routerLink]="['/instructor/edit-course', course.id]"
+                >
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+                <button
+                  class="btn-secondary"
+                  [routerLink]="['/instructor/courses', course.id, 'students']"
+                >
+                  <i class="fas fa-users"></i> Students
+                </button>
+                <button
+                  class="btn-secondary"
+                  [routerLink]="['/instructor/courses', course.id, 'assignments']"
+                >
+                  <i class="fas fa-tasks"></i> Assignments
+                </button>
+                <button
+                  class="btn-secondary"
+                  [routerLink]="['/instructor/courses', course.id, 'analytics']"
+                >
+                  <i class="fas fa-chart-bar"></i> Analytics
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (!isLoading && courses.length === 0) {
+        <div class="empty-state">
+          <i class="fas fa-book"></i>
+          <h2>No Courses Yet</h2>
+          <p>Start by creating your first course</p>
+          <button class="btn-primary" routerLink="/instructor/create-course">
+            <i class="fas fa-plus"></i>
+            Create Course
+          </button>
+        </div>
+      }
     </div>
   `,
   styles: [
@@ -249,11 +257,10 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
   constructor(
     private instructorService: InstructorService,
     private router: Router,
-    private courseRefreshService: CourseRefreshService
+    private courseRefreshService: CourseRefreshService,
   ) {}
 
   ngOnInit(): void {
-
     // Listen for course creation events and refresh courses
     this.courseRefreshService.courseCreated$
       .pipe(takeUntil(this.destroy$))
