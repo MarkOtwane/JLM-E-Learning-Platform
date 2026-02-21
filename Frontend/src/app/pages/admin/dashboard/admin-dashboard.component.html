@@ -1,91 +1,214 @@
-<div class="dashboard-wrapper">
+<div class="dashboard-wrapper" role="main" aria-label="Admin Dashboard">
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <div class="loading-spinner"></div>
+  <div
+    *ngIf="isLoading"
+    class="loading-container"
+    role="status"
+    aria-live="polite"
+  >
+    <div class="loading-spinner" aria-hidden="true"></div>
     <p class="loading-text">Loading dashboard...</p>
   </div>
 
   <!-- Dashboard Content -->
   <ng-container *ngIf="!isLoading">
     <!-- Page Header -->
-    <div class="page-header">
+    <header class="page-header">
       <h1 class="page-title">Dashboard Overview</h1>
       <p class="page-subtitle">
-        Welcome back! Here's what's happening with your platform.
+        Welcome back! Here's what's happening with your platform today.
       </p>
-    </div>
+    </header>
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid">
-      <!-- Total Students Card -->
-      <div class="stat-card">
+    <section class="stats-grid" aria-label="Platform Statistics">
+      <!-- Metric Cards -->
+      <article
+        *ngFor="let card of metricCards; let i = index"
+        class="stat-card"
+        [class.warning-card]="card.isWarning"
+        [attr.aria-label]="card.label"
+      >
         <div class="stat-card-header">
-          <div class="stat-icon students">
-            <span>👨‍🎓</span>
+          <div
+            class="stat-icon"
+            [ngClass]="card.iconBgClass"
+            aria-hidden="true"
+          >
+            <span>{{ card.icon }}</span>
           </div>
-          <div class="stat-trend positive" *ngIf="stats.totalStudents > 0">
-            <span>↑</span>
-            <span>Active</span>
+          <!-- Trend Badge -->
+          <div
+            class="stat-trend"
+            [ngClass]="{
+              'trend-up': card.trend.trend === 'up',
+              'trend-down': card.trend.trend === 'down',
+              'trend-neutral': card.trend.trend === 'neutral',
+              'trend-warning': card.isWarning,
+            }"
+            *ngIf="card.trend"
+            [attr.aria-label]="card.trend.percentage + '% ' + card.trend.label"
+          >
+            <span class="trend-icon" *ngIf="!card.isWarning">
+              {{ getTrendIcon(card.trend.trend) }}
+            </span>
+            <span class="trend-icon warning-icon" *ngIf="card.isWarning"
+              >!</span
+            >
+            <span
+              class="trend-value"
+              *ngIf="!card.isWarning && card.trend.trend !== 'neutral'"
+            >
+              {{ card.trend.percentage }}%
+            </span>
+            <span class="trend-label">{{ card.trend.label }}</span>
           </div>
         </div>
+
         <div class="stat-card-body">
-          <h3 class="stat-value">{{ stats.totalStudents | number }}</h3>
-          <p class="stat-label">Total Students Enrolled</p>
+          <h2 class="stat-value">
+            {{ formatValue(card.value, card.format) }}
+          </h2>
+          <p class="stat-label">{{ card.label }}</p>
         </div>
+
+        <!-- Mini Sparkline/Progress Indicator -->
+        <div class="stat-sparkline" *ngIf="card.trend && !card.isWarning">
+          <div class="sparkline-bar" [ngClass]="card.iconBgClass">
+            <div
+              class="sparkline-fill"
+              [ngClass]="{
+                'fill-up': card.trend.trend === 'up',
+                'fill-down': card.trend.trend === 'down',
+                'fill-neutral': card.trend.trend === 'neutral',
+              }"
+              [style.width.%]="Math.min(card.trend.percentage * 4, 100)"
+            ></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Quick Actions Section -->
+    <section class="quick-actions-section" aria-label="Quick Actions">
+      <div class="section-header">
+        <h2 class="section-title">Quick Actions</h2>
+      </div>
+      <div class="quick-actions-grid">
+        <a
+          routerLink="/admin/pending-instructors"
+          class="quick-action-btn warning"
+          *ngIf="stats.pendingInstructors > 0"
+          aria-label="Review pending instructor applications"
+        >
+          <span class="action-icon" aria-hidden="true">⏳</span>
+          <span class="action-text"
+            >Review {{ stats.pendingInstructors }} Pending Application{{
+              stats.pendingInstructors > 1 ? "s" : ""
+            }}</span
+          >
+          <span class="action-arrow" aria-hidden="true">→</span>
+        </a>
+        <a
+          routerLink="/admin/students"
+          class="quick-action-btn"
+          aria-label="View all students"
+        >
+          <span class="action-icon" aria-hidden="true">👨‍🎓</span>
+          <span class="action-text">View All Students</span>
+          <span class="action-arrow" aria-hidden="true">→</span>
+        </a>
+        <a
+          routerLink="/admin/instructors"
+          class="quick-action-btn"
+          aria-label="View all instructors"
+        >
+          <span class="action-icon" aria-hidden="true">👨‍🏫</span>
+          <span class="action-text">View All Instructors</span>
+          <span class="action-arrow" aria-hidden="true">→</span>
+        </a>
+        <a
+          routerLink="/admin/courses"
+          class="quick-action-btn"
+          aria-label="Manage courses"
+        >
+          <span class="action-icon" aria-hidden="true">📚</span>
+          <span class="action-text">Manage Courses</span>
+          <span class="action-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Recent Activity Section -->
+    <section class="recent-activity-section" aria-label="Recent Activity">
+      <div class="section-header">
+        <h2 class="section-title">Recent Activity</h2>
+        <span class="activity-count" aria-label="Total activities">
+          {{ recentActivities.length }} items
+        </span>
       </div>
 
-      <!-- Total Instructors Card -->
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-icon instructors">
-            <span>👨‍🏫</span>
+      <div class="activity-list" *ngIf="recentActivities.length > 0">
+        <article
+          *ngFor="let activity of recentActivities; trackBy: trackByActivityId"
+          class="activity-item"
+          [ngClass]="'activity-' + activity.status"
+        >
+          <div
+            class="activity-icon"
+            [ngClass]="activity.type"
+            aria-hidden="true"
+          >
+            {{ activity.icon }}
           </div>
-          <div class="stat-trend positive" *ngIf="stats.totalInstructors > 0">
-            <span>↑</span>
-            <span>Active</span>
+          <div class="activity-content">
+            <h3 class="activity-title">{{ activity.title }}</h3>
+            <p class="activity-description">{{ activity.description }}</p>
           </div>
-        </div>
-        <div class="stat-card-body">
-          <h3 class="stat-value">{{ stats.totalInstructors | number }}</h3>
-          <p class="stat-label">Total Instructors</p>
-        </div>
+          <time
+            class="activity-time"
+            [attr.datetime]="activity.timestamp.toISOString()"
+          >
+            {{ getActivityTimeAgo(activity.timestamp) }}
+          </time>
+        </article>
       </div>
 
-      <!-- Pending Instructors Card -->
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-icon pending">
-            <span>⏳</span>
-          </div>
-          <div class="stat-trend warning" *ngIf="stats.pendingInstructors > 0">
-            <span>!</span>
-            <span>Needs Review</span>
-          </div>
-        </div>
-        <div class="stat-card-body">
-          <h3 class="stat-value">{{ stats.pendingInstructors | number }}</h3>
-          <p class="stat-label">Pending Instructors</p>
-        </div>
+      <div class="empty-activity" *ngIf="recentActivities.length === 0">
+        <span class="empty-icon" aria-hidden="true">📋</span>
+        <p>No recent activity to display</p>
       </div>
+    </section>
 
-      <!-- Total Earnings Card -->
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-icon earnings">
-            <span>💰</span>
-          </div>
-          <div class="stat-trend positive" *ngIf="stats.totalEarnings > 0">
-            <span>↑</span>
-            <span>Revenue</span>
-          </div>
+    <!-- Platform Health Status -->
+    <section class="platform-status-section" aria-label="Platform Status">
+      <div class="section-header">
+        <h2 class="section-title">System Status</h2>
+      </div>
+      <div class="status-grid">
+        <div class="status-item">
+          <span class="status-indicator healthy" aria-hidden="true"></span>
+          <span class="status-label">Database</span>
+          <span class="status-value">Operational</span>
         </div>
-        <div class="stat-card-body">
-          <h3 class="stat-value">
-            ${{ stats.totalEarnings | number: "1.2-2" }}
-          </h3>
-          <p class="stat-label">Total Earnings</p>
+        <div class="status-item">
+          <span class="status-indicator healthy" aria-hidden="true"></span>
+          <span class="status-label">API Services</span>
+          <span class="status-value">Operational</span>
+        </div>
+        <div class="status-item">
+          <span class="status-indicator healthy" aria-hidden="true"></span>
+          <span class="status-label">Payment Gateway</span>
+          <span class="status-value">Connected</span>
+        </div>
+        <div class="status-item" *ngIf="stats.pendingInstructors > 0">
+          <span class="status-indicator warning" aria-hidden="true"></span>
+          <span class="status-label">Pending Reviews</span>
+          <span class="status-value"
+            >{{ stats.pendingInstructors }} pending</span
+          >
         </div>
       </div>
-    </div>
+    </section>
   </ng-container>
 </div>

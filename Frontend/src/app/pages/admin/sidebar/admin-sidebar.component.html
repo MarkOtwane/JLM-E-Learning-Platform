@@ -1,87 +1,142 @@
-<aside class="sidebar" [class.collapsed]="isCollapsed">
+<aside 
+  class="sidebar" 
+  [class.collapsed]="isCollapsed"
+  role="navigation"
+  aria-label="Admin Navigation"
+  [attr.aria-expanded]="!isCollapsed"
+>
   <!-- Sidebar Header -->
-  <div class="sidebar-header">
+  <header class="sidebar-header">
     <span class="sidebar-title" *ngIf="!isCollapsed">Admin Panel</span>
-    <button class="toggle-btn" (click)="toggleSidebar()">
-      <span class="toggle-icon">{{ isCollapsed ? '▶' : '◀' }}</span>
+    <button 
+      class="toggle-btn" 
+      (click)="toggleSidebar()"
+      [attr.aria-label]="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+      [attr.aria-expanded]="!isCollapsed"
+    >
+      <span class="toggle-icon" aria-hidden="true">{{ isCollapsed ? '▶' : '◀' }}</span>
     </button>
-  </div>
+  </header>
 
   <!-- Navigation Links -->
-  <nav class="sidebar-nav">
-    <ul class="nav-list">
+  <nav class="sidebar-nav" aria-label="Main navigation">
+    <ul class="nav-list" role="menubar">
       <!-- Dashboard -->
-      <li class="nav-item">
+      <li class="nav-item" role="none">
         <a 
           class="nav-link" 
           routerLink="/admin/dashboard"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{exact: true}"
+          role="menuitem"
+          aria-label="Dashboard"
         >
-          <span class="nav-icon">📊</span>
+          <span class="nav-icon" aria-hidden="true">📊</span>
           <span class="nav-label" *ngIf="!isCollapsed">Dashboard</span>
         </a>
       </li>
 
       <!-- Students -->
-      <li class="nav-item">
+      <li class="nav-item" role="none">
         <a 
           class="nav-link" 
           routerLink="/admin/students"
           routerLinkActive="active"
+          role="menuitem"
+          aria-label="Students"
         >
-          <span class="nav-icon">👨‍🎓</span>
+          <span class="nav-icon" aria-hidden="true">👨‍🎓</span>
           <span class="nav-label" *ngIf="!isCollapsed">Students</span>
-          <span class="nav-badge" *ngIf="!isCollapsed && stats.totalStudents">
+          <span 
+            class="nav-badge" 
+            *ngIf="!isCollapsed && stats.totalStudents"
+            [attr.aria-label]="stats.totalStudents + ' students'"
+          >
             {{ stats.totalStudents }}
           </span>
         </a>
       </li>
 
       <!-- Instructors -->
-      <li class="nav-item">
+      <li class="nav-item" role="none">
         <a 
           class="nav-link" 
           routerLink="/admin/instructors"
           routerLinkActive="active"
+          role="menuitem"
+          aria-label="Instructors"
         >
-          <span class="nav-icon">👨‍🏫</span>
+          <span class="nav-icon" aria-hidden="true">👨‍🏫</span>
           <span class="nav-label" *ngIf="!isCollapsed">Instructors</span>
-          <span class="nav-badge" *ngIf="!isCollapsed && stats.totalInstructors">
+          <span 
+            class="nav-badge" 
+            *ngIf="!isCollapsed && stats.totalInstructors"
+            [attr.aria-label]="stats.totalInstructors + ' instructors'"
+          >
             {{ stats.totalInstructors }}
           </span>
         </a>
       </li>
 
       <!-- Courses -->
-      <li class="nav-item">
+      <li class="nav-item" role="none">
         <a 
           class="nav-link" 
           routerLink="/admin/courses"
           routerLinkActive="active"
+          role="menuitem"
+          aria-label="Courses"
         >
-          <span class="nav-icon">📚</span>
+          <span class="nav-icon" aria-hidden="true">📚</span>
           <span class="nav-label" *ngIf="!isCollapsed">Courses</span>
-          <span class="nav-badge" *ngIf="!isCollapsed && stats.totalCourses">
+          <span 
+            class="nav-badge" 
+            *ngIf="!isCollapsed && stats.totalCourses"
+            [attr.aria-label]="stats.totalCourses + ' courses'"
+          >
             {{ stats.totalCourses }}
           </span>
         </a>
       </li>
 
-      <!-- Pending Instructors -->
-      <li class="nav-item">
+      <!-- Divider -->
+      <li class="nav-divider" role="separator" *ngIf="!isCollapsed"></li>
+
+      <!-- Pending Instructors - Highlighted -->
+      <li class="nav-item" role="none" *ngIf="stats.pendingInstructors > 0 || !isCollapsed">
         <a 
-          class="nav-link" 
+          class="nav-link pending-link" 
           routerLink="/admin/pending-instructors"
           routerLinkActive="active"
+          role="menuitem"
+          [class.has-pending]="stats.pendingInstructors > 0"
+          aria-label="Pending Instructors, {{ stats.pendingInstructors }} pending review"
         >
-          <span class="nav-icon">⏳</span>
+          <span class="nav-icon" aria-hidden="true">⏳</span>
           <span class="nav-label" *ngIf="!isCollapsed">Pending Instructors</span>
-          <span class="nav-badge pending" *ngIf="!isCollapsed && stats.pendingInstructors">
+          <span 
+            class="nav-badge pending" 
+            *ngIf="!isCollapsed && stats.pendingInstructors"
+            [attr.aria-label]="stats.pendingInstructors + ' pending review'"
+          >
             {{ stats.pendingInstructors }}
           </span>
+          <!-- Pulse indicator for pending items -->
+          <span 
+            class="pulse-indicator" 
+            *ngIf="isCollapsed && stats.pendingInstructors > 0"
+            aria-hidden="true"
+          ></span>
         </a>
       </li>
     </ul>
   </nav>
+
+  <!-- Sidebar Footer -->
+  <footer class="sidebar-footer" *ngIf="!isCollapsed">
+    <div class="footer-status">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span class="status-text">System Online</span>
+    </div>
+  </footer>
 </aside>

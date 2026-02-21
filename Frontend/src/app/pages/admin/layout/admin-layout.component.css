@@ -1,4 +1,17 @@
-/* Admin Layout Styles */
+/* ============================================
+   Admin Layout Styles
+   Responsive Layout with Smooth Sidebar Animation
+   ============================================ */
+
+/* CSS Custom Properties */
+:host {
+  --navbar-height: 64px;
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+  --content-padding: 24px;
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 :host {
   display: block;
   height: 100vh;
@@ -12,13 +25,15 @@
   background-color: #f5f7fa;
 }
 
-/* Top Navbar */
+/* ============================================
+   Top Navbar
+   ============================================ */
 .top-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 24px;
-  height: 64px;
+  padding: 0 var(--content-padding);
+  height: var(--navbar-height);
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -36,14 +51,15 @@
 }
 
 .brand-icon {
-  font-size: 24px;
+  font-size: 26px;
+  line-height: 1;
 }
 
 .brand-text {
   font-size: 20px;
-  font-weight: 600;
-  color: #1f2937;
-  letter-spacing: -0.025em;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.03em;
 }
 
 .navbar-actions {
@@ -52,17 +68,18 @@
   gap: 16px;
 }
 
+/* Logout Button */
 .logout-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 10px 18px;
   background-color: #fee2e2;
   color: #dc2626;
-  border: none;
-  border-radius: 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -70,33 +87,86 @@
 .logout-btn:hover {
   background-color: #fecaca;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+
+.logout-btn:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
 }
 
 .logout-icon {
   font-size: 16px;
+  line-height: 1;
 }
 
-/* Content Wrapper */
+/* ============================================
+   Content Wrapper
+   ============================================ */
 .admin-content-wrapper {
   display: flex;
-  margin-top: 64px;
-  height: calc(100vh - 64px);
+  margin-top: var(--navbar-height);
+  height: calc(100vh - var(--navbar-height));
+  position: relative;
 }
 
-/* Main Content */
+/* ============================================
+   Main Content Area
+   ============================================ */
 .main-content {
   flex: 1;
-  margin-left: 260px;
-  padding: 24px;
+  margin-left: var(--sidebar-width);
+  padding: var(--content-padding);
   overflow-y: auto;
+  overflow-x: hidden;
   background-color: #f5f7fa;
+  transition: margin-left var(--transition-smooth);
 }
 
-/* Responsive Design */
+/* Smooth scrollbar */
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+/* Large Desktop */
+@media (min-width: 1400px) {
+  :host {
+    --content-padding: 32px;
+  }
+}
+
+/* Desktop */
+@media (max-width: 1200px) {
+  :host {
+    --content-padding: 20px;
+  }
+}
+
+/* Tablet */
 @media (max-width: 1024px) {
+  :host {
+    --content-padding: 20px;
+  }
+  
   .main-content {
     margin-left: 0;
-    padding: 16px;
   }
   
   .top-navbar {
@@ -108,17 +178,83 @@
   }
 }
 
+/* Mobile */
 @media (max-width: 768px) {
+  :host {
+    --content-padding: 16px;
+    --navbar-height: 60px;
+  }
+  
   .main-content {
-    padding: 12px;
+    padding: 16px;
+  }
+  
+  .brand-text {
+    font-size: 16px;
   }
   
   .logout-btn {
-    padding: 6px 12px;
+    padding: 8px 14px;
     font-size: 13px;
   }
   
   .logout-icon {
     display: none;
   }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  :host {
+    --content-padding: 12px;
+  }
+  
+  .main-content {
+    padding: 12px;
+  }
+  
+  .navbar-brand {
+    gap: 8px;
+  }
+  
+  .brand-icon {
+    font-size: 22px;
+  }
+  
+  .brand-text {
+    font-size: 15px;
+  }
+  
+  .logout-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .main-content,
+  .logout-btn {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .top-navbar {
+    border-bottom-width: 2px;
+  }
+  
+  .logout-btn {
+    border-width: 2px;
+    border-color: #dc2626;
+  }
+}
+
+/* Focus States */
+.logout-btn:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
 }

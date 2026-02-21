@@ -1,14 +1,18 @@
 <div class="admin-wrapper">
   <!-- Top Navbar -->
-  <header class="top-navbar">
+  <header class="top-navbar" role="banner">
     <div class="navbar-brand">
-      <span class="brand-icon">📚</span>
+      <span class="brand-icon" aria-hidden="true">📚</span>
       <span class="brand-text">JLM Learning Platform</span>
     </div>
     <div class="navbar-actions">
-      <button class="logout-btn" (click)="logout()">
-        <span class="logout-icon">🚪</span>
-        Logout
+      <button 
+        class="logout-btn" 
+        (click)="logout()"
+        aria-label="Logout from admin panel"
+      >
+        <span class="logout-icon" aria-hidden="true">🚪</span>
+        <span>Logout</span>
       </button>
     </div>
   </header>
@@ -18,7 +22,7 @@
     <app-admin-sidebar></app-admin-sidebar>
 
     <!-- Main Content Area -->
-    <main class="main-content">
+    <main class="main-content" role="main">
       <router-outlet></router-outlet>
     </main>
   </div>
