@@ -31,8 +31,15 @@
   </div>
 
   <!-- Assignments List View -->
-  <div class="assignments-list" *ngIf="!isLoading && assignments.length > 0 && !selectedAssignment">
-    <div class="assignment-card" *ngFor="let assignment of assignments" (click)="selectAssignment(assignment)">
+  <div
+    class="assignments-list"
+    *ngIf="!isLoading && assignments.length > 0 && !selectedAssignment"
+  >
+    <div
+      class="assignment-card"
+      *ngFor="let assignment of assignments"
+      (click)="selectAssignment(assignment)"
+    >
       <div class="assignment-header">
         <h3 class="assignment-title">{{ assignment.title }}</h3>
         <span class="submission-count">
@@ -55,7 +62,10 @@
         </span>
       </div>
       <div class="assignment-actions">
-        <button class="action-btn" (click)="openEditModal(assignment); $event.stopPropagation()">
+        <button
+          class="action-btn"
+          (click)="openEditModal(assignment); $event.stopPropagation()"
+        >
           <i class="fas fa-edit"></i>
           Edit
         </button>
@@ -85,11 +95,11 @@
         <span class="stat-label">Total Submissions</span>
       </div>
       <div class="stat-item">
-        <span class="stat-value">{{ submissions.filter(s => s.status === 'graded').length }}</span>
+        <span class="stat-value">{{ gradedSubmissionsCount }}</span>
         <span class="stat-label">Graded</span>
       </div>
       <div class="stat-item">
-        <span class="stat-value">{{ submissions.filter(s => s.status === 'submitted').length }}</span>
+        <span class="stat-value">{{ pendingSubmissionsCount }}</span>
         <span class="stat-label">Pending</span>
       </div>
     </div>
@@ -99,7 +109,10 @@
       <p>Loading submissions...</p>
     </div>
 
-    <div class="submissions-table-container" *ngIf="!isLoadingSubmissions && submissions.length > 0">
+    <div
+      class="submissions-table-container"
+      *ngIf="!isLoadingSubmissions && submissions.length > 0"
+    >
       <table class="submissions-table">
         <thead>
           <tr>
@@ -119,41 +132,66 @@
                   {{ submission.student.name.charAt(0).toUpperCase() }}
                 </div>
                 <div class="student-details">
-                  <span class="student-name">{{ submission.student.name }}</span>
-                  <span class="student-email">{{ submission.student.email }}</span>
+                  <span class="student-name">{{
+                    submission.student.name
+                  }}</span>
+                  <span class="student-email">{{
+                    submission.student.email
+                  }}</span>
                 </div>
               </div>
             </td>
             <td>{{ formatDate(submission.submittedAt) }}</td>
             <td>
-              <a *ngIf="submission.fileUrl" [href]="submission.fileUrl" target="_blank" class="file-link">
+              <a
+                *ngIf="submission.fileUrl"
+                [href]="submission.fileUrl"
+                target="_blank"
+                class="file-link"
+              >
                 <i class="fas fa-file"></i>
-                {{ submission.fileName || 'Download' }}
+                {{ submission.fileName || "Download" }}
               </a>
-              <span *ngIf="!submission.fileUrl && submission.content" class="text-submission">
+              <span
+                *ngIf="!submission.fileUrl && submission.content"
+                class="text-submission"
+              >
                 <i class="fas fa-align-left"></i>
                 Text submission
               </span>
               <span *ngIf="!submission.fileUrl && !submission.content">-</span>
             </td>
             <td>
-              <span *ngIf="submission.score !== null && submission.score !== undefined">
+              <span
+                *ngIf="
+                  submission.score !== null && submission.score !== undefined
+                "
+              >
                 {{ submission.score }} / {{ selectedAssignment.maxScore }}
               </span>
-              <span *ngIf="submission.score === null || submission.score === undefined">-</span>
+              <span
+                *ngIf="
+                  submission.score === null || submission.score === undefined
+                "
+                >-</span
+              >
             </td>
             <td>
-              <span class="status-badge" [style.background-color]="getStatusColor(submission.status)">
+              <span
+                class="status-badge"
+                [style.background-color]="getStatusColor(submission.status)"
+              >
                 {{ submission.status }}
               </span>
             </td>
             <td class="actions-cell">
-              <button 
-                class="grade-btn" 
+              <button
+                class="grade-btn"
                 (click)="openGradingModal(submission)"
-                [class.graded]="submission.status === 'graded'">
+                [class.graded]="submission.status === 'graded'"
+              >
                 <i class="fas fa-check-circle"></i>
-                {{ submission.status === 'graded' ? 'Update' : 'Grade' }}
+                {{ submission.status === "graded" ? "Update" : "Grade" }}
               </button>
             </td>
           </tr>
@@ -161,7 +199,10 @@
       </table>
     </div>
 
-    <div class="empty-state" *ngIf="!isLoadingSubmissions && submissions.length === 0">
+    <div
+      class="empty-state"
+      *ngIf="!isLoadingSubmissions && submissions.length === 0"
+    >
       <i class="fas fa-inbox"></i>
       <h4>No submissions yet</h4>
       <p>Students haven't submitted any work for this assignment.</p>
@@ -169,10 +210,16 @@
   </div>
 
   <!-- Create/Edit Assignment Modal -->
-  <div class="modal-overlay" *ngIf="showAssignmentModal" (click)="closeAssignmentModal()">
+  <div
+    class="modal-overlay"
+    *ngIf="showAssignmentModal"
+    (click)="closeAssignmentModal()"
+  >
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>{{ editingAssignment ? 'Edit Assignment' : 'Create Assignment' }}</h3>
+        <h3>
+          {{ editingAssignment ? "Edit Assignment" : "Create Assignment" }}
+        </h3>
         <button class="close-btn" (click)="closeAssignmentModal()">
           <i class="fas fa-times"></i>
         </button>
@@ -180,9 +227,9 @@
       <div class="modal-body">
         <div class="form-group">
           <label for="title">Title *</label>
-          <input 
-            type="text" 
-            id="title" 
+          <input
+            type="text"
+            id="title"
             [(ngModel)]="assignmentForm.title"
             placeholder="Assignment title"
             class="form-input"
@@ -190,8 +237,8 @@
         </div>
         <div class="form-group">
           <label for="description">Description *</label>
-          <textarea 
-            id="description" 
+          <textarea
+            id="description"
             [(ngModel)]="assignmentForm.description"
             placeholder="Describe the assignment..."
             class="form-textarea"
@@ -200,8 +247,8 @@
         </div>
         <div class="form-group">
           <label for="instructions">Instructions</label>
-          <textarea 
-            id="instructions" 
+          <textarea
+            id="instructions"
             [(ngModel)]="assignmentForm.instructions"
             placeholder="Detailed instructions for students..."
             class="form-textarea"
@@ -211,9 +258,9 @@
         <div class="form-row">
           <div class="form-group half">
             <label for="maxScore">Max Score</label>
-            <input 
-              type="number" 
-              id="maxScore" 
+            <input
+              type="number"
+              id="maxScore"
               [(ngModel)]="assignmentForm.maxScore"
               class="form-input"
               min="1"
@@ -222,34 +269,40 @@
           </div>
           <div class="form-group half">
             <label for="dueDate">Due Date</label>
-            <input 
-              type="datetime-local" 
-              id="dueDate" 
+            <input
+              type="datetime-local"
+              id="dueDate"
               [(ngModel)]="assignmentForm.dueDate"
               class="form-input"
             />
           </div>
         </div>
         <div class="form-group checkbox">
-          <input 
-            type="checkbox" 
-            id="allowLate" 
+          <input
+            type="checkbox"
+            id="allowLate"
             [(ngModel)]="assignmentForm.allowLateSubmission"
           />
           <label for="allowLate">Allow late submissions</label>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn secondary" (click)="closeAssignmentModal()">Cancel</button>
+        <button class="btn secondary" (click)="closeAssignmentModal()">
+          Cancel
+        </button>
         <button class="btn primary" (click)="saveAssignment()">
-          {{ editingAssignment ? 'Update' : 'Create' }}
+          {{ editingAssignment ? "Update" : "Create" }}
         </button>
       </div>
     </div>
   </div>
 
   <!-- Grading Modal -->
-  <div class="modal-overlay" *ngIf="showGradingModal" (click)="closeGradingModal()">
+  <div
+    class="modal-overlay"
+    *ngIf="showGradingModal"
+    (click)="closeGradingModal()"
+  >
     <div class="modal-content grading-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Grade Submission</h3>
@@ -275,17 +328,23 @@
 
         <div class="submission-file" *ngIf="selectedSubmission.fileUrl">
           <h5>Submitted File:</h5>
-          <a [href]="selectedSubmission.fileUrl" target="_blank" class="file-download">
+          <a
+            [href]="selectedSubmission.fileUrl"
+            target="_blank"
+            class="file-download"
+          >
             <i class="fas fa-download"></i>
-            {{ selectedSubmission.fileName || 'Download File' }}
+            {{ selectedSubmission.fileName || "Download File" }}
           </a>
         </div>
 
         <div class="form-group">
-          <label for="score">Score (out of {{ selectedAssignment?.maxScore }})</label>
-          <input 
-            type="number" 
-            id="score" 
+          <label for="score"
+            >Score (out of {{ selectedAssignment?.maxScore }})</label
+          >
+          <input
+            type="number"
+            id="score"
             [(ngModel)]="gradeForm.score"
             class="form-input"
             min="0"
@@ -294,8 +353,8 @@
         </div>
         <div class="form-group">
           <label for="feedback">Feedback</label>
-          <textarea 
-            id="feedback" 
+          <textarea
+            id="feedback"
             [(ngModel)]="gradeForm.feedback"
             placeholder="Provide feedback for the student..."
             class="form-textarea"
@@ -304,8 +363,12 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn secondary" (click)="closeGradingModal()">Cancel</button>
-        <button class="btn primary" (click)="submitGrade()">Submit Grade</button>
+        <button class="btn secondary" (click)="closeGradingModal()">
+          Cancel
+        </button>
+        <button class="btn primary" (click)="submitGrade()">
+          Submit Grade
+        </button>
       </div>
     </div>
   </div>

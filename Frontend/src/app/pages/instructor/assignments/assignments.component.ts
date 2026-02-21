@@ -146,6 +146,14 @@ export class AssignmentsComponent implements OnInit, OnDestroy {
     this.loadSubmissions(assignment.id);
   }
 
+  get gradedSubmissionsCount(): number {
+    return this.submissions.filter((s) => s.status === 'graded').length;
+  }
+
+  get pendingSubmissionsCount(): number {
+    return this.submissions.filter((s) => s.status === 'submitted').length;
+  }
+
   openCreateModal(): void {
     this.editingAssignment = null;
     this.assignmentForm = {
