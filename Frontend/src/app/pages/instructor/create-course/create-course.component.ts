@@ -41,7 +41,7 @@ export class CreateCourseComponent implements OnInit {
     private router: Router,
     private apiService: ApiService,
     private authService: AuthService,
-    private courseRefreshService: CourseRefreshService
+    private courseRefreshService: CourseRefreshService,
   ) {}
 
   ngOnInit(): void {

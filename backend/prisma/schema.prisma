@@ -45,6 +45,7 @@ model User {
   authoredAnnouncements Announcement[]         @relation("AuthoredAnnouncements")
   assignmentSubmissions AssignmentSubmission[]
   gradebookEntries      GradebookEntry[]
+  courseVersions        CourseVersion[]
 }
 
 model PasswordReset {
@@ -76,42 +77,95 @@ model EmailVerification {
 }
 
 model Course {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
+  subtitle    String?
   description String
   level       String
   category    String
+  language    String  @default("en")
   duration    Int // duration in minutes
-  isPremium   Boolean  @default(false)
-  price       Float    @default(0) // Price in dollars
-  currency    String   @default("USD") // Currency code
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  // Media assets
+  thumbnailUrl  String?
+  introVideoUrl String?
+
+  // Pricing
+  isPremium          Boolean   @default(false)
+  price              Float     @default(0) // Price in dollars
+  currency           String    @default("USD")
+  discountPercentage Float     @default(0)
+  discountEndDate    DateTime?
+
+  // Publishing & Status
+  status               String    @default("DRAFT") // DRAFT, PRIVATE, PUBLISHED, SCHEDULED
+  scheduledPublishDate DateTime?
+
+  // SEO & Discoverability
+  tags           String[] @default([]) // Tags array
+  seoTitle       String?
+  seoDescription String?
+  urlSlug        String?  @unique
+  ogImageUrl     String?
+
+  // Auditing & Analytics
+  isDeleted       Boolean   @default(false)
+  deletedAt       DateTime?
+  enrollmentCount Int       @default(0)
+  averageRating   Float     @default(0)
+  ratingCount     Int       @default(0)
+  completionRate  Float     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   instructor   User   @relation("InstructorCourses", fields: [instructorId], references: [id])
   instructorId String
 
-  modules     Module[]
-  enrollments Enrollment[]
-  quizzes     Quiz[]
-  payments    Payment[]
-
-  Certificate Certificate[]
-
-  // New relations for instructor dashboard
+  modules          Module[]
+  enrollments      Enrollment[]
+  quizzes          Quiz[]
+  payments         Payment[]
+  certificates     Certificate[]
   announcements    Announcement[]
   assignments      Assignment[]
   gradebookEntries GradebookEntry[]
+  versions         CourseVersion[]
 
   @@index([instructorId])
   @@index([category])
   @@index([level])
+  @@index([status])
+  @@index([urlSlug])
+  @@index([isDeleted])
   @@index([isPremium])
   @@index([price])
   @@index([createdAt])
-  @@index([category, level]) // Composite index for course filtering
-  @@index([isPremium, price]) // Composite index for premium course queries
-  @@index([category, isPremium]) // Composite index for course catalog filtering
+  @@index([category, level])
+  @@index([isPremium, price])
+  @@index([instructorId, status])
+  @@index([status, createdAt])
+}
+
+// Course version history for auditing
+model CourseVersion {
+  id            String @id @default(cuid())
+  versionNumber Int
+  changeType    String // created, updated, published, archived
+  changes       String // JSON string of changes
+
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+
+  changedBy   User   @relation(fields: [changedById], references: [id])
+  changedById String
+
+  createdAt DateTime @default(now())
+
+  @@index([courseId])
+  @@index([changedById])
+  @@index([createdAt])
+  @@index([courseId, versionNumber])
 }
 
 model Module {

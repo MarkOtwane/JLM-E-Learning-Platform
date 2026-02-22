@@ -1,11 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { InstructorService } from '../../../services/instructor.service';
 import { AuthService } from '../../../services/auth.service';
 import { CourseRefreshService } from '../../../services/course-refresh.service';
+import { InstructorService } from '../../../services/instructor.service';
 
 interface CourseMetrics {
   courseId: string;
@@ -34,22 +40,22 @@ interface DashboardMetrics {
 })
 export class InstructorDashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  
+
   instructorName: string = '';
   instructorEmail: string = '';
-  
+
   // Dashboard metrics
   totalCourses: number = 0;
   totalStudents: number = 0;
   totalEarnings: number = 0;
   pendingAssignments: number = 0;
   averageCompletionRate: number = 0;
-  
+
   // Course data
   courses: any[] = [];
   recentActivity: string[] = [];
   isLoading: boolean = true;
-  
+
   // View mode
   viewMode: 'cards' | 'table' = 'cards';
 
@@ -67,27 +73,24 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
     private router: Router,
     private instructorService: InstructorService,
     private cdr: ChangeDetectorRef,
-    private courseRefreshService: CourseRefreshService
+    private courseRefreshService: CourseRefreshService,
   ) {}
 
   ngOnInit(): void {
-    this.authService.user$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((user) => {
-        if (user) {
-          this.instructorEmail = user.email;
-          this.instructorName = user.firstName || user.email;
-          this.cdr.markForCheck();
-        }
-      });
+    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
+      if (user) {
+        this.instructorEmail = user.email;
+        this.instructorName = user.firstName || user.email;
+        this.cdr.markForCheck();
+      }
+    });
     // Listen for course creation events and refresh dashboard
     this.courseRefreshService.courseCreated$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.loadDashboardData();
       });
-    
-    
+
     this.loadDashboardData();
   }
 
@@ -98,23 +101,31 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
 
   loadDashboardData(): void {
     this.isLoading = true;
-    
-    this.instructorService.getDashboardMetrics()
+
+    this.instructorService
+      .getDashboardMetrics()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: DashboardMetrics) => {
           this.totalCourses = data.totalCourses;
           this.totalStudents = data.totalStudents;
           this.courses = data.courses || [];
-          
+
           // Calculate aggregate metrics
           this.pendingAssignments = this.courses.reduce(
-            (sum, c) => sum + (c.pendingAssignments || 0), 0
+            (sum, c) => sum + (c.pendingAssignments || 0),
+            0,
           );
-          this.averageCompletionRate = this.courses.length > 0
-            ? Math.round(this.courses.reduce((sum, c) => sum + (c.completionRate || 0), 0) / this.courses.length)
-            : 0;
-          
+          this.averageCompletionRate =
+            this.courses.length > 0
+              ? Math.round(
+                  this.courses.reduce(
+                    (sum, c) => sum + (c.completionRate || 0),
+                    0,
+                  ) / this.courses.length,
+                )
+              : 0;
+
           this.isLoading = false;
           this.cdr.markForCheck();
         },
@@ -124,7 +135,7 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         },
       });
-    
+
     // Mock earnings data (would come from payment service in production)
     this.totalEarnings = 4200;
   }
@@ -151,7 +162,11 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
   }
 
   deleteCourse(courseId: string): void {
-    if (confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+    if (
+      confirm(
+        'Are you sure you want to delete this course? This action cannot be undone.',
+      )
+    ) {
       // API call would go here
       this.courses = this.courses.filter((c) => c.courseId !== courseId);
       this.totalCourses = this.courses.length;
@@ -202,7 +217,7 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   }
 
