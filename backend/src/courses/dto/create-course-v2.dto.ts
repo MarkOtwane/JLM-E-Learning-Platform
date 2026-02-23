@@ -151,7 +151,8 @@ export class CreateCoursePublishingDto {
   @IsString()
   @IsOptional()
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-    message: 'URL slug must be a valid slug format (lowercase letters, numbers, and hyphens)',
+    message:
+      'URL slug must be a valid slug format (lowercase letters, numbers, and hyphens)',
   })
   urlSlug?: string;
 
@@ -270,7 +271,8 @@ export class CreateCourseDto
   @IsString()
   @IsOptional()
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-    message: 'URL slug must be a valid slug format (lowercase letters, numbers, and hyphens)',
+    message:
+      'URL slug must be a valid slug format (lowercase letters, numbers, and hyphens)',
   })
   urlSlug?: string;
 

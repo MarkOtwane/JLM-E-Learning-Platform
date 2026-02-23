@@ -142,7 +142,10 @@ export class InstructorsService {
   // ==================== COURSE MANAGEMENT ====================
   async getInstructorCourses(userId: string) {
     const courses = await this.prisma.course.findMany({
-      where: { instructorId: userId },
+      where: {
+        instructorId: userId,
+        isDeleted: false, // Only show non-deleted courses
+      },
       include: {
         _count: {
           select: {
@@ -172,6 +175,8 @@ export class InstructorsService {
       isPremium: course.isPremium,
       price: course.price,
       currency: course.currency,
+      status: course.status,
+      thumbnailUrl: course.thumbnailUrl,
       createdAt: course.createdAt,
       updatedAt: course.updatedAt,
       totalStudents: course._count.enrollments,

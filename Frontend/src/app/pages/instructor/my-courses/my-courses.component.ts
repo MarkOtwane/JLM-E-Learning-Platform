@@ -32,7 +32,14 @@ import { InstructorService } from '../../../services/instructor.service';
             <div class="course-card">
               <div class="course-header">
                 <h3>{{ course.title }}</h3>
-                <span class="course-status">Published</span>
+                <span
+                  class="course-status"
+                  [class.draft]="course.status === 'DRAFT'"
+                  [class.published]="course.status === 'PUBLISHED'"
+                  [class.scheduled]="course.status === 'SCHEDULED'"
+                >
+                  {{ course.status || 'DRAFT' }}
+                </span>
               </div>
               <p class="course-description">{{ course.description }}</p>
               <div class="course-stats">
@@ -188,6 +195,18 @@ import { InstructorService } from '../../../services/instructor.service';
         border-radius: 9999px;
         font-size: 0.75rem;
         text-transform: uppercase;
+      }
+
+      .course-status.draft {
+        background: #f59e0b;
+      }
+
+      .course-status.published {
+        background: #10b981;
+      }
+
+      .course-status.scheduled {
+        background: #3b82f6;
       }
 
       .course-description {
