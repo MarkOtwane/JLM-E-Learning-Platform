@@ -3,6 +3,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 
 interface QuizQuestion {
   question: string;
@@ -17,6 +19,7 @@ interface Topic {
   fileName?: string;
   hasQuiz: boolean;
   questions: QuizQuestion[];
+  assignmentInstructions?: string; // Rich text instructions for the assignment
 }
 
 interface Module {
@@ -28,6 +31,16 @@ interface CourseContent {
   modules: Module[];
   hasFinalExam: boolean;
   finalExamQuestions: QuizQuestion[];
+  finalExamInstructions?: string; // Rich text instructions for final exam
+}
+
+interface SubmissionResponse {
+  status: 'not_submitted' | 'pending' | 'approved' | 'rejected';
+  certificateUrl?: string;
+  projectLink?: string;
+  linkType?: string;
+  notes?: string;
+  feedback?: string;
 }
 
 @Component({
@@ -35,7 +48,7 @@ interface CourseContent {
   standalone: true,
   templateUrl: './quiz.component.html',
   styleUrls: ['./quiz.component.css'],
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, MarkdownPipe],
 })
 export class QuizComponent implements OnInit {
   courseId: string = '';
@@ -52,15 +65,25 @@ export class QuizComponent implements OnInit {
   isSubmitted: boolean = false;
   score: number = 0;
   isLoading: boolean = true;
+
+  // Assignment instructions (rich text HTML)
+  assignmentInstructions: string = '';
+
+  // Link submission properties
   projectLink: string = '';
+  linkType: 'github' | 'demo' | 'social' | 'video' | 'other' = 'github';
+  submissionNotes: string = '';
   submissionStatus: 'not_submitted' | 'pending' | 'approved' | 'rejected' =
     'not_submitted';
   certificateUrl: string = '';
+  isSubmitting: boolean = false;
+  feedback: string = '';
 
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -69,9 +92,7 @@ export class QuizComponent implements OnInit {
     this.topicIndex = Number(this.route.snapshot.paramMap.get('topicIndex'));
     this.isFinalExam = this.router.url.includes('final-exam');
     this.loadCourseContent();
-    if (this.isFinalExam) {
-      this.checkProjectSubmission();
-    }
+    this.checkProjectSubmission();
   }
 
   loadCourseContent(): void {
@@ -85,21 +106,38 @@ export class QuizComponent implements OnInit {
           this.courseContent = content;
           if (this.isFinalExam) {
             this.questions = content.finalExamQuestions;
+            this.assignmentInstructions = content.finalExamInstructions || '';
           } else if (this.moduleIndex !== null && this.topicIndex !== null) {
-            this.questions =
-              content.modules[this.moduleIndex].topics[
-                this.topicIndex
-              ].questions;
+            const topic = content.modules[this.moduleIndex].topics[this.topicIndex];
+            this.questions = topic.questions;
+            this.assignmentInstructions = topic.assignmentInstructions || '';
           }
           this.answers = new Array(this.questions.length).fill(-1);
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error loading quiz:', error);
-          alert('Failed to load quiz. Please try again.');
+          console.error('Error loading content:', error);
           this.isLoading = false;
         },
       });
+  }
+
+  // Getter to validate link format
+  get isValidLink(): boolean {
+    if (!this.projectLink || this.projectLink.trim() === '') {
+      return false;
+    }
+    try {
+      const url = new URL(this.projectLink);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }
+
+  // Sanitize HTML for safe display
+  getSafeHtml(html: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   selectAnswer(questionIndex: number, optionIndex: number): void {
@@ -125,34 +163,53 @@ export class QuizComponent implements OnInit {
   }
 
   checkProjectSubmission() {
-    this.http
-      .get<any>(
-        `http://localhost:3000/api/courses/${this.courseId}/project-submission/status`
-      )
-      .subscribe({
-        next: (res) => {
-          this.submissionStatus = res.status;
-          this.certificateUrl = res.certificateUrl || '';
-          this.projectLink = res.projectLink || '';
-        },
-        error: () => {
-          this.submissionStatus = 'not_submitted';
-        },
-      });
+    const endpoint = this.isFinalExam
+      ? `http://localhost:3000/api/courses/${this.courseId}/project-submission/status`
+      : `http://localhost:3000/api/courses/${this.courseId}/quiz-submission/status?moduleIndex=${this.moduleIndex}&topicIndex=${this.topicIndex}`;
+
+    this.http.get<SubmissionResponse>(endpoint).subscribe({
+      next: (res) => {
+        this.submissionStatus = res.status;
+        this.certificateUrl = res.certificateUrl || '';
+        this.projectLink = res.projectLink || '';
+        this.linkType = (res.linkType as any) || 'github';
+        this.submissionNotes = res.notes || '';
+        this.feedback = res.feedback || '';
+      },
+      error: () => {
+        this.submissionStatus = 'not_submitted';
+      },
+    });
   }
 
   submitProject() {
-    if (!this.projectLink) return;
-    this.http
-      .post<any>(
-        `http://localhost:3000/api/courses/${this.courseId}/project-submission`,
-        { projectLink: this.projectLink }
-      )
-      .subscribe({
-        next: () => {
-          this.submissionStatus = 'pending';
-        },
-      });
+    if (!this.projectLink || !this.isValidLink) return;
+
+    this.isSubmitting = true;
+
+    const payload = {
+      projectLink: this.projectLink,
+      linkType: this.linkType,
+      notes: this.submissionNotes,
+      moduleIndex: this.moduleIndex,
+      topicIndex: this.topicIndex,
+    };
+
+    const endpoint = this.isFinalExam
+      ? `http://localhost:3000/api/courses/${this.courseId}/project-submission`
+      : `http://localhost:3000/api/courses/${this.courseId}/quiz-submission`;
+
+    this.http.post<SubmissionResponse>(endpoint, payload).subscribe({
+      next: (res) => {
+        this.submissionStatus = res.status;
+        this.isSubmitting = false;
+      },
+      error: (error) => {
+        console.error('Error submitting:', error);
+        this.isSubmitting = false;
+        alert('Failed to submit. Please try again.');
+      },
+    });
   }
 
   downloadCertificate() {

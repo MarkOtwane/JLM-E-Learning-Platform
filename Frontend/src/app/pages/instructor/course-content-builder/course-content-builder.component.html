@@ -136,94 +136,138 @@
                 </p>
               </div>
 
-              <!-- Quiz Section -->
-              <div class="quiz-section">
-                <div class="quiz-header">
+              <!-- Assignment Section (replaces Quiz) -->
+              <div class="assignment-section">
+                <div class="assignment-header">
                   <h5>
-                    <i
-                      class="fas fa-bullseye section-icon"
-                      aria-hidden="true"
-                    ></i>
-                    Topic Quiz
+                    <i class="fas fa-tasks section-icon" aria-hidden="true"></i>
+                    Topic Assignment
                   </h5>
                   <button
                     type="button"
-                    class="toggle-quiz-btn"
+                    class="toggle-assignment-btn"
                     (click)="topic.hasQuiz = !topic.hasQuiz"
                   >
-                    {{ topic.hasQuiz ? "Remove Quiz" : "Add Quiz" }}
+                    {{ topic.hasQuiz ? "Remove Assignment" : "Add Assignment" }}
                   </button>
                 </div>
 
-                <div *ngIf="topic.hasQuiz" class="quiz-content">
-                  <div
-                    *ngFor="let question of topic.questions; let k = index"
-                    class="question-item"
-                  >
-                    <div class="question-header">
-                      <span class="question-number">Question {{ k + 1 }}</span>
+                <div *ngIf="topic.hasQuiz" class="assignment-content">
+                  <!-- Assignment Instructions Editor -->
+                  <div class="instructions-editor">
+                    <div class="instructions-label">
+                      <label>Assignment Instructions:</label>
                       <button
-                        class="remove-question-btn"
-                        (click)="removeQuestion(i, j, k)"
+                        type="button"
+                        class="help-btn"
+                        (click)="toggleFormattingHelp()"
                       >
-                        <i class="fas fa-times"></i>
+                        <i class="fas fa-question-circle"></i>
+                        Formatting Help
                       </button>
                     </div>
 
-                    <div class="question-content">
-                      <input
-                        type="text"
-                        [(ngModel)]="question.question"
-                        placeholder="Enter question"
-                        class="question-input"
-                        required
-                      />
-
-                      <div class="options-section">
-                        <div
-                          *ngFor="
-                            let option of question.options;
-                            let l = index;
-                            trackBy: trackByOption
-                          "
-                          class="option-item"
-                        >
-                          <input
-                            type="radio"
-                            [name]="'correct-' + i + '-' + j + '-' + k"
-                            [value]="l"
-                            [(ngModel)]="question.correctAnswer"
-                            class="correct-radio"
-                          />
-                          <input
-                            type="text"
-                            [(ngModel)]="question.options[l]"
-                            placeholder="Option {{ l + 1 }}"
-                            class="option-input"
-                            required
-                          />
-                          <button
-                            class="remove-option-btn"
-                            (click)="removeOption(i, j, k, l)"
-                            [disabled]="question.options.length <= 2"
-                          >
-                            <i class="fas fa-times"></i>
-                          </button>
-                        </div>
-                        <button
-                          class="add-option-btn"
-                          (click)="addOption(i, j, k)"
-                          [disabled]="question.options.length >= 4"
-                        >
-                          <i class="fas fa-plus"></i> Add Option
-                        </button>
-                      </div>
+                    <!-- Formatting Toolbar -->
+                    <div class="formatting-toolbar">
+                      <button
+                        type="button"
+                        class="format-btn"
+                        (click)="insertFormatting(i, j, 'numbered')"
+                        title="Numbered List"
+                      >
+                        <i class="fas fa-list-ol"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="format-btn"
+                        (click)="insertFormatting(i, j, 'bullets')"
+                        title="Bullet List"
+                      >
+                        <i class="fas fa-list-ul"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="format-btn"
+                        (click)="insertFormatting(i, j, 'heading')"
+                        title="Heading"
+                      >
+                        <i class="fas fa-heading"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="format-btn"
+                        (click)="insertFormatting(i, j, 'bold')"
+                        title="Bold"
+                      >
+                        <i class="fas fa-bold"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="format-btn"
+                        (click)="insertFormatting(i, j, 'italic')"
+                        title="Italic"
+                      >
+                        <i class="fas fa-italic"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="format-btn"
+                        (click)="insertFormatting(i, j, 'code')"
+                        title="Inline Code"
+                      >
+                        <i class="fas fa-code"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="format-btn"
+                        (click)="insertFormatting(i, j, 'codeblock')"
+                        title="Code Block"
+                      >
+                        <i class="fas fa-file-code"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="format-btn"
+                        (click)="insertFormatting(i, j, 'link')"
+                        title="Link"
+                      >
+                        <i class="fas fa-link"></i>
+                      </button>
                     </div>
-                  </div>
 
-                  <button class="add-question-btn" (click)="addQuestion(i, j)">
-                    <i class="fas fa-plus"></i> Add Question
-                  </button>
+                    <!-- Formatting Help Panel -->
+                    <div class="formatting-help" *ngIf="formattingHelpVisible">
+                      <h6>Formatting Guide:</h6>
+                      <ul>
+                        <li>
+                          <code>**text**</code> - <strong>Bold text</strong>
+                        </li>
+                        <li><code>*text*</code> - <em>Italic text</em></li>
+                        <li><code>`code`</code> - <code>Inline code</code></li>
+                        <li><code>## Heading</code> - Section heading</li>
+                        <li><code>1. Item</code> - Numbered list</li>
+                        <li><code>• Item</code> - Bullet list</li>
+                        <li><code>[text](url)</code> - Link</li>
+                        <li><code>```code```</code> - Code block</li>
+                      </ul>
+                    </div>
+
+                    <textarea
+                      [id]="'assignment-instructions-' + i + '-' + j"
+                      [(ngModel)]="topic.assignmentInstructions"
+                      placeholder="Enter step-by-step instructions for the assignment. Use the toolbar above for formatting.
+
+Example:
+1. Fork the repository from GitHub
+2. Clone your fork locally
+3. Create a new branch for your changes
+4. Implement the required features
+5. Test your implementation
+6. Submit a pull request with your changes"
+                      class="instructions-textarea"
+                      rows="12"
+                    ></textarea>
+                  </div>
                 </div>
               </div>
             </div>
@@ -241,86 +285,139 @@
       <div class="exam-header">
         <h3>
           <i class="fas fa-graduation-cap section-icon" aria-hidden="true"></i>
-          Final Course Exam
+          Final Course Project
         </h3>
         <button
           type="button"
           class="toggle-exam-btn"
           (click)="hasFinalExam = !hasFinalExam"
         >
-          {{ hasFinalExam ? "Remove Final Exam" : "Add Final Exam" }}
+          {{ hasFinalExam ? "Remove Final Project" : "Add Final Project" }}
         </button>
       </div>
 
       <div *ngIf="hasFinalExam" class="exam-content">
-        <div
-          *ngFor="let question of finalExamQuestions; let i = index"
-          class="question-item"
-        >
-          <div class="question-header">
-            <span class="question-number">Question {{ i + 1 }}</span>
+        <!-- Final Project Instructions Editor -->
+        <div class="instructions-editor">
+          <div class="instructions-label">
+            <label>Final Project Instructions:</label>
             <button
-              class="remove-question-btn"
-              (click)="removeFinalExamQuestion(i)"
+              type="button"
+              class="help-btn"
+              (click)="toggleFormattingHelp()"
             >
-              <i class="fas fa-times"></i>
+              <i class="fas fa-question-circle"></i>
+              Formatting Help
             </button>
           </div>
 
-          <div class="question-content">
-            <input
-              type="text"
-              [(ngModel)]="question.question"
-              placeholder="Enter question"
-              class="question-input"
-              required
-            />
-
-            <div class="options-section">
-              <div
-                *ngFor="
-                  let option of question.options;
-                  let j = index;
-                  trackBy: trackByFinalExamOption
-                "
-                class="option-item"
-              >
-                <input
-                  type="radio"
-                  [name]="'final-correct-' + i"
-                  [value]="j"
-                  [(ngModel)]="question.correctAnswer"
-                  class="correct-radio"
-                />
-                <input
-                  type="text"
-                  [(ngModel)]="question.options[j]"
-                  placeholder="Option {{ j + 1 }}"
-                  class="option-input"
-                  required
-                />
-                <button
-                  class="remove-option-btn"
-                  (click)="removeFinalExamOption(i, j)"
-                  [disabled]="question.options.length <= 2"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-              <button
-                class="add-option-btn"
-                (click)="addFinalExamOption(i)"
-                [disabled]="question.options.length >= 4"
-              >
-                <i class="fas fa-plus"></i> Add Option
-              </button>
-            </div>
+          <!-- Formatting Toolbar -->
+          <div class="formatting-toolbar">
+            <button
+              type="button"
+              class="format-btn"
+              (click)="insertFinalExamFormatting('numbered')"
+              title="Numbered List"
+            >
+              <i class="fas fa-list-ol"></i>
+            </button>
+            <button
+              type="button"
+              class="format-btn"
+              (click)="insertFinalExamFormatting('bullets')"
+              title="Bullet List"
+            >
+              <i class="fas fa-list-ul"></i>
+            </button>
+            <button
+              type="button"
+              class="format-btn"
+              (click)="insertFinalExamFormatting('heading')"
+              title="Heading"
+            >
+              <i class="fas fa-heading"></i>
+            </button>
+            <button
+              type="button"
+              class="format-btn"
+              (click)="insertFinalExamFormatting('bold')"
+              title="Bold"
+            >
+              <i class="fas fa-bold"></i>
+            </button>
+            <button
+              type="button"
+              class="format-btn"
+              (click)="insertFinalExamFormatting('italic')"
+              title="Italic"
+            >
+              <i class="fas fa-italic"></i>
+            </button>
+            <button
+              type="button"
+              class="format-btn"
+              (click)="insertFinalExamFormatting('code')"
+              title="Inline Code"
+            >
+              <i class="fas fa-code"></i>
+            </button>
+            <button
+              type="button"
+              class="format-btn"
+              (click)="insertFinalExamFormatting('codeblock')"
+              title="Code Block"
+            >
+              <i class="fas fa-file-code"></i>
+            </button>
+            <button
+              type="button"
+              class="format-btn"
+              (click)="insertFinalExamFormatting('link')"
+              title="Link"
+            >
+              <i class="fas fa-link"></i>
+            </button>
           </div>
-        </div>
 
-        <button class="add-question-btn" (click)="addFinalExamQuestion()">
-          <i class="fas fa-plus"></i> Add Question
-        </button>
+          <!-- Formatting Help Panel -->
+          <div class="formatting-help" *ngIf="formattingHelpVisible">
+            <h6>Formatting Guide:</h6>
+            <ul>
+              <li><code>**text**</code> - <strong>Bold text</strong></li>
+              <li><code>*text*</code> - <em>Italic text</em></li>
+              <li><code>`code`</code> - <code>Inline code</code></li>
+              <li><code>## Heading</code> - Section heading</li>
+              <li><code>1. Item</code> - Numbered list</li>
+              <li><code>• Item</code> - Bullet list</li>
+              <li><code>[text](url)</code> - Link</li>
+              <li><code>```code```</code> - Code block</li>
+            </ul>
+          </div>
+
+          <textarea
+            id="final-exam-instructions"
+            [(ngModel)]="finalExamInstructions"
+            placeholder="Enter step-by-step instructions for the final project. Use the toolbar above for formatting.
+
+Example:
+## Final Project: Build a Full-Stack Application
+
+### Requirements:
+1. Create a GitHub repository for your project
+2. Set up the backend with Node.js/Express
+3. Implement user authentication
+4. Build the frontend interface
+5. Connect frontend to backend API
+6. Deploy your application
+
+### Submission:
+• Submit your GitHub repository link
+• Include a README with setup instructions
+• Add screenshots or demo video link"
+            class="instructions-textarea"
+            rows="16"
+          ></textarea>
+        </div>
       </div>
     </div>
 

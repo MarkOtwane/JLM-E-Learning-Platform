@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
@@ -43,8 +44,40 @@ export class QuizzesController {
     return this.quizzesService.submitQuiz(userId, dto);
   }
 
+  @Get('submission/status')
+  @Roles(UserRole.STUDENT)
+  async getSubmissionStatus(
+    @User('id') userId: string,
+    @Query('quizId') quizId: string,
+  ) {
+    return this.quizzesService.getSubmissionStatus(userId, quizId);
+  }
+
   @Get('module/:moduleId')
   async getQuiz(@Param('moduleId') moduleId: string) {
     return this.quizzesService.getQuizByModule(moduleId);
+  }
+
+  // Instructor endpoints for reviewing submissions
+  @Get(':quizId/submissions')
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN)
+  async getSubmissions(@Param('quizId') quizId: string) {
+    return this.quizzesService.getSubmissionsForQuiz(quizId);
+  }
+
+  @Patch(':quizId/submissions/:submissionId/review')
+  @Roles(UserRole.INSTRUCTOR, UserRole.ADMIN)
+  async reviewSubmission(
+    @Param('quizId') quizId: string,
+    @Param('submissionId') submissionId: string,
+    @Body('status') status: 'approved' | 'rejected',
+    @Body('feedback') feedback?: string,
+  ) {
+    return this.quizzesService.reviewSubmission(
+      quizId,
+      submissionId,
+      status,
+      feedback,
+    );
   }
 }

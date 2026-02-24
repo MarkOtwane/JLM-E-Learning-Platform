@@ -15,6 +15,15 @@
 
 .content-area {
   flex: 1;
+  margin-left: 250px; /* Offset for fixed sidebar width */
   padding: 20px;
   background-color: var(--color-white);
+  min-height: 100vh;
+}
+
+/* Responsive: Remove margin when sidebar is hidden on smaller screens */
+@media (max-width: 1023px) {
+  .content-area {
+    margin-left: 0;
+  }
 }

@@ -257,6 +257,12 @@ model QuizAttempt {
   score       Float
   attemptDate DateTime @default(now())
 
+  // Link submission fields
+  projectLink String? // The submitted link (GitHub, demo, social media, etc.)
+  linkType    String? // Type of link: github, demo, social, video, other
+  notes       String? // Additional notes from student
+  feedback    String? // Feedback from instructor
+
   @@index([userId])
   @@index([quizId])
   @@index([attemptDate])
