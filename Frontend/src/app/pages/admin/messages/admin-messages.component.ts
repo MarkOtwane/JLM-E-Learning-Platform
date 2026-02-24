@@ -19,8 +19,10 @@ interface Conversation {
   unreadCount: number;
 }
 
+type ContactType = 'instructor' | 'student' | 'admin';
+
 @Component({
-  selector: 'app-instructor-messages',
+  selector: 'app-admin-messages',
   standalone: true,
   imports: [CommonModule, FormsModule, TruncatePipe],
   template: `
@@ -28,7 +30,7 @@ interface Conversation {
       <div class="page-header">
         <div class="header-content">
           <h1 class="page-title">Messages</h1>
-          <p class="page-description">Communicate with your students and admins</p>
+          <p class="page-description">Communicate with instructors</p>
         </div>
         <button class="btn-primary new-message-btn" (click)="showNewMessageModal = true">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,30 +59,6 @@ interface Conversation {
               </div>
             </div>
 
-            <div class="conversations-tabs">
-              <button
-                [class.active]="activeTab === 'all'"
-                (click)="activeTab = 'all'"
-                class="tab-btn"
-              >
-                All
-              </button>
-              <button
-                [class.active]="activeTab === 'students'"
-                (click)="activeTab = 'students'"
-                class="tab-btn"
-              >
-                Students
-              </button>
-              <button
-                [class.active]="activeTab === 'admins'"
-                (click)="activeTab = 'admins'"
-                class="tab-btn"
-              >
-                Admins
-              </button>
-            </div>
-
             <div class="conversations-list" #conversationsList>
               <div *ngIf="loadingConversations" class="loading-state">
                 <div class="spinner"></div>
@@ -92,7 +70,7 @@ interface Conversation {
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
                 <p>No conversations yet</p>
-                <p class="empty-hint">Start by messaging a student or admin</p>
+                <p class="empty-hint">Start by messaging an instructor</p>
               </div>
 
               <div
@@ -111,8 +89,7 @@ interface Conversation {
                     [alt]="conv.partner.name"
                     class="avatar-img"
                   />
-                  <span *ngIf="conv.partner.type === 'admin'" class="role-badge admin">A</span>
-                  <span *ngIf="conv.partner.type === 'student'" class="role-badge student">S</span>
+                  <span class="role-badge instructor">I</span>
                 </div>
                 <div class="conversation-info">
                   <div class="conversation-header">
@@ -121,9 +98,6 @@ interface Conversation {
                   </div>
                   <p class="last-message">{{ conv.lastMessage | truncate:50 }}</p>
                   <div class="conversation-meta">
-                    <span *ngIf="conv.partner.courseTitle" class="course-tag">
-                      {{ conv.partner.courseTitle }}
-                    </span>
                     <span *ngIf="conv.unreadCount > 0" class="unread-badge">
                       {{ conv.unreadCount }}
                     </span>
@@ -160,13 +134,7 @@ interface Conversation {
                   </div>
                   <div class="partner-details">
                     <h3>{{ selectedConversation.partner.name }}</h3>
-                    <p class="partner-role">
-                      <span *ngIf="selectedConversation.partner.type === 'admin'">Administrator</span>
-                      <span *ngIf="selectedConversation.partner.type === 'student'">Student</span>
-                      <span *ngIf="selectedConversation.partner.courseTitle">
-                        - {{ selectedConversation.partner.courseTitle }}
-                      </span>
-                    </p>
+                    <p class="partner-role">Instructor</p>
                   </div>
                 </div>
                 <div class="chat-actions">
@@ -259,7 +227,7 @@ interface Conversation {
                 <input
                   type="text"
                   [(ngModel)]="recipientSearchQuery"
-                  placeholder="Search students or admins..."
+                  placeholder="Search instructors..."
                   class="form-input"
                   (ngModelChange)="filterRecipients($event)"
                 />
@@ -274,16 +242,13 @@ interface Conversation {
                     </div>
                     <div class="recipient-info">
                       <span class="recipient-name">{{ recipient.name }}</span>
-                      <span class="recipient-role">
-                        {{ recipient.type === 'admin' ? 'Administrator' : 'Student' }}
-                        <span *ngIf="recipient.courseTitle">- {{ recipient.courseTitle }}</span>
-                      </span>
+                      <span class="recipient-role">Instructor</span>
                     </div>
                   </div>
                 </div>
               </div>
               <div *ngIf="selectedRecipient" class="selected-recipient">
-                <span>{{ selectedRecipient.name }} ({{ selectedRecipient.type === 'admin' ? 'Admin' : 'Student' }})</span>
+                <span>{{ selectedRecipient.name }}</span>
                 <button class="remove-recipient" (click)="selectedRecipient = null">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -408,37 +373,8 @@ interface Conversation {
     }
 
     .search-input:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    .conversations-tabs {
-      display: flex;
-      padding: 0.5rem;
-      gap: 0.25rem;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 0.5rem;
-      border: none;
-      background: transparent;
-      border-radius: 0.375rem;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #6b7280;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .tab-btn:hover {
-      background: #f3f4f6;
-    }
-
-    .tab-btn.active {
-      background: #4f46e5;
-      color: white;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
     }
 
     .conversations-list {
@@ -460,8 +396,8 @@ interface Conversation {
     }
 
     .conversation-item.active {
-      background: #eef2ff;
-      border-left: 3px solid #4f46e5;
+      background: #fef2f2;
+      border-left: 3px solid #dc2626;
     }
 
     .avatar-container {
@@ -473,7 +409,7 @@ interface Conversation {
       width: 2.5rem;
       height: 2.5rem;
       border-radius: 50%;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      background: linear-gradient(135deg, #dc2626, #f87171);
       color: white;
       display: flex;
       align-items: center;
@@ -504,13 +440,8 @@ interface Conversation {
       border: 2px solid white;
     }
 
-    .role-badge.admin {
-      background: #dc2626;
-      color: white;
-    }
-
-    .role-badge.student {
-      background: #f59e0b;
+    .role-badge.instructor {
+      background: #10b981;
       color: white;
     }
 
@@ -558,18 +489,10 @@ interface Conversation {
       margin-top: 0.25rem;
     }
 
-    .course-tag {
-      font-size: 0.625rem;
-      padding: 0.125rem 0.375rem;
-      background: #f3f4f6;
-      color: #6b7280;
-      border-radius: 0.25rem;
-    }
-
     .unread-badge {
       font-size: 0.625rem;
       padding: 0.125rem 0.375rem;
-      background: #4f46e5;
+      background: #dc2626;
       color: white;
       border-radius: 9999px;
       font-weight: 600;
@@ -692,7 +615,7 @@ interface Conversation {
       width: 2rem;
       height: 2rem;
       border: 2px solid #e5e7eb;
-      border-top-color: #4f46e5;
+      border-top-color: #dc2626;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -737,7 +660,7 @@ interface Conversation {
     }
 
     .message-row.sent .message-bubble {
-      background: #4f46e5;
+      background: #dc2626;
       color: white;
       border-bottom-right-radius: 0.25rem;
     }
@@ -808,14 +731,14 @@ interface Conversation {
     }
 
     .message-textarea:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
     }
 
     .send-btn {
       padding: 0.75rem;
       border: none;
-      background: #4f46e5;
+      background: #dc2626;
       color: white;
       border-radius: 0.5rem;
       cursor: pointer;
@@ -826,7 +749,7 @@ interface Conversation {
     }
 
     .send-btn:hover:not(:disabled) {
-      background: #4338ca;
+      background: #b91c1c;
     }
 
     .send-btn:disabled {
@@ -923,8 +846,8 @@ interface Conversation {
     }
 
     .form-input:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
     }
 
     .form-textarea {
@@ -940,8 +863,8 @@ interface Conversation {
     }
 
     .form-textarea:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
     }
 
     .recipient-selector {
@@ -997,10 +920,10 @@ interface Conversation {
       gap: 0.5rem;
       margin-top: 0.5rem;
       padding: 0.375rem 0.75rem;
-      background: #eef2ff;
+      background: #fef2f2;
       border-radius: 9999px;
       font-size: 0.875rem;
-      color: #4f46e5;
+      color: #dc2626;
     }
 
     .remove-recipient {
@@ -1008,7 +931,7 @@ interface Conversation {
       border: none;
       background: transparent;
       cursor: pointer;
-      color: #4f46e5;
+      color: #dc2626;
       display: flex;
     }
 
@@ -1027,7 +950,7 @@ interface Conversation {
 
     .btn-primary {
       padding: 0.625rem 1.25rem;
-      background: #4f46e5;
+      background: #dc2626;
       color: white;
       border: none;
       border-radius: 0.5rem;
@@ -1038,7 +961,7 @@ interface Conversation {
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: #4338ca;
+      background: #b91c1c;
     }
 
     .btn-primary:disabled {
@@ -1120,13 +1043,12 @@ interface Conversation {
     }
   `]
 })
-export class InstructorMessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class AdminMessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
   @ViewChild('messageInput') messageInput!: ElementRef;
 
   currentUserId: string = '';
   searchQuery: string = '';
-  activeTab: 'all' | 'students' | 'admins' = 'all';
 
   // Conversations
   conversations: Conversation[] = [];
@@ -1233,13 +1155,6 @@ export class InstructorMessagesComponent implements OnInit, OnDestroy, AfterView
 
   filterConversations(query: string): void {
     let filtered = this.conversations;
-
-    // Filter by tab
-    if (this.activeTab === 'students') {
-      filtered = filtered.filter((c) => c.partner.type === 'student');
-    } else if (this.activeTab === 'admins') {
-      filtered = filtered.filter((c) => c.partner.type === 'admin');
-    }
 
     // Filter by search query
     if (query.trim()) {
@@ -1375,10 +1290,7 @@ export class InstructorMessagesComponent implements OnInit, OnDestroy, AfterView
     }
 
     const lowerQuery = query.toLowerCase();
-    const allContacts: Contact[] = [
-      ...(this.contacts.instructors || []), // These are admins for instructors
-      ...(this.contacts.fellowStudents || []),
-    ];
+    const allContacts: Contact[] = [...(this.contacts.instructors || [])];
 
     this.filteredRecipients = allContacts.filter(
       (c) =>

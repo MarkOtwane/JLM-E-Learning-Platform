@@ -293,4 +293,283 @@ export class MessagingService {
 
     return { messages, total };
   }
+
+  /**
+   * Get contacts for a student (instructors from enrolled courses + fellow students)
+   */
+  async getStudentContacts(userId: string) {
+    // Get the user's role
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    let instructors: any[] = [];
+    let fellowStudents: any[] = [];
+
+    if (user.role === 'STUDENT') {
+      // Get instructors from enrolled courses
+      const enrollments = await this.prisma.enrollment.findMany({
+        where: { userId },
+        include: {
+          course: {
+            include: {
+              instructor: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  profilePicture: true,
+                  role: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Extract unique instructors
+      const instructorMap = new Map();
+      for (const enrollment of enrollments) {
+        const instructor = enrollment.course.instructor;
+        if (instructor && !instructorMap.has(instructor.id)) {
+          instructorMap.set(instructor.id, {
+            ...instructor,
+            type: 'instructor',
+            courseTitle: enrollment.course.title,
+          });
+        }
+      }
+      instructors = Array.from(instructorMap.values());
+
+      // Get fellow students from same courses
+      const courseIds = enrollments.map((e) => e.courseId);
+      if (courseIds.length > 0) {
+        const fellowEnrollments = await this.prisma.enrollment.findMany({
+          where: {
+            courseId: { in: courseIds },
+            userId: { not: userId },
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                profilePicture: true,
+                role: true,
+              },
+            },
+          },
+        });
+
+        // Extract unique fellow students
+        const studentMap = new Map();
+        for (const enrollment of fellowEnrollments) {
+          const student = enrollment.user;
+          if (!studentMap.has(student.id)) {
+            studentMap.set(student.id, {
+              ...student,
+              type: 'student',
+            });
+          }
+        }
+        fellowStudents = Array.from(studentMap.values());
+      }
+    } else if (user.role === 'INSTRUCTOR') {
+      // For instructors, get students enrolled in their courses
+      const courses = await this.prisma.course.findMany({
+        where: { instructorId: userId },
+        include: {
+          enrollments: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  profilePicture: true,
+                  role: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const studentMap = new Map();
+      for (const course of courses) {
+        for (const enrollment of course.enrollments) {
+          const student = enrollment.user;
+          if (!studentMap.has(student.id)) {
+            studentMap.set(student.id, {
+              ...student,
+              type: 'student',
+              courseTitle: course.title,
+            });
+          }
+        }
+      }
+      fellowStudents = Array.from(studentMap.values());
+
+      // Also get all admins for instructor to contact
+      const admins = await this.prisma.user.findMany({
+        where: {
+          role: 'ADMIN',
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profilePicture: true,
+          role: true,
+        },
+      });
+
+      instructors = admins.map((admin) => ({
+        ...admin,
+        type: 'admin',
+      }));
+    } else if (user.role === 'ADMIN') {
+      // For admins, get all instructors
+      const allInstructors = await this.prisma.user.findMany({
+        where: {
+          role: 'INSTRUCTOR',
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profilePicture: true,
+          role: true,
+        },
+      });
+
+      instructors = allInstructors.map((instructor) => ({
+        ...instructor,
+        type: 'instructor',
+      }));
+    }
+
+    // Get recent conversations (users the current user has exchanged messages with)
+    const recentMessages = await this.prisma.message.findMany({
+      where: {
+        OR: [{ senderId: userId }, { receiverId: userId }],
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePicture: true,
+            role: true,
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePicture: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+
+    // Extract unique conversation partners
+    const conversationPartners = new Map();
+    for (const msg of recentMessages) {
+      const partner = msg.senderId === userId ? msg.receiver : msg.sender;
+      if (!conversationPartners.has(partner.id)) {
+        conversationPartners.set(partner.id, {
+          ...partner,
+          type: partner.role.toLowerCase(),
+          lastMessage: msg.body,
+          lastMessageTime: msg.createdAt,
+        });
+      }
+    }
+
+    return {
+      instructors,
+      fellowStudents,
+      recentConversations: Array.from(conversationPartners.values()),
+    };
+  }
+
+  /**
+   * Get all conversations summary for a user
+   */
+  async getConversationsSummary(userId: string) {
+    // Get all messages where user is sender or receiver
+    const messages = await this.prisma.message.findMany({
+      where: {
+        OR: [{ senderId: userId }, { receiverId: userId }],
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePicture: true,
+            role: true,
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePicture: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Group by conversation partner
+    const conversations = new Map();
+    for (const msg of messages) {
+      const partnerId = msg.senderId === userId ? msg.receiverId : msg.senderId;
+      const partner = msg.senderId === userId ? msg.receiver : msg.sender;
+
+      if (!conversations.has(partnerId)) {
+        conversations.set(partnerId, {
+          partner: {
+            id: partner.id,
+            name: partner.name,
+            email: partner.email,
+            profilePicture: partner.profilePicture,
+            role: partner.role,
+          },
+          lastMessage: msg.body,
+          lastMessageTime: msg.createdAt,
+          unreadCount: 0,
+          lastMessageSenderId: msg.senderId,
+        });
+      }
+
+      // Count unread messages
+      const conv = conversations.get(partnerId);
+      if (msg.receiverId === userId && !msg.isRead) {
+        conv.unreadCount++;
+      }
+    }
+
+    return Array.from(conversations.values()).sort(
+      (a, b) =>
+        new Date(b.lastMessageTime).getTime() -
+        new Date(a.lastMessageTime).getTime(),
+    );
+  }
 }

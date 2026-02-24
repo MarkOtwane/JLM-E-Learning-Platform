@@ -101,6 +101,20 @@
         </a>
       </li>
 
+      <!-- Messages -->
+      <li class="nav-item" role="none">
+        <a
+          class="nav-link"
+          routerLink="/admin/messages"
+          routerLinkActive="active"
+          role="menuitem"
+          aria-label="Messages"
+        >
+          <i class="fas fa-envelope nav-icon" aria-hidden="true"></i>
+          <span class="nav-label" *ngIf="!isCollapsed">Messages</span>
+        </a>
+      </li>
+
       <!-- Divider -->
       <li class="nav-divider" role="separator" *ngIf="!isCollapsed"></li>
 

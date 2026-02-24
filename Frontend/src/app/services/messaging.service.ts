@@ -30,6 +30,38 @@ export interface MessagesResponse {
   total: number;
 }
 
+export interface Contact {
+  id: string;
+  name: string;
+  email: string;
+  profilePicture?: string;
+  role: string;
+  type: 'instructor' | 'student' | 'admin';
+  courseTitle?: string;
+  lastMessage?: string;
+  lastMessageTime?: string;
+}
+
+export interface ContactsResponse {
+  instructors: Contact[];
+  fellowStudents: Contact[];
+  recentConversations: Contact[];
+}
+
+export interface ConversationSummary {
+  partner: {
+    id: string;
+    name: string;
+    email: string;
+    profilePicture?: string;
+    role: string;
+  };
+  lastMessage: string;
+  lastMessageTime: string;
+  unreadCount: number;
+  lastMessageSenderId: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -37,9 +69,11 @@ export class MessagingService {
   private readonly apiUrl = '/api/messages';
   private messagesSubject = new BehaviorSubject<Message[]>([]);
   private unreadCountSubject = new BehaviorSubject<number>(0);
+  private contactsSubject = new BehaviorSubject<ContactsResponse | null>(null);
 
   public messages$ = this.messagesSubject.asObservable();
   public unreadCount$ = this.unreadCountSubject.asObservable();
+  public contacts$ = this.contactsSubject.asObservable();
 
   constructor(private http: HttpClient) {
     this.loadUnreadCount();
@@ -158,5 +192,25 @@ export class MessagingService {
    */
   updateMessages(messages: Message[]): void {
     this.messagesSubject.next(messages);
+  }
+
+  /**
+   * Get contacts for messaging (instructors + fellow students)
+   */
+  getContacts(): Observable<ContactsResponse> {
+    return this.http.get<ContactsResponse>(`${this.apiUrl}/contacts`).pipe(
+      tap((contacts) => {
+        this.contactsSubject.next(contacts);
+      }),
+    );
+  }
+
+  /**
+   * Get all conversations summary
+   */
+  getConversationsSummary(): Observable<ConversationSummary[]> {
+    return this.http.get<ConversationSummary[]>(
+      `${this.apiUrl}/conversations`,
+    );
   }
 }

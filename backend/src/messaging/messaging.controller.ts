@@ -91,6 +91,24 @@ export class MessagingController {
   }
 
   /**
+   * Get contacts for messaging (instructors + fellow students)
+   * GET /messages/contacts
+   */
+  @Get('contacts')
+  async getContacts(@User('id') userId: string) {
+    return this.messagingService.getStudentContacts(userId);
+  }
+
+  /**
+   * Get all conversations summary
+   * GET /messages/conversations
+   */
+  @Get('conversations')
+  async getConversationsSummary(@User('id') userId: string) {
+    return this.messagingService.getConversationsSummary(userId);
+  }
+
+  /**
    * Get a single message by ID
    * GET /messages/:id
    */
