@@ -65,6 +65,8 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get('courseId') || '';
     this.lessonId = this.route.snapshot.paramMap.get('lessonId') || '';
+    // Get moduleId from query params (passed from course-content-builder or other components)
+    this.moduleId = this.route.snapshot.queryParamMap.get('moduleId') || '';
     this.isEditing = !!this.lessonId;
     
     if (this.isEditing) {
@@ -102,6 +104,15 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
   saveLesson(): void {
     if (!this.lessonForm.title.trim()) {
       alert('Please enter a lesson title');
+      return;
+    }
+
+    // For new lessons, moduleId is required
+    if (!this.isEditing && !this.moduleId) {
+      alert('Module ID is required to create a lesson. Please navigate from the course content builder.');
+      this.router.navigate(['/instructor/build-course'], { 
+        queryParams: { courseId: this.courseId } 
+      });
       return;
     }
 

@@ -72,7 +72,7 @@ export class CourseContentBuilderComponent implements OnInit {
         this.availableCourses = courses;
         this.isLoadingCourses = false;
         if (courses.length === 0) {
-          this.router.navigate(['/create-course']);
+          this.router.navigate(['/instructor/create-course']);
         }
       },
       error: (error) => {

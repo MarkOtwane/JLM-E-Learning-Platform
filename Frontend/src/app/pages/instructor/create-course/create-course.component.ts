@@ -111,7 +111,7 @@ export class CreateCourseComponent implements OnInit {
 
   onCancel(): void {
     if (confirm('Are you sure you want to cancel? All changes will be lost.')) {
-      this.router.navigate(['/instructor-dashboard']);
+      this.router.navigate(['/instructor/dashboard']);
     }
   }
 }

@@ -158,7 +158,10 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
   }
 
   createLesson(courseId: string): void {
-    this.router.navigate([`/instructor/courses/${courseId}/lessons/create`]);
+    // Navigate to course content builder where modules are managed
+    this.router.navigate(['/instructor/build-course'], { 
+      queryParams: { courseId } 
+    });
   }
 
   deleteCourse(courseId: string): void {

@@ -124,9 +124,9 @@ export class NavbarComponent implements OnInit {
 
   goToDashboard() {
     if (this.userRole === 'instructor') {
-      this.router.navigate(['/instructor-dashboard']);
+      this.router.navigate(['/instructor/dashboard']);
     } else {
-      this.router.navigate(['/user-dashboard']);
+      this.router.navigate(['/student/dashboard']);
     }
   }
 
