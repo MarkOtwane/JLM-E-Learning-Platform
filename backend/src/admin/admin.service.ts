@@ -112,8 +112,151 @@ export class AdminService {
   }
 
   async deleteCourse(courseId: string) {
-    // Remove course and all related data (modules, content, enrollments, etc.)
-    await this.prisma.course.delete({ where: { id: courseId } });
+    // First verify the course exists
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+    });
+    
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    // Delete in proper order to handle relations without cascade
+    // Using a transaction to ensure atomicity
+    
+    await this.prisma.$transaction(async (tx) => {
+      // Delete quiz attempts and questions/options
+      const quizzes = await tx.quiz.findMany({
+        where: { courseId },
+        select: { id: true },
+      });
+      const quizIds = quizzes.map(q => q.id);
+
+      if (quizIds.length > 0) {
+        // Delete quiz attempts
+        await tx.quizAttempt.deleteMany({
+          where: { quizId: { in: quizIds } },
+        });
+
+        // Delete questions and options
+        const questions = await tx.question.findMany({
+          where: { quizId: { in: quizIds } },
+          select: { id: true },
+        });
+        const questionIds = questions.map(q => q.id);
+
+        if (questionIds.length > 0) {
+          await tx.option.deleteMany({
+            where: { questionId: { in: questionIds } },
+          });
+          await tx.question.deleteMany({
+            where: { id: { in: questionIds } },
+          });
+        }
+
+        // Delete quizzes
+        await tx.quiz.deleteMany({
+          where: { id: { in: quizIds } },
+        });
+      }
+
+      // Delete lesson-related data
+      const modules = await tx.module.findMany({
+        where: { courseId },
+        select: { id: true },
+      });
+      const moduleIds = modules.map(m => m.id);
+
+      if (moduleIds.length > 0) {
+        const lessons = await tx.lesson.findMany({
+          where: { moduleId: { in: moduleIds } },
+          select: { id: true },
+        });
+        const lessonIds = lessons.map(l => l.id);
+
+        if (lessonIds.length > 0) {
+          // Delete lesson attachments
+          await tx.lessonAttachment.deleteMany({
+            where: { lessonId: { in: lessonIds } },
+          });
+
+          // Delete lesson progress
+          await tx.lessonProgress.deleteMany({
+            where: { lessonId: { in: lessonIds } },
+          });
+
+          // Delete lesson questions
+          await tx.lessonQuestion.deleteMany({
+            where: { lessonId: { in: lessonIds } },
+          });
+
+          // Delete lessons
+          await tx.lesson.deleteMany({
+            where: { id: { in: lessonIds } },
+          });
+        }
+
+        // Delete content items
+        const contentModules = await tx.content.findMany({
+          where: { moduleId: { in: moduleIds } },
+          select: { id: true },
+        });
+        const contentIds = contentModules.map(c => c.id);
+
+        if (contentIds.length > 0) {
+          await tx.content.deleteMany({
+            where: { id: { in: contentIds } },
+          });
+        }
+
+        // Delete progress records
+        await tx.progress.deleteMany({
+          where: { moduleId: { in: moduleIds } },
+        });
+
+        // Delete modules
+        await tx.module.deleteMany({
+          where: { id: { in: moduleIds } },
+        });
+      }
+
+      // Delete announcements
+      await tx.announcement.deleteMany({
+        where: { courseId },
+      });
+
+      // Delete assignments and submissions
+      const assignments = await tx.assignment.findMany({
+        where: { courseId },
+        select: { id: true },
+      });
+      const assignmentIds = assignments.map(a => a.id);
+
+      if (assignmentIds.length > 0) {
+        await tx.assignmentSubmission.deleteMany({
+          where: { assignmentId: { in: assignmentIds } },
+        });
+        await tx.assignment.deleteMany({
+          where: { id: { in: assignmentIds } },
+        });
+      }
+
+      // Delete gradebook entries
+      await tx.gradebookEntry.deleteMany({
+        where: { courseId },
+      });
+
+      // Delete course versions
+      await tx.courseVersion.deleteMany({
+        where: { courseId },
+      });
+
+      // Finally delete the course (enrollments, certificates, payments have cascade)
+      await tx.course.delete({
+        where: { id: courseId },
+      });
+    });
+
     return { message: 'Course deleted successfully' };
   }
 

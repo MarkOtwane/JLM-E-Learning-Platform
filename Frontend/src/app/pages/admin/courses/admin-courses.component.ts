@@ -17,6 +17,12 @@ interface Course {
   rating: number;
 }
 
+interface ToastMessage {
+  type: 'success' | 'error' | 'info';
+  message: string;
+  visible: boolean;
+}
+
 @Component({
   selector: 'app-admin-courses',
   standalone: true,
@@ -29,6 +35,15 @@ export class AdminCoursesComponent implements OnInit {
   filteredCourses: Course[] = [];
   searchQuery: string = '';
   isLoading: boolean = true;
+  isDeleting: boolean = false;
+  deletingCourseId: string | null = null;
+  
+  // Toast notification state
+  toast: ToastMessage = {
+    type: 'info',
+    message: '',
+    visible: false,
+  };
 
   constructor(private api: ApiService) {}
 
@@ -50,6 +65,7 @@ export class AdminCoursesComponent implements OnInit {
       error: (error) => {
         console.error('Error loading courses:', error);
         this.isLoading = false;
+        this.showToast('error', 'Failed to load courses. Please try again.');
       },
     });
   }
@@ -72,20 +88,41 @@ export class AdminCoursesComponent implements OnInit {
         'Are you sure you want to delete this course? This action cannot be undone.',
       )
     ) {
+      this.isDeleting = true;
+      this.deletingCourseId = id;
+      
       this.api.deleteAuth(`/admin/courses/${id}`).subscribe({
         next: () => {
           this.courses = this.courses.filter((course) => course.id !== id);
           this.filteredCourses = this.filteredCourses.filter(
             (course) => course.id !== id,
           );
-          alert('Course deleted successfully.');
+          this.isDeleting = false;
+          this.deletingCourseId = null;
+          this.showToast('success', 'Course deleted successfully.');
         },
         error: (error) => {
           console.error('Error deleting course:', error);
-          alert('Failed to delete course.');
+          this.isDeleting = false;
+          this.deletingCourseId = null;
+          const errorMessage = error?.error?.message || 'Failed to delete course. Please try again.';
+          this.showToast('error', errorMessage);
         },
       });
     }
+  }
+
+  showToast(type: 'success' | 'error' | 'info', message: string): void {
+    this.toast = { type, message, visible: true };
+    
+    // Auto-hide after 4 seconds
+    setTimeout(() => {
+      this.hideToast();
+    }, 4000);
+  }
+
+  hideToast(): void {
+    this.toast.visible = false;
   }
 
   getStarArray(rating: number): number[] {

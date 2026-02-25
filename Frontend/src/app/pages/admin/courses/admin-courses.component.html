@@ -1,4 +1,37 @@
 <div class="page-wrapper">
+  <!-- Toast Notification -->
+  <div
+    *ngIf="toast.visible"
+    class="toast-notification"
+    [ngClass]="{
+      'toast-success': toast.type === 'success',
+      'toast-error': toast.type === 'error',
+      'toast-info': toast.type === 'info'
+    }"
+    role="alert"
+    aria-live="polite"
+  >
+    <div class="toast-content">
+      <i
+        class="fas toast-icon"
+        [ngClass]="{
+          'fa-check-circle': toast.type === 'success',
+          'fa-exclamation-circle': toast.type === 'error',
+          'fa-info-circle': toast.type === 'info'
+        }"
+        aria-hidden="true"
+      ></i>
+      <span class="toast-message">{{ toast.message }}</span>
+    </div>
+    <button
+      class="toast-close"
+      (click)="hideToast()"
+      aria-label="Close notification"
+    >
+      <i class="fas fa-times" aria-hidden="true"></i>
+    </button>
+  </div>
+
   <!-- Page Header -->
   <div class="page-header">
     <h1 class="page-title">Courses</h1>
@@ -89,8 +122,17 @@
 
       <div class="card-footer">
         <span class="course-price">${{ course.price | number: "1.2-2" }}</span>
-        <button class="action-btn delete" (click)="deleteCourse(course.id)">
-          Delete
+        <button
+          class="action-btn delete"
+          [class.deleting]="isDeleting && deletingCourseId === course.id"
+          [disabled]="isDeleting && deletingCourseId === course.id"
+          (click)="deleteCourse(course.id)"
+        >
+          <span *ngIf="!(isDeleting && deletingCourseId === course.id)">Delete</span>
+          <span *ngIf="isDeleting && deletingCourseId === course.id" class="btn-loading">
+            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+            Deleting...
+          </span>
         </button>
       </div>
     </div>
