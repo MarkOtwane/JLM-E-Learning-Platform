@@ -1,8 +1,33 @@
-<div class="instructor-layout">
-  <app-instructor-sidebar></app-instructor-sidebar>
+<div class="instructor-wrapper">
+  <!-- Top Navbar -->
+  <header class="top-navbar" role="banner">
+    <div class="navbar-brand">
+      <i class="fas fa-chalkboard-teacher brand-icon" aria-hidden="true"></i>
+      <span class="brand-text">Instructor Portal</span>
+    </div>
+    <div class="navbar-actions">
+      <div class="user-info" *ngIf="userName">
+        <i class="fas fa-user-circle user-icon" aria-hidden="true"></i>
+        <span class="user-name">{{ userName }}</span>
+      </div>
+      <button
+        class="logout-btn"
+        (click)="logout()"
+        aria-label="Logout from instructor portal"
+      >
+        <i class="fas fa-sign-out-alt logout-icon" aria-hidden="true"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </header>
 
+  <div class="instructor-content-wrapper">
+    <!-- Sidebar -->
+    <app-instructor-sidebar></app-instructor-sidebar>
 
-  <div class="content-area">
-    <router-outlet></router-outlet>
+    <!-- Main Content Area -->
+    <main class="main-content" role="main">
+      <router-outlet></router-outlet>
+    </main>
   </div>
 </div>

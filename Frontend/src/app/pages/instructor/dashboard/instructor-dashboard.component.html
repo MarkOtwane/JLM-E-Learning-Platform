@@ -1,160 +1,109 @@
-<div class="dashboard-wrapper" role="main" aria-label="Instructor Dashboard">
+<div class="dashboard-container">
   <!-- Loading State -->
-  <div
-    *ngIf="isLoading"
-    class="loading-container"
-    role="status"
-    aria-live="polite"
-  >
-    <div class="loading-spinner" aria-hidden="true"></div>
-    <p class="loading-text">Loading dashboard...</p>
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your dashboard...</p>
   </div>
 
-  <!-- Dashboard Content -->
-  <ng-container *ngIf="!isLoading">
-    <!-- Page Header -->
-    <header class="page-header">
-      <h1 class="page-title">Instructor Dashboard</h1>
-      <p class="page-subtitle">
-        Welcome back, {{ instructorName }}! Here's an overview of your teaching
-        activity.
-      </p>
-    </header>
-
-    <!-- Stats Cards Grid -->
-    <section class="stats-grid" aria-label="Teaching Statistics">
-      <!-- Metric Cards -->
-      <article
-        *ngFor="let card of metricCards; let i = index"
-        class="stat-card"
-        [class.warning-card]="card.isWarning"
-        [attr.aria-label]="card.label"
-      >
-        <div class="stat-card-header">
-          <div
-            class="stat-icon"
-            [ngClass]="card.iconBgClass"
-            aria-hidden="true"
-          >
-            <i class="fas" [ngClass]="card.icon"></i>
-          </div>
-          <!-- Trend Badge -->
-          <div
-            class="stat-trend"
-            [ngClass]="{
-              'trend-up': card.trend.trend === 'up',
-              'trend-down': card.trend.trend === 'down',
-              'trend-neutral': card.trend.trend === 'neutral',
-              'trend-warning': card.isWarning,
-            }"
-            *ngIf="card.trend"
-            [attr.aria-label]="card.trend.percentage + '% ' + card.trend.label"
-          >
-            <span class="trend-icon" *ngIf="!card.isWarning">
-              {{ getTrendIcon(card.trend.trend) }}
-            </span>
-            <span class="trend-icon warning-icon" *ngIf="card.isWarning"
-              >!</span
-            >
-            <span
-              class="trend-value"
-              *ngIf="!card.isWarning && card.trend.trend !== 'neutral'"
-            >
-              {{ card.trend.percentage }}%
-            </span>
-            <span class="trend-label">{{ card.trend.label }}</span>
-          </div>
-        </div>
-
-        <div class="stat-card-body">
-          <h2 class="stat-value">
-            {{ formatValue(card.value, card.format) }}
-          </h2>
-          <p class="stat-label">{{ card.label }}</p>
-        </div>
-
-        <!-- Mini Sparkline/Progress Indicator -->
-        <div class="stat-sparkline" *ngIf="card.trend && !card.isWarning">
-          <div class="sparkline-bar" [ngClass]="card.iconBgClass">
-            <div
-              class="sparkline-fill"
-              [ngClass]="{
-                'fill-up': card.trend.trend === 'up',
-                'fill-down': card.trend.trend === 'down',
-                'fill-neutral': card.trend.trend === 'neutral',
-              }"
-              [style.width.%]="Math.min(card.trend.percentage * 4, 100)"
-            ></div>
-          </div>
-        </div>
-      </article>
+  <!-- Main Content -->
+  <div *ngIf="!isLoading" class="dashboard-content">
+    <!-- Welcome Section -->
+    <section class="welcome-section">
+      <div class="welcome-text">
+        <h1>Welcome back, {{ instructorName }}!</h1>
+        <p>Here's what's happening with your courses today.</p>
+      </div>
+      <a routerLink="/instructor/create-course" class="create-btn">
+        <i class="fas fa-plus"></i>
+        Create New Course
+      </a>
     </section>
 
-    <!-- Quick Actions Section -->
-    <section class="quick-actions-section" aria-label="Quick Actions">
-      <div class="section-header">
-        <h2 class="section-title">Quick Actions</h2>
+    <!-- Stats Cards -->
+    <section class="stats-section">
+      <div class="stat-card">
+        <div class="stat-icon courses">
+          <i class="fas fa-book"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ totalCourses }}</span>
+          <span class="stat-label">Total Courses</span>
+        </div>
       </div>
-      <div class="quick-actions-grid">
-        <a
-          routerLink="/instructor/create-course"
-          class="quick-action-btn primary"
-          aria-label="Create a new course"
-        >
-          <i class="fas fa-plus action-icon" aria-hidden="true"></i>
-          <span class="action-text">Create New Course</span>
-          <span class="action-arrow" aria-hidden="true">→</span>
+
+      <div class="stat-card">
+        <div class="stat-icon students">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ totalStudents }}</span>
+          <span class="stat-label">Total Students</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon completion">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ averageCompletionRate }}%</span>
+          <span class="stat-label">Avg. Completion</span>
+        </div>
+      </div>
+
+      <div class="stat-card" [class.warning]="pendingAssignments > 0">
+        <div class="stat-icon pending">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ pendingAssignments }}</span>
+          <span class="stat-label">Pending Reviews</span>
+        </div>
+        <span *ngIf="pendingAssignments > 0" class="warning-badge">Action Needed</span>
+      </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+      <h2>Quick Actions</h2>
+      <div class="actions-grid">
+        <a routerLink="/instructor/courses" class="action-card">
+          <i class="fas fa-book"></i>
+          <span>Manage Courses</span>
         </a>
-        <a
-          routerLink="/instructor/courses"
-          class="quick-action-btn"
-          aria-label="Manage your courses"
-        >
-          <i class="fas fa-book action-icon" aria-hidden="true"></i>
-          <span class="action-text">Manage Courses</span>
-          <span class="action-arrow" aria-hidden="true">→</span>
+        <a routerLink="/instructor/analytics" class="action-card">
+          <i class="fas fa-chart-bar"></i>
+          <span>View Analytics</span>
         </a>
-        <a
-          routerLink="/instructor/analytics"
-          class="quick-action-btn"
-          aria-label="View analytics"
-        >
-          <i class="fas fa-chart-bar action-icon" aria-hidden="true"></i>
-          <span class="action-text">View Analytics</span>
-          <span class="action-arrow" aria-hidden="true">→</span>
+        <a routerLink="/instructor/messages" class="action-card">
+          <i class="fas fa-envelope"></i>
+          <span>Messages</span>
         </a>
-        <a
-          routerLink="/instructor/messages"
-          class="quick-action-btn"
-          aria-label="View messages"
-        >
-          <i class="fas fa-envelope action-icon" aria-hidden="true"></i>
-          <span class="action-text">Messages</span>
-          <span class="action-arrow" aria-hidden="true">→</span>
+        <a routerLink="/instructor/assignments" class="action-card">
+          <i class="fas fa-tasks"></i>
+          <span>Assignments</span>
         </a>
       </div>
     </section>
 
-    <!-- My Courses Section -->
-    <section class="courses-section" aria-label="My Courses">
+    <!-- Courses Section -->
+    <section class="courses-section">
       <div class="section-header">
-        <h2 class="section-title">My Courses</h2>
+        <h2>My Courses</h2>
         <div class="view-toggle">
-          <button
-            class="toggle-btn"
-            [class.active]="viewMode === 'cards'"
+          <button 
+            class="toggle-btn" 
+            [class.active]="viewMode === 'cards'" 
             (click)="viewMode = 'cards'"
             title="Card View"
-            aria-label="Switch to card view"
           >
             <i class="fas fa-th-large"></i>
           </button>
-          <button
-            class="toggle-btn"
-            [class.active]="viewMode === 'table'"
+          <button 
+            class="toggle-btn" 
+            [class.active]="viewMode === 'table'" 
             (click)="viewMode = 'table'"
             title="Table View"
-            aria-label="Switch to table view"
           >
             <i class="fas fa-list"></i>
           </button>
@@ -162,160 +111,110 @@
       </div>
 
       <!-- Empty State -->
-      <div class="empty-state" *ngIf="courses.length === 0">
-        <i class="fas fa-book-open empty-icon" aria-hidden="true"></i>
+      <div *ngIf="courses.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-book-open"></i>
+        </div>
         <h3>No courses yet</h3>
-        <p>
-          Start creating your first course to share your knowledge with
-          students.
-        </p>
-        <a routerLink="/instructor/create-course" class="create-course-link">
+        <p>Start creating your first course to share your knowledge with students around the world.</p>
+        <a routerLink="/instructor/create-course" class="create-link">
           <i class="fas fa-plus"></i>
           Create Your First Course
         </a>
       </div>
 
       <!-- Card View -->
-      <div
-        class="courses-grid"
-        *ngIf="courses.length > 0 && viewMode === 'cards'"
-      >
-        <article
-          *ngFor="let course of courses"
-          class="course-card"
-          [class.warning-card]="course.pendingAssignments > 0"
-        >
-          <div class="course-card-header">
-            <h3 class="course-title">{{ course.courseTitle }}</h3>
-            <span class="course-badge" [class.premium]="course.isPremium">
-              {{ course.isPremium ? "Premium" : "Free" }}
+      <div *ngIf="courses.length > 0 && viewMode === 'cards'" class="courses-grid">
+        <div *ngFor="let course of courses" class="course-card" [class.has-pending]="course.pendingAssignments > 0">
+          <div class="course-header">
+            <h3>{{ course.courseTitle }}</h3>
+            <span class="badge" [class.premium]="course.isPremium">
+              {{ course.isPremium ? 'Premium' : 'Free' }}
             </span>
           </div>
 
           <div class="course-stats">
-            <div class="course-stat">
-              <i class="fas fa-users" aria-hidden="true"></i>
-              <span>{{ course.totalStudents }} Students</span>
+            <div class="stat">
+              <i class="fas fa-users"></i>
+              <span>{{ course.totalStudents }} students</span>
             </div>
-            <div class="course-stat">
-              <i class="fas fa-chart-line" aria-hidden="true"></i>
-              <span>{{ course.avgProgress }}% Progress</span>
-            </div>
-            <div class="course-stat">
-              <i class="fas fa-trophy" aria-hidden="true"></i>
-              <span>{{ course.completionRate }}% Completion</span>
+            <div class="stat">
+              <i class="fas fa-trophy"></i>
+              <span>{{ course.completionRate }}% completion</span>
             </div>
           </div>
 
-          <div class="progress-container">
+          <div class="progress-section">
+            <div class="progress-header">
+              <span>Average Progress</span>
+              <span>{{ course.avgProgress }}%</span>
+            </div>
             <div class="progress-bar">
-              <div
-                class="progress-fill"
-                [ngClass]="{
-                  'fill-up': course.avgProgress >= 70,
-                  'fill-down': course.avgProgress < 30,
-                  'fill-neutral':
-                    course.avgProgress >= 30 && course.avgProgress < 70,
-                }"
+              <div 
+                class="progress-fill" 
                 [style.width.%]="course.avgProgress"
+                [class.high]="course.avgProgress >= 70"
+                [class.medium]="course.avgProgress >= 40 && course.avgProgress < 70"
+                [class.low]="course.avgProgress < 40"
               ></div>
             </div>
-            <span class="progress-text"
-              >{{ course.avgProgress }}% avg. progress</span
-            >
           </div>
 
-          <div class="course-meta" *ngIf="course.pendingAssignments > 0">
-            <span class="meta-warning">
-              <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
-              {{ course.pendingAssignments }} pending review{{
-                course.pendingAssignments > 1 ? "s" : ""
-              }}
-            </span>
+          <div *ngIf="course.pendingAssignments > 0" class="pending-notice">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ course.pendingAssignments }} assignment{{ course.pendingAssignments > 1 ? 's' : '' }} pending review</span>
           </div>
 
           <div class="course-actions">
-            <button
-              class="course-action-btn primary"
-              (click)="editCourse(course.courseId)"
-              aria-label="Edit course"
-            >
-              <i class="fas fa-edit" aria-hidden="true"></i>
-              Edit
+            <button class="btn primary" (click)="editCourse(course.courseId)">
+              <i class="fas fa-edit"></i> Edit
             </button>
-            <button
-              class="course-action-btn"
-              (click)="viewStudents(course.courseId)"
-              aria-label="View students"
-            >
-              <i class="fas fa-users" aria-hidden="true"></i>
-              Students
+            <button class="btn" (click)="viewStudents(course.courseId)">
+              <i class="fas fa-users"></i>
             </button>
-            <button
-              class="course-action-btn"
-              (click)="createLesson(course.courseId)"
-              aria-label="Add lesson"
-            >
-              <i class="fas fa-plus" aria-hidden="true"></i>
-              Lesson
+            <button class="btn" (click)="viewAnalytics(course.courseId)">
+              <i class="fas fa-chart-bar"></i>
             </button>
-            <button
-              class="course-action-btn"
-              (click)="viewAnalytics(course.courseId)"
-              aria-label="View analytics"
-            >
-              <i class="fas fa-chart-bar" aria-hidden="true"></i>
-              Analytics
-            </button>
-            <button
-              class="course-action-btn danger"
-              (click)="deleteCourse(course.courseId)"
-              aria-label="Delete course"
-            >
-              <i class="fas fa-trash" aria-hidden="true"></i>
+            <button class="btn danger" (click)="deleteCourse(course.courseId)">
+              <i class="fas fa-trash"></i>
             </button>
           </div>
-        </article>
+        </div>
       </div>
 
       <!-- Table View -->
-      <div
-        class="table-container"
-        *ngIf="courses.length > 0 && viewMode === 'table'"
-      >
+      <div *ngIf="courses.length > 0 && viewMode === 'table'" class="table-wrapper">
         <table class="courses-table">
           <thead>
             <tr>
-              <th>Course Title</th>
+              <th>Course</th>
               <th>Students</th>
               <th>Progress</th>
               <th>Completion</th>
               <th>Pending</th>
-              <th>Last Activity</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let course of courses">
-              <td class="course-title-cell">
-                <span class="title">{{ course.courseTitle }}</span>
-                <span class="badge" [class.premium]="course.isPremium">
-                  {{ course.isPremium ? "Premium" : "Free" }}
-                </span>
+              <td>
+                <div class="course-cell">
+                  <span class="course-name">{{ course.courseTitle }}</span>
+                  <span class="badge small" [class.premium]="course.isPremium">
+                    {{ course.isPremium ? 'Premium' : 'Free' }}
+                  </span>
+                </div>
               </td>
               <td>{{ course.totalStudents }}</td>
               <td>
                 <div class="table-progress">
-                  <div class="progress-bar mini">
-                    <div
-                      class="progress-fill"
-                      [ngClass]="{
-                        'fill-up': course.avgProgress >= 70,
-                        'fill-down': course.avgProgress < 30,
-                        'fill-neutral':
-                          course.avgProgress >= 30 && course.avgProgress < 70,
-                      }"
+                  <div class="mini-progress">
+                    <div 
+                      class="mini-fill" 
                       [style.width.%]="course.avgProgress"
+                      [class.high]="course.avgProgress >= 70"
+                      [class.medium]="course.avgProgress >= 40 && course.avgProgress < 70"
+                      [class.low]="course.avgProgress < 40"
                     ></div>
                   </div>
                   <span>{{ course.avgProgress }}%</span>
@@ -323,44 +222,26 @@
               </td>
               <td>{{ course.completionRate }}%</td>
               <td>
-                <span
-                  class="pending-badge"
-                  *ngIf="course.pendingAssignments > 0"
-                >
+                <span *ngIf="course.pendingAssignments > 0" class="pending-count">
                   {{ course.pendingAssignments }}
                 </span>
-                <span *ngIf="course.pendingAssignments === 0">-</span>
+                <span *ngIf="course.pendingAssignments === 0" class="none">-</span>
               </td>
-              <td>{{ formatDate(course.lastActivity) }}</td>
-              <td class="actions-cell">
-                <button
-                  class="table-action-btn"
-                  (click)="editCourse(course.courseId)"
-                  title="Edit"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  class="table-action-btn"
-                  (click)="viewStudents(course.courseId)"
-                  title="Students"
-                >
-                  <i class="fas fa-users"></i>
-                </button>
-                <button
-                  class="table-action-btn"
-                  (click)="viewAnalytics(course.courseId)"
-                  title="Analytics"
-                >
-                  <i class="fas fa-chart-bar"></i>
-                </button>
-                <button
-                  class="table-action-btn danger"
-                  (click)="deleteCourse(course.courseId)"
-                  title="Delete"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
+              <td>
+                <div class="table-actions">
+                  <button class="icon-btn" (click)="editCourse(course.courseId)" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="icon-btn" (click)="viewStudents(course.courseId)" title="Students">
+                    <i class="fas fa-users"></i>
+                  </button>
+                  <button class="icon-btn" (click)="viewAnalytics(course.courseId)" title="Analytics">
+                    <i class="fas fa-chart-bar"></i>
+                  </button>
+                  <button class="icon-btn danger" (click)="deleteCourse(course.courseId)" title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -368,85 +249,49 @@
       </div>
     </section>
 
-    <!-- Bottom Section: Calendar & Recent Activity -->
+    <!-- Bottom Section -->
     <div class="bottom-section">
-      <!-- Calendar Panel -->
-      <section class="panel calendar-panel" aria-label="Calendar">
+      <!-- Calendar -->
+      <section class="panel calendar-panel">
         <div class="panel-header">
-          <h2 class="panel-title">
-            <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-            Calendar
-          </h2>
+          <h2><i class="fas fa-calendar-alt"></i> Calendar</h2>
         </div>
         <div class="panel-body">
-          <div class="calendar-input">
-            <input
-              type="date"
-              [(ngModel)]="selectedDate"
-              class="date-input"
-              aria-label="Select date"
-            />
-            <input
-              type="text"
-              [(ngModel)]="activityText"
-              placeholder="Add activity..."
+          <div class="calendar-form">
+            <input type="date" [(ngModel)]="selectedDate" class="date-input">
+            <input 
+              type="text" 
+              [(ngModel)]="activityText" 
+              placeholder="Add an activity..." 
               class="activity-input"
-              aria-label="Activity description"
-            />
-            <button
-              class="add-btn"
-              (click)="addActivity()"
-              aria-label="Add activity"
             >
+            <button class="add-activity-btn" (click)="addActivity()">
               <i class="fas fa-plus"></i>
             </button>
           </div>
-          <div
-            class="calendar-activities"
-            *ngIf="calendarActivities[selectedDate]?.length"
-          >
+
+          <div *ngIf="calendarActivities[selectedDate]?.length" class="activities-list">
             <h4>Activities for {{ selectedDate }}</h4>
-            <ul class="activity-list">
-              <li
-                *ngFor="
-                  let act of calendarActivities[selectedDate];
-                  let i = index
-                "
-              >
-                <ng-container *ngIf="editIndex !== i; else editBlock">
+            <ul>
+              <li *ngFor="let act of calendarActivities[selectedDate]; let i = index">
+                <ng-container *ngIf="editIndex !== i; else editMode">
                   <span class="activity-text">{{ act }}</span>
                   <div class="activity-actions">
-                    <button
-                      class="activity-btn edit"
-                      (click)="startEditActivity(i, act)"
-                      aria-label="Edit activity"
-                    >
+                    <button class="small-btn edit" (click)="startEditActivity(i, act)">
                       <i class="fas fa-pen"></i>
                     </button>
-                    <button
-                      class="activity-btn delete"
-                      (click)="deleteActivity(i)"
-                      aria-label="Delete activity"
-                    >
+                    <button class="small-btn delete" (click)="deleteActivity(i)">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
                 </ng-container>
-                <ng-template #editBlock>
-                  <input [(ngModel)]="editText" class="edit-input" />
+                <ng-template #editMode>
+                  <input [(ngModel)]="editText" class="edit-input">
                   <div class="activity-actions">
-                    <button
-                      class="activity-btn save"
-                      (click)="saveEditActivity(i)"
-                      aria-label="Save edit"
-                    >
+                    <button class="small-btn save" (click)="saveEditActivity(i)">
                       <i class="fas fa-check"></i>
                     </button>
-                    <button
-                      class="activity-btn cancel"
-                      (click)="cancelEditActivity()"
-                      aria-label="Cancel edit"
-                    >
+                    <button class="small-btn cancel" (click)="cancelEditActivity()">
                       <i class="fas fa-times"></i>
                     </button>
                   </div>
@@ -454,39 +299,31 @@
               </li>
             </ul>
           </div>
-          <div
-            class="no-activities"
-            *ngIf="selectedDate && !calendarActivities[selectedDate]?.length"
-          >
+
+          <div *ngIf="selectedDate && !calendarActivities[selectedDate]?.length" class="no-activities">
             <p>No activities scheduled for this date.</p>
           </div>
         </div>
       </section>
 
-      <!-- Recent Activity Panel -->
-      <section class="panel activity-panel" aria-label="Recent Activity">
+      <!-- Recent Activity -->
+      <section class="panel activity-panel">
         <div class="panel-header">
-          <h2 class="panel-title">
-            <i class="fas fa-history" aria-hidden="true"></i>
-            Recent Activity
-          </h2>
-          <span class="activity-count" *ngIf="recentActivity.length > 0">
-            {{ recentActivity.length }} items
-          </span>
+          <h2><i class="fas fa-history"></i> Recent Activity</h2>
         </div>
         <div class="panel-body">
-          <ul class="recent-activity-list" *ngIf="recentActivity.length > 0">
+          <ul *ngIf="recentActivity.length > 0" class="recent-list">
             <li *ngFor="let activity of recentActivity">
-              <i class="fas fa-circle" aria-hidden="true"></i>
+              <i class="fas fa-circle"></i>
               <span>{{ activity }}</span>
             </li>
           </ul>
-          <div class="no-activity" *ngIf="recentActivity.length === 0">
-            <i class="fas fa-clipboard empty-icon" aria-hidden="true"></i>
+          <div *ngIf="recentActivity.length === 0" class="no-activity">
+            <i class="fas fa-clipboard"></i>
             <p>No recent activity to display.</p>
           </div>
         </div>
       </section>
     </div>
-  </ng-container>
+  </div>
 </div>
