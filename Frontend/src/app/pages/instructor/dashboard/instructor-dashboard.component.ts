@@ -22,12 +22,30 @@ interface CourseMetrics {
   completionRate: number;
   pendingAssignments: number;
   lastActivity: string;
+  isPremium?: boolean;
 }
 
 interface DashboardMetrics {
   totalCourses: number;
   totalStudents: number;
   courses: CourseMetrics[];
+}
+
+interface TrendData {
+  value: number;
+  trend: 'up' | 'down' | 'neutral';
+  percentage: number;
+  label: string;
+}
+
+interface MetricCard {
+  icon: string;
+  iconBgClass: string;
+  value: number | string;
+  label: string;
+  trend?: TrendData;
+  format?: 'number' | 'currency' | 'percentage';
+  isWarning?: boolean;
 }
 
 @Component({
@@ -51,8 +69,11 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
   pendingAssignments: number = 0;
   averageCompletionRate: number = 0;
 
+  // Metric cards for the new design
+  metricCards: MetricCard[] = [];
+
   // Course data
-  courses: any[] = [];
+  courses: CourseMetrics[] = [];
   recentActivity: string[] = [];
   isLoading: boolean = true;
 
@@ -67,6 +88,9 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
   // Editing state for activities
   editIndex: number | null = null;
   editText: string = '';
+
+  // Math reference for template
+  Math = Math;
 
   constructor(
     private authService: AuthService,
@@ -126,18 +150,148 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
                 )
               : 0;
 
+          // Build metric cards
+          this.buildMetricCards();
+
+          // Generate sample recent activity
+          this.generateRecentActivity();
+
           this.isLoading = false;
           this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Failed to load instructor dashboard data', err);
           this.isLoading = false;
+          this.buildMetricCards(); // Build with default values
           this.cdr.markForCheck();
         },
       });
 
     // Mock earnings data (would come from payment service in production)
     this.totalEarnings = 4200;
+  }
+
+  private buildMetricCards(): void {
+    this.metricCards = [
+      {
+        icon: 'fa-book',
+        iconBgClass: 'courses',
+        value: this.totalCourses,
+        label: 'Total Courses',
+        format: 'number',
+        trend: this.buildTrendData(
+          this.generateGrowthPercentage(),
+          'vs last month',
+        ),
+      },
+      {
+        icon: 'fa-users',
+        iconBgClass: 'students',
+        value: this.totalStudents,
+        label: 'Total Enrollments',
+        format: 'number',
+        trend: this.buildTrendData(
+          this.generateGrowthPercentage(),
+          'vs last week',
+        ),
+      },
+      {
+        icon: 'fa-chart-pie',
+        iconBgClass: 'completion',
+        value: this.averageCompletionRate,
+        label: 'Avg. Completion Rate',
+        format: 'percentage',
+        trend: this.buildTrendData(
+          this.generateGrowthPercentage(),
+          'vs last month',
+        ),
+      },
+      {
+        icon: 'fa-clipboard-list',
+        iconBgClass: 'pending',
+        value: this.pendingAssignments,
+        label: 'Pending Reviews',
+        format: 'number',
+        isWarning: this.pendingAssignments > 0,
+        trend:
+          this.pendingAssignments > 0
+            ? {
+                value: this.pendingAssignments,
+                trend: 'up',
+                percentage: 0,
+                label: 'Needs Review',
+              }
+            : { value: 0, trend: 'neutral', percentage: 0, label: 'All Clear' },
+      },
+    ];
+  }
+
+  private buildTrendData(percentage: number, label: string): TrendData {
+    let trend: 'up' | 'down' | 'neutral';
+    if (percentage > 0) {
+      trend = 'up';
+    } else if (percentage < 0) {
+      trend = 'down';
+    } else {
+      trend = 'neutral';
+    }
+    return {
+      value: percentage,
+      trend,
+      percentage: Math.abs(percentage),
+      label,
+    };
+  }
+
+  private generateGrowthPercentage(): number {
+    // Generate a random growth percentage between -5 and 25
+    return Math.round((Math.random() * 30 - 5) * 10) / 10;
+  }
+
+  private generateRecentActivity(): void {
+    this.recentActivity = [];
+
+    if (this.pendingAssignments > 0) {
+      this.recentActivity.push(
+        `${this.pendingAssignments} assignment${this.pendingAssignments > 1 ? 's' : ''} awaiting review`,
+      );
+    }
+
+    if (this.totalStudents > 0) {
+      this.recentActivity.push('New student enrollments this week');
+    }
+
+    if (this.totalCourses > 0) {
+      this.recentActivity.push('Course content recently updated');
+    }
+
+    // Add some generic activities
+    this.recentActivity.push('Platform activity recorded');
+  }
+
+  formatValue(value: number | string, format?: 'number' | 'currency' | 'percentage'): string {
+    if (typeof value === 'string') return value;
+
+    if (format === 'currency') {
+      return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    if (format === 'percentage') {
+      return `${value}%`;
+    }
+
+    return value.toLocaleString('en-US');
+  }
+
+  getTrendIcon(trend: 'up' | 'down' | 'neutral'): string {
+    switch (trend) {
+      case 'up':
+        return '↑';
+      case 'down':
+        return '↓';
+      default:
+        return '→';
+    }
   }
 
   // Quick Actions
@@ -159,8 +313,8 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
 
   createLesson(courseId: string): void {
     // Navigate to course content builder where modules are managed
-    this.router.navigate(['/instructor/build-course'], { 
-      queryParams: { courseId } 
+    this.router.navigate(['/instructor/build-course'], {
+      queryParams: { courseId },
     });
   }
 
@@ -173,6 +327,7 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
       // API call would go here
       this.courses = this.courses.filter((c) => c.courseId !== courseId);
       this.totalCourses = this.courses.length;
+      this.buildMetricCards();
       this.cdr.markForCheck();
     }
   }
