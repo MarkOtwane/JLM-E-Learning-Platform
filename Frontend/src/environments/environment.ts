@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://jlm-e-learning-platform.onrender.com/api',
+  apiUrl: 'http://localhost:3000/api',
   // Add other environment-specific variables here
   appName: 'JLM E-Learning Platform',
   version: '1.0.0',
@@ -12,12 +12,12 @@ export const environment = {
     certificates: '/certificates',
     assignments: '/assignments',
     payments: '/payments',
-    notifications: '/notifications'
+    notifications: '/notifications',
   },
   // Feature flags
   featureFlags: {
     enableCertificateDownload: true,
     enablePaymentIntegration: false,
-    enableLiveClasses: true
-  }
-}; 
+    enableLiveClasses: true,
+  },
+};
