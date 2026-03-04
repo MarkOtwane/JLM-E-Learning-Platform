@@ -26,7 +26,7 @@
 			]
 		},
 		{
-			"source": "/(.*\\.(woff2?|ttf|eot))",
+			"source": "/:path*.woff2",
 			"headers": [
 				{
 					"key": "Cache-Control",
@@ -39,7 +39,55 @@
 			]
 		},
 		{
-			"source": "/(.*\\.(js|css))",
+			"source": "/:path*.woff",
+			"headers": [
+				{
+					"key": "Cache-Control",
+					"value": "public, max-age=31536000, immutable, s-maxage=31536000"
+				},
+				{
+					"key": "Access-Control-Allow-Origin",
+					"value": "*"
+				}
+			]
+		},
+		{
+			"source": "/:path*.ttf",
+			"headers": [
+				{
+					"key": "Cache-Control",
+					"value": "public, max-age=31536000, immutable, s-maxage=31536000"
+				},
+				{
+					"key": "Access-Control-Allow-Origin",
+					"value": "*"
+				}
+			]
+		},
+		{
+			"source": "/:path*.eot",
+			"headers": [
+				{
+					"key": "Cache-Control",
+					"value": "public, max-age=31536000, immutable, s-maxage=31536000"
+				},
+				{
+					"key": "Access-Control-Allow-Origin",
+					"value": "*"
+				}
+			]
+		},
+		{
+			"source": "/:path*.js",
+			"headers": [
+				{
+					"key": "Cache-Control",
+					"value": "public, max-age=31536000, s-maxage=31536000"
+				}
+			]
+		},
+		{
+			"source": "/:path*.css",
 			"headers": [
 				{
 					"key": "Cache-Control",
