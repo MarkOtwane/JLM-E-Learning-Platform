@@ -6,10 +6,10 @@
 	"env": {
 		"NODE_OPTIONS": "--max-old-space-size=4096"
 	},
-	"rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+	"rewrites": [{ "source": "/:path*", "destination": "/index.html" }],
 	"headers": [
 		{
-			"source": "/assets/(.*)",
+			"source": "/assets/:path*",
 			"headers": [
 				{
 					"key": "Cache-Control",
@@ -105,7 +105,7 @@
 			]
 		},
 		{
-			"source": "/(.*)",
+			"source": "/:path*",
 			"headers": [
 				{
 					"key": "X-Content-Type-Options",

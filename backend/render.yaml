@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
 # render file
-    buildCommand: cd backend && npm install --include=dev && npm run build
+    buildCommand: cd backend && npm install --include=dev && npx prisma generate && npm run build
     startCommand: cd backend && node dist/main.js
 
     envVars:
