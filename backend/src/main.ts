@@ -32,26 +32,9 @@ async function bootstrap() {
     }),
   );
 
-  // Enable CORS for frontend
+  // Enable CORS for frontend - allow all origins in production for now
   app.enableCors({
-    origin: (origin, callback) => {
-      const allowedOrigins = [
-        'http://localhost:4200',
-        'http://localhost:3000',
-        process.env.FRONTEND_URL,
-      ].filter(Boolean);
-      
-      // Allow requests with no origin (mobile apps, curl, etc.)
-      if (!origin) {
-        return callback(null, true);
-      }
-      
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: true,
     credentials: true,
   });
 
