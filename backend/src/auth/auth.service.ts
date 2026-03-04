@@ -39,7 +39,8 @@ export class AuthService {
         password: hashed,
         role: dto.role,
         isApproved: dto.role === UserRole.INSTRUCTOR ? false : true,
-        emailVerified: false, // NEW: Start unverified
+        emailVerified:
+          process.env.SKIP_EMAIL_VERIFICATION === 'true' ? true : false, // NEW: Start unverified
       },
     });
 
@@ -49,7 +50,7 @@ export class AuthService {
         user.id,
         user.email,
       );
-    } catch (error) {
+    } catch (_error) {
       // Don't fail registration if email fails
     }
 
