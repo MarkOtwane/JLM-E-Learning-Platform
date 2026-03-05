@@ -10,6 +10,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: SKIP_EMAIL_VERIFICATION
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET
@@ -19,6 +21,24 @@ services:
       - key: SMTP_PASS
         sync: false
       - key: FRONTEND_URL
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USER
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: CLOUDINARY_NAME
+        sync: false
+      - key: CLOUDINARY_KEY
+        sync: false
+      - key: CLOUDINARY_SECRET
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
