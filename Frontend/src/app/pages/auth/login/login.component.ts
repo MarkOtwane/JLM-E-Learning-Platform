@@ -69,13 +69,64 @@ export class LoginComponent {
         this.isLoading = false;
         console.error('Login error:', error);
 
-        const errorMessage =
-          error.error?.message ||
-          error.message ||
-          'Login failed. Please try again.';
+        const errorMessage = this.getLoginErrorMessage(error);
         this.showNotification(errorMessage, 'error');
       },
     });
+  }
+
+  private getLoginErrorMessage(error: unknown): string {
+    const err = error as {
+      status?: number;
+      error?: unknown;
+      message?: unknown;
+    };
+
+    const apiMessage = this.extractMessage(err?.error);
+    const genericMessage = this.extractMessage(err?.message);
+    const resolvedMessage =
+      apiMessage || genericMessage || 'Login failed. Please try again.';
+
+    const status = err?.status;
+    const normalized = resolvedMessage.toLowerCase();
+
+    if (
+      status === 401 &&
+      normalized.includes('please verify your email before logging in')
+    ) {
+      return 'Your email is not verified. Please check your inbox and verify your account before logging in.';
+    }
+
+    return resolvedMessage;
+  }
+
+  private extractMessage(input: unknown): string | null {
+    if (typeof input === 'string') {
+      const value = input.trim();
+      return value.length > 0 ? value : null;
+    }
+
+    if (Array.isArray(input)) {
+      const value = input
+        .filter((item): item is string => typeof item === 'string')
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
+        .join(' ');
+      return value.length > 0 ? value : null;
+    }
+
+    if (input && typeof input === 'object') {
+      const obj = input as {
+        message?: unknown;
+        error?: unknown;
+      };
+
+      return (
+        this.extractMessage(obj?.message) || this.extractMessage(obj?.error)
+      );
+    }
+
+    return null;
   }
 
   private showNotification(

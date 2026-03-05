@@ -38,11 +38,14 @@ export interface AuthResponse {
 export class AuthService {
   user$ = new BehaviorSubject<any>(null);
 
-  constructor(private api: ApiService, private router: Router) {
+  constructor(
+    private api: ApiService,
+    private router: Router,
+  ) {
     const user = localStorage.getItem('user');
     if (user) {
       this.user$.next(JSON.parse(user));
-  }
+    }
   }
 
   login(email: string, password: string): Observable<any> {
@@ -55,7 +58,7 @@ export class AuthService {
             this.user$.next(res.user);
             observer.next(res);
           } else {
-            observer.error('No token in response');
+            observer.error({ message: 'Invalid login response from server.' });
           }
         },
         error: (err) => observer.error(err),

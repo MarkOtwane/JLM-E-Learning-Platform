@@ -64,20 +64,26 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) {
+      throw new UnauthorizedException({ message: 'Invalid credentials' });
+    }
 
     const passwordValid = await bcrypt.compare(dto.password, user.password);
-    if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
+    if (!passwordValid) {
+      throw new UnauthorizedException({ message: 'Invalid credentials' });
+    }
 
     // Check email verification - skip in production for now
     if (!user.emailVerified && process.env.NODE_ENV !== 'production') {
-      throw new UnauthorizedException(
-        'Please verify your email before logging in',
-      );
+      throw new UnauthorizedException({
+        message: 'Please verify your email before logging in',
+      });
     }
 
     if (!user.isApproved && user.role === UserRole.INSTRUCTOR) {
-      throw new UnauthorizedException('Instructor account not approved yet');
+      throw new UnauthorizedException({
+        message: 'Instructor account not approved yet',
+      });
     }
 
     // Generate access token (15 minutes)
