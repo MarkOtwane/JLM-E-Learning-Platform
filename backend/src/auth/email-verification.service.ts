@@ -1,11 +1,10 @@
+/* eslint-disable @typescript-eslint/require-await */
 import {
   BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { addHours } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
 import { JobsService } from '../jobs/jobs.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -20,59 +19,12 @@ export class EmailVerificationService {
 
   /**
    * Generate and send email verification token
+   * NOTE: Email verification frozen - this is a no-op for now
    */
   async sendVerificationEmail(userId: string, email: string): Promise<void> {
-    // Check if user exists
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    if (user.emailVerified) {
-      throw new BadRequestException('Email already verified');
-    }
-
-    // Generate verification token
-    const token = uuidv4();
-    const expiresAt = addHours(new Date(), 24); // Valid for 24 hours
-
-    // Delete existing verification token if any
-    await this.prisma.emailVerification.deleteMany({
-      where: { userId },
-    });
-
-    // Create new verification token
-    await this.prisma.emailVerification.create({
-      data: {
-        token,
-        userId,
-        expiresAt,
-      },
-    });
-
-    // Send verification email
-    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-
-    try {
-      await this.jobsService.enqueueEmail({
-        to: email,
-        subject: 'Verify Your Email - JLM E-Learning Platform',
-        template: 'email-verification',
-        context: {
-          name: user.name,
-          verificationUrl,
-          expiresAt: expiresAt.toISOString(),
-        },
-      });
-
-      this.logger.log(`Verification email sent to ${email}`);
-    } catch (error) {
-      this.logger.error(`Failed to send verification email: ${error}`);
-      throw new BadRequestException('Failed to send verification email');
-    }
+    // Email verification disabled - frozen for future implementation
+    this.logger.log(`Email verification requested for ${email} but disabled`);
+    return;
   }
 
   /**

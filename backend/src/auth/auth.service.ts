@@ -43,15 +43,15 @@ export class AuthService {
       },
     });
 
-    // Send verification email to all users
-    try {
-      await this.emailVerificationService.sendVerificationEmail(
-        user.id,
-        user.email,
-      );
-    } catch (_error) {
-      // Don't fail registration if email fails
-    }
+    // Email verification disabled - frozen for future implementation
+    // try {
+    //   await this.emailVerificationService.sendVerificationEmail(
+    //     user.id,
+    //     user.email,
+    //   );
+    // } catch (_error) {
+    //   // Don't fail registration if email fails
+    // }
 
     return {
       message:
@@ -137,16 +137,17 @@ export class AuthService {
       },
     });
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    await this.jobsService.enqueueEmail({
-      to: user.email,
-      subject: 'Password Reset Request',
-      template: 'welcome-user',
-      context: {
-        name: 'User',
-        resetLink,
-      },
-    });
+    // Email staff frozen - disabled password reset email
+    // const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    // await this.jobsService.enqueueEmail({
+    //   to: user.email,
+    //   subject: 'Password Reset Request',
+    //   template: 'welcome-user',
+    //   context: {
+    //     name: 'User',
+    //     resetLink,
+    //   },
+    // });
     return { message: 'Password reset link sent to your email.' };
   }
 
