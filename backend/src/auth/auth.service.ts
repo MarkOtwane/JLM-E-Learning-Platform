@@ -39,8 +39,7 @@ export class AuthService {
         password: hashed,
         role: dto.role,
         isApproved: dto.role === UserRole.INSTRUCTOR ? false : true,
-        emailVerified:
-          process.env.SKIP_EMAIL_VERIFICATION === 'true' ? true : false, // NEW: Start unverified
+        emailVerified: true, // Always verify in production for now
       },
     });
 
@@ -70,8 +69,8 @@ export class AuthService {
     const passwordValid = await bcrypt.compare(dto.password, user.password);
     if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
 
-    // Check email verification
-    if (!user.emailVerified) {
+    // Check email verification - skip in production for now
+    if (!user.emailVerified && process.env.NODE_ENV !== 'production') {
       throw new UnauthorizedException(
         'Please verify your email before logging in',
       );
