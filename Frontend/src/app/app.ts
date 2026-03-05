@@ -28,7 +28,7 @@ this.hideFooter =
   url.startsWith('/instructor') ||
   url.startsWith('/admin');
 
-      // Hide navbar on learning page
+      // Hide navbar on learning page the learner has to login first
       this.hideNavbar = url.startsWith('/learning/course');
     }
   });

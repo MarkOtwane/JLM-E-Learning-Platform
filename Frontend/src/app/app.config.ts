@@ -41,7 +41,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
-    // Initialize Font Awesome with only necessary icons (reduces bundle 1.2MB -> 50KB)
+    // Initialize Font Awesome icons with only necessary icons (reduces bundle 1.2MB -> 50KB)
     IconLibraryService,
     { provide: FaConfig, useValue: { defaultPrefix: 'fas' } },
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
