@@ -73,12 +73,12 @@ export class AuthService {
       throw new UnauthorizedException({ message: 'Invalid credentials' });
     }
 
-    // Check email verification - skip in production for now
-    if (!user.emailVerified && process.env.NODE_ENV !== 'production') {
-      throw new UnauthorizedException({
-        message: 'Please verify your email before logging in',
-      });
-    }
+    // Check email verification - skip for now as email verification is not fully implemented
+    // if (!user.emailVerified && process.env.NODE_ENV !== 'production') {
+    //   throw new UnauthorizedException({
+    //     message: 'Please verify your email before logging in',
+    //   });
+    // }
 
     if (!user.isApproved && user.role === UserRole.INSTRUCTOR) {
       throw new UnauthorizedException({

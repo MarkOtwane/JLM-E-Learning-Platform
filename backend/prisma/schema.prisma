@@ -20,7 +20,7 @@ model User {
   password       String
   role           UserRole
   isApproved     Boolean  @default(false)
-  emailVerified  Boolean  @default(false)
+  emailVerified  Boolean  @default(true)
   profilePicture String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
